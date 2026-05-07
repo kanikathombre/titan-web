@@ -1,13 +1,13 @@
-import { ModeToggle } from "@/components/mode-toggle";
-
 export default function MarketingPage() {
   return (
     <div className="p-10">
-      <ModeToggle />
-
-      <h1 className="mt-4 text-4xl font-bold">
+      <h1 className="text-4xl font-bold">
         Marketing Page
       </h1>
+
+      <p className="mt-4">
+        API URL: {process.env.NEXT_PUBLIC_API_URL}
+      </p>
     </div>
   );
 }
