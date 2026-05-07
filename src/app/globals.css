@@ -1,15 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap');
+
 @import "tailwindcss";
 
-html.light {
-  background-color: white;
-  color: black;
+:root {
+  --primary: #7C3AED;
+  --secondary: #2563EB;
+  --accent: #06B6D4;
+
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+
+  --muted: #94A3B8;
+  --border: #27272A;
+  --surface: #111827;
+
+  --background: #FFFFFF;
+  --foreground: #09090B;
 }
 
 html.dark {
-  background-color: #09090b;
-  color: white;
+  --background: #09090B;
+  --foreground: #FAFAFA;
 }
 
 body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Inter", sans-serif;
   min-height: 100vh;
+}
+
+.code-font {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.surface {
+  background-color: var(--surface);
+}
+
+.border-theme {
+  border-color: var(--border);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.bg-accent {
+  background-color: var(--accent);
 }
