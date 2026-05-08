@@ -53,7 +53,7 @@ export default function AuthTestPage() {
 
         <button
           onClick={handleLogout}
-          className="bg-danger px-4 py-2 rounded-xl text-white"
+          className="bg-red-500 px-4 py-2 rounded-xl text-white"
         >
           Logout
         </button>

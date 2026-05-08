@@ -10,27 +10,40 @@ import type {
 } from "./types";
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  // Temporary local Next.js API routes
+  // Change back to NEXT_PUBLIC_API_URL
+  // when FastAPI backend is available
+  baseURL: "",
+
   headers: {
     "Content-Type": "application/json",
   },
+
+  withCredentials: true,
 });
 
-apiClient.interceptors.request.use((config) => {
-  const token = Cookies.getCookie("token");
+apiClient.interceptors.request.use(
+  (config) => {
+    const token =
+      Cookies.getCookie("token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
   }
-
-  return config;
-});
+);
 
 apiClient.interceptors.response.use(
   (response) => response,
+
   (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = "/sign-in";
+    if (
+      error.response?.status === 401
+    ) {
+      window.location.href =
+        "/sign-in";
     }
 
     return Promise.reject(error);
@@ -39,7 +52,10 @@ apiClient.interceptors.response.use(
 
 export const api = {
   async health(): Promise<HealthResponse> {
-    const response = await apiClient.get("/api/health");
+    const response =
+      await apiClient.get(
+        "/api/health"
+      );
 
     return response.data;
   },
@@ -47,10 +63,11 @@ export const api = {
   async login(
     creds: LoginCredentials
   ): Promise<LoginResponse> {
-    const response = await apiClient.post(
-      "/api/login",
-      creds
-    );
+    const response =
+      await apiClient.post(
+        "/api/login",
+        creds
+      );
 
     return response.data;
   },
@@ -58,10 +75,11 @@ export const api = {
   async predict(
     input: PredictionInput
   ): Promise<PredictionResponse> {
-    const response = await apiClient.post(
-      "/api/predict",
-      input
-    );
+    const response =
+      await apiClient.post(
+        "/api/predict",
+        input
+      );
 
     return response.data;
   },
