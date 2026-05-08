@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 export async function POST() {
   const token = "mock-jwt-token";
 
+  const role = "customer";
+
   const expiry = Date.now() + 1000 * 60 * 60;
 
   const cookieStore = await cookies();
@@ -15,9 +17,17 @@ export async function POST() {
     path: "/",
   });
 
+  cookieStore.set("role", role, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    expires: new Date(expiry),
+    path: "/",
+  });
+
   return Response.json({
     success: true,
     token,
-    expiry,
+    role,
   });
 }
