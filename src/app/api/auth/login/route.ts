@@ -1,33 +1,47 @@
 import { cookies } from "next/headers";
 
-export async function POST() {
-  const token = "mock-jwt-token";
+export async function POST(
+  request: Request
+) {
 
-  const role = "customer";
+  const body =
+    await request.json();
 
-  const expiry = Date.now() + 1000 * 60 * 60;
+  const username =
+    body.username || "demo";
 
-  const cookieStore = await cookies();
+  const role =
+    username === "admin"
+      ? "admin"
+      : "customer";
 
-  cookieStore.set("token", token, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    expires: new Date(expiry),
-    path: "/",
-  });
+  const cookieStore =
+    await cookies();
 
-  cookieStore.set("role", role, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    expires: new Date(expiry),
-    path: "/",
-  });
+  cookieStore.set(
+    "auth-token",
+    JSON.stringify({
+      email:
+        username === "admin"
+          ? "admin@titan.ai"
+          : "demo@titan.ai",
+
+      role,
+
+      expiresAt:
+        Date.now() +
+        1000 *
+          60 *
+          60 *
+          24,
+    }),
+    {
+      httpOnly: true,
+      path: "/",
+    }
+  );
 
   return Response.json({
     success: true,
-    token,
-    role,
   });
 }

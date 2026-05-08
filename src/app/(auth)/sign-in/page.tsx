@@ -61,33 +61,75 @@ export default function SignInPage() {
     setServerError("");
 
     try {
-      // Mock credential validation
+
+      // ================= ADMIN LOGIN =================
       if (
-        data.username !== "demo" ||
-        data.password !==
-          "password123"
+        data.username === "admin" &&
+        data.password === "admin123"
       ) {
-        toast.error(
-          "Invalid username or password"
+
+        await fetch("/api/auth/login", {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            username: data.username,
+          }),
+        });
+
+        toast.success(
+          "Admin signed in successfully"
         );
 
-        setServerError(
-          "Invalid username or password"
-        );
+        router.push("/admin");
 
         return;
       }
 
-      await fetch("/api/auth/login", {
-        method: "POST",
-     });
+      // ================= USER LOGIN =================
+      if (
+        data.username === "demo" &&
+        data.password ===
+          "password123"
+      ) {
 
-      toast.success(
-        "Signed in successfully"
+        await fetch("/api/auth/login", {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            username: data.username,
+          }),
+        });
+
+        toast.success(
+          "Signed in successfully"
+        );
+
+        router.push("/dashboard");
+
+        return;
+      }
+
+      // ================= INVALID CREDS =================
+      toast.error(
+        "Invalid username or password"
       );
 
-      router.push("/dashboard");
+      setServerError(
+        "Invalid username or password"
+      );
+
     } catch {
+
       toast.error(
         "Something went wrong"
       );
@@ -100,25 +142,33 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
+
       <div className="w-full max-w-md surface border border-theme rounded-3xl p-8 shadow-2xl">
+
+        {/* Header */}
         <div className="space-y-2 mb-8">
+
           <h1 className="text-4xl font-bold">
             Welcome Back
           </h1>
 
           <p className="text-muted">
-            Sign in to your Titan
-            account
+            Sign in to your Titan account
           </p>
+
         </div>
 
+        {/* Form */}
         <form
           onSubmit={handleSubmit(
             onSubmit
           )}
           className="space-y-5"
         >
+
+          {/* Username */}
           <div className="space-y-2">
+
             <Label>
               Username
             </Label>
@@ -139,9 +189,12 @@ export default function SignInPage() {
                 }
               </p>
             )}
+
           </div>
 
+          {/* Password */}
           <div className="space-y-2">
+
             <Label>
               Password
             </Label>
@@ -163,9 +216,12 @@ export default function SignInPage() {
                 }
               </p>
             )}
+
           </div>
 
+          {/* Remember Me */}
           <div className="flex items-center gap-2">
+
             <input
               type="checkbox"
               {...register(
@@ -176,14 +232,17 @@ export default function SignInPage() {
             <Label>
               Remember me
             </Label>
+
           </div>
 
+          {/* Server Error */}
           {serverError && (
             <p className="text-danger text-sm">
               {serverError}
             </p>
           )}
 
+          {/* Submit Button */}
           <Button
             type="submit"
             className="w-full bg-primary hover:opacity-90"
@@ -191,40 +250,75 @@ export default function SignInPage() {
               isSubmitting
             }
           >
+
             {isSubmitting
               ? "Signing In..."
               : "Sign In"}
+
           </Button>
+
         </form>
 
+        {/* Credentials */}
         <div className="mt-8 space-y-4">
-          <div className="surface border border-theme rounded-xl p-4 text-sm">
-            <p className="font-semibold mb-2">
-              Demo Credentials
-            </p>
 
-            <p>
-              Username: demo
-            </p>
+          <div className="surface border border-theme rounded-xl p-4 text-sm space-y-5">
 
-            <p>
-              Password:
-              password123
-            </p>
+            {/* User Credentials */}
+            <div>
+
+              <p className="font-semibold mb-2">
+                User Credentials
+              </p>
+
+              <p>
+                Username: demo
+              </p>
+
+              <p>
+                Password: password123
+              </p>
+
+            </div>
+
+            {/* Admin Credentials */}
+            <div>
+
+              <p className="font-semibold mb-2">
+                Admin Credentials
+              </p>
+
+              <p>
+                Username: admin
+              </p>
+
+              <p>
+                Password: admin123
+              </p>
+
+            </div>
+
           </div>
 
+          {/* Signup */}
           <p className="text-sm text-muted text-center">
+
             Don&apos;t have an
             account?{" "}
+
             <a
               href="/sign-up"
               className="text-primary font-medium"
             >
               Sign Up
             </a>
+
           </p>
+
         </div>
+
       </div>
+
     </div>
   );
 }

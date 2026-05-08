@@ -1,54 +1,76 @@
 import { NextResponse } from "next/server";
+
 import type { NextRequest } from "next/server";
 
-const publicRoutes = [
-  "/",
-  "/features",
-  "/pricing",
-  "/sign-in",
-  "/sign-up",
-  "/auth-test",
-  "/test-api",
-];
+export function middleware(
+  request: NextRequest
+) {
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const token =
+    request.cookies.get(
+      "auth-token"
+    )?.value;
 
-  // Allow API routes
-  if (pathname.startsWith("/api")) {
-    return NextResponse.next();
-  }
+  const pathname =
+    request.nextUrl.pathname;
 
   // Public routes
-  if (publicRoutes.includes(pathname)) {
+  const publicRoutes = [
+    "/",
+    "/features",
+    "/pricing",
+    "/sign-in",
+    "/sign-up",
+  ];
+
+  if (
+    publicRoutes.includes(
+      pathname
+    )
+  ) {
     return NextResponse.next();
   }
-
-  const token = request.cookies.get("token")?.value;
-
-  const role =
-    request.cookies.get("role")?.value || "customer";
 
   // Not logged in
   if (!token) {
+
     return NextResponse.redirect(
-      new URL("/sign-in", request.url)
+      new URL(
+        "/sign-in",
+        request.url
+      )
     );
   }
 
-  // Admin protection
+  const user =
+    JSON.parse(token);
+
+  // Admin route protection
   if (
-    pathname.startsWith("/admin") &&
-    role !== "admin"
+    pathname.startsWith(
+      "/admin"
+    )
   ) {
-    return NextResponse.redirect(
-      new URL("/dashboard", request.url)
-    );
+
+    if (
+      user.role !== "admin"
+    ) {
+
+      return NextResponse.redirect(
+        new URL(
+          "/dashboard",
+          request.url
+        )
+      );
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+  ],
 };
