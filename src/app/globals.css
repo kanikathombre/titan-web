@@ -58,3 +58,7 @@ body {
 .bg-accent {
   background-color: var(--accent);
 }
+
+.text-danger {
+  color: var(--danger);
+}
