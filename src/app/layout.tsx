@@ -1,5 +1,7 @@
 import "./globals.css";
 
+import { SiteFooter } from "@/components/marketing/site-footer";
+
 import { ThemeProvider } from "@/components/theme-provider";
 
 import { Toaster } from "sonner";
@@ -17,7 +19,7 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           {children}
-
+          <SiteFooter />
           <Toaster richColors />
         </ThemeProvider>
       </body>
