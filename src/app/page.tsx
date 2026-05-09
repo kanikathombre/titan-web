@@ -1,5 +1,6 @@
 "use client";
 
+import { ParticlesBackground } from "@/components/marketing/particles-background";
 
 import {
   ResponsiveContainer,
@@ -31,42 +32,54 @@ import { SiteHeader } from "@/components/marketing/site-header";
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
+    <main className="relative isolate min-h-screen overflow-hidden">
+      
       <SiteHeader />
 
-      {/* ================= BACKGROUND ================= */}
+      {/* ================= CINEMATIC BACKGROUND ================= */}
+
       <div className="absolute inset-0 -z-10 overflow-hidden">
 
-        {/* Grid Overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:80px_80px]" />
+        {/* ================= GRID OVERLAY ================= */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff06_1px,transparent_1px),linear-gradient(to_bottom,#ffffff06_1px,transparent_1px)] bg-[size:80px_80px]" />
 
-        {/* Gradient Mesh */}
-        <div className="absolute left-[-10%] top-[-10%] h-[700px] w-[700px] rounded-full bg-violet-600/20 blur-[140px] animate-pulse" />
+        {/* ================= RADIAL SPOTLIGHT ================= */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.18),transparent_55%)]" />
 
-        <div className="absolute right-[-10%] top-[20%] h-[600px] w-[600px] rounded-full bg-cyan-500/20 blur-[140px] animate-pulse" />
+        {/* ================= MORPHING GRADIENT BLOBS ================= */}
+        <div className="absolute left-[-10%] top-[-10%] h-[750px] w-[750px] rounded-full bg-violet-600/20 blur-[160px] animate-blob" />
 
-        <div className="absolute bottom-[-20%] left-[30%] h-[650px] w-[650px] rounded-full bg-blue-500/20 blur-[140px] animate-pulse" />
+        <div className="absolute right-[-10%] top-[10%] h-[650px] w-[650px] rounded-full bg-cyan-500/20 blur-[160px] animate-blob" />
 
-        {/* Floating Particles */}
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(25)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute h-2 w-2 rounded-full bg-primary/30 animate-pulse"
-              style={{
-                top: `${(i * 13) % 100}%`,
-                left: `${(i * 17) % 100}%`,
-                animationDuration: `${3 + (i % 5)}s`,
-              }}
-            />
-          ))}
-        </div>
+        <div className="absolute bottom-[-20%] left-[25%] h-[700px] w-[700px] rounded-full bg-fuchsia-500/15 blur-[160px] animate-blob" />
 
+        {/* ================= NEURAL GLOW LINES ================= */}
+        <div className="absolute left-[15%] top-[25%] h-px w-[300px] rotate-12 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+        <div className="absolute right-[15%] top-[40%] h-px w-[250px] -rotate-12 bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+
+        <div className="absolute left-[35%] bottom-[20%] h-px w-[280px] rotate-6 bg-gradient-to-r from-transparent via-fuchsia-400/30 to-transparent" />
+
+        
+
+        {/* ================= LARGE GLOW ORBS ================= */}
+        <div className="absolute left-[20%] top-[15%] h-3 w-3 rounded-full bg-primary shadow-[0_0_40px_12px_rgba(124,58,237,0.8)]" />
+
+        <div className="absolute right-[25%] top-[30%] h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_40px_12px_rgba(34,211,238,0.8)]" />
+
+        <div className="absolute bottom-[20%] left-[40%] h-3 w-3 rounded-full bg-fuchsia-400 shadow-[0_0_40px_12px_rgba(217,70,239,0.7)]" />
+
+        {/* ================= VIGNETTE ================= */}
+        <div className="absolute inset-0 bg-black/20" />
+        
       </div>
+
+      {/* ================= PARTICLES ================= */}
+        <ParticlesBackground />
 
       {/* ================= HERO SECTION ================= */}
       <section className="relative flex min-h-screen items-center justify-center px-6 pt-28">
-
+        <div className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[140px]" />
         <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
 
           {/* ================= LEFT CONTENT ================= */}
@@ -166,7 +179,7 @@ export default function HomePage() {
             <div className="relative w-full max-w-xl animate-[float_6s_ease-in-out_infinite] rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_60px_rgba(124,58,237,0.15)] backdrop-blur-2xl">
 
               {/* Animated Scan Line */}
-              <div className="absolute left-0 top-0 h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse" />
+              <div className="absolute left-0 top-0 h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-blob" />
 
               {/* Header */}
               <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
