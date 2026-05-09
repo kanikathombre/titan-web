@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+
+import { motion } from "framer-motion";
 
 import { SiteHeader } from "@/components/marketing/site-header";
 
@@ -27,9 +31,9 @@ export default function HomePage() {
               key={i}
               className="absolute h-2 w-2 rounded-full bg-primary/30 animate-pulse"
               style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animationDuration: `${3 + Math.random() * 5}s`,
+                top: `${(i * 13) % 100}%`,
+                left: `${(i * 17) % 100}%`,
+                animationDuration: `${3 + (i % 5)}s`,
               }}
             />
           ))}
@@ -289,6 +293,263 @@ export default function HomePage() {
           <div className="flex h-10 w-6 justify-center rounded-full border border-white/20">
 
             <div className="mt-2 h-2 w-2 rounded-full bg-white/50" />
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ================= HOW IT WORKS ================= */}
+      <section className="relative px-6 py-32">
+
+        {/* Background Glow */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+
+          <div className="absolute left-1/2 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+
+        </div>
+
+        <div className="mx-auto max-w-7xl">
+
+          {/* Section Header */}
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 40,
+            }}
+
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+
+            transition={{
+              duration: 0.7,
+            }}
+
+            viewport={{
+              once: true,
+            }}
+
+            className="mx-auto mb-24 max-w-3xl text-center"
+          >
+
+            <div className="mb-4 inline-flex items-center rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-sm text-muted backdrop-blur-xl">
+
+              Simple AI Workflow
+
+            </div>
+
+            <h2 className="text-5xl font-black tracking-[-0.04em] md:text-6xl">
+
+              How It Works
+
+            </h2>
+
+            <p className="mt-6 text-lg text-muted">
+
+              Titan AI transforms nanoparticle toxicity analysis into a fast,
+              intelligent, and scalable workflow powered by predictive AI models.
+
+            </p>
+
+          </motion.div>
+
+          {/* Steps */}
+          <div className="relative grid gap-8 lg:grid-cols-3">
+
+            {/* Connector Lines */}
+            <div className="absolute left-0 top-1/2 hidden h-[2px] w-full -translate-y-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent lg:block" />
+
+            {/* STEP 1 */}
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 50,
+              }}
+
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+
+              transition={{
+                duration: 0.7,
+                delay: 0.1,
+              }}
+
+              viewport={{
+                once: true,
+              }}
+
+              className="relative rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_50px_rgba(124,58,237,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_80px_rgba(124,58,237,0.15)]"
+            >
+
+              <div className="absolute right-6 top-4 text-7xl font-black text-white/5">
+
+                01
+
+              </div>
+
+              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
+
+                <svg
+                  className="h-10 w-10 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"
+                  />
+                </svg>
+
+              </div>
+
+              <h3 className="mb-4 text-2xl font-bold">
+
+                Upload Nanoparticle Data
+
+              </h3>
+
+              <p className="text-muted leading-relaxed">
+
+                Submit nanoparticle properties, experimental parameters, and
+                biological inputs securely into the AI pipeline.
+
+              </p>
+
+            </motion.div>
+
+            {/* STEP 2 */}
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 50,
+              }}
+
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+
+              transition={{
+                duration: 0.7,
+                delay: 0.3,
+              }}
+
+              viewport={{
+                once: true,
+              }}
+
+              className="relative rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_50px_rgba(6,182,212,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_80px_rgba(6,182,212,0.15)]"
+            >
+
+              <div className="absolute right-6 top-4 text-7xl font-black text-white/5">
+
+                02
+
+              </div>
+
+              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-accent/10">
+
+                <svg
+                  className="h-10 w-10 text-accent"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.75 3v2.25M14.25 3v2.25M4.5 9h15M5.25 6.75h13.5A2.25 2.25 0 0121 9v9.75A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 18.75V9a2.25 2.25 0 012.25-2.25z"
+                  />
+                </svg>
+
+              </div>
+
+              <h3 className="mb-4 text-2xl font-bold">
+
+                AI Toxicity Analysis
+
+              </h3>
+
+              <p className="text-muted leading-relaxed">
+
+                Titan AI evaluates toxicity risk using predictive machine learning
+                models trained on advanced nanomedicine datasets.
+
+              </p>
+
+            </motion.div>
+
+            {/* STEP 3 */}
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 50,
+              }}
+
+              whileInView={{
+                opacity: 1,
+                y: 0,
+              }}
+
+              transition={{
+                duration: 0.7,
+                delay: 0.5,
+              }}
+
+              viewport={{
+                once: true,
+              }}
+
+              className="relative rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_50px_rgba(59,130,246,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_80px_rgba(59,130,246,0.15)]"
+            >
+
+              <div className="absolute right-6 top-4 text-7xl font-black text-white/5">
+
+                03
+
+              </div>
+
+              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/10">
+
+                <svg
+                  className="h-10 w-10 text-secondary"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 17l6-6 4 4 8-8"
+                  />
+                </svg>
+
+              </div>
+
+              <h3 className="mb-4 text-2xl font-bold">
+
+                Get Predictive Insights
+
+              </h3>
+
+              <p className="text-muted leading-relaxed">
+
+                Receive real-time toxicity predictions, confidence scores, and
+                actionable scientific insights instantly.
+
+              </p>
+
+            </motion.div>
 
           </div>
 
