@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { toast } from "sonner";
+
 import {
   ResponsiveContainer,
   BarChart,
@@ -25,6 +27,10 @@ import {
 import {
   Skeleton,
 } from "@/components/ui/skeleton";
+
+import {
+  EmptyState,
+} from "@/components/ui/empty-state";
 
 const CELL_LINES = [
   "HEK293",
@@ -50,45 +56,75 @@ export default function ComparePage() {
 
   async function runComparison() {
 
-    setLoading(true);
+    try {
 
-    setResults([]);
+      setLoading(true);
 
-    const responses =
-      await Promise.all(
+      setResults([]);
 
-        CELL_LINES.map(
-          async (cell) => {
-
-            await new Promise(
-              (resolve) =>
-                setTimeout(
-                  resolve,
-                  400 + Math.random() * 1000
-                )
-            );
-
-            return {
-              cell,
-              toxicity:
-                Math.floor(
-                  Math.random() * 100
-                ),
-            };
-          }
-        )
+      toast.loading(
+        "Running comparison across all cell lines...",
+        {
+          id: "compare-loading",
+        }
       );
 
-    const sorted =
-      responses.sort(
-        (a, b) =>
-          b.toxicity -
-          a.toxicity
+      const responses =
+        await Promise.all(
+
+          CELL_LINES.map(
+            async (cell) => {
+
+              await new Promise(
+                (resolve) =>
+                  setTimeout(
+                    resolve,
+                    400 +
+                      Math.random() * 1000
+                  )
+              );
+
+              return {
+                cell,
+
+                toxicity:
+                  Math.floor(
+                    Math.random() * 100
+                  ),
+              };
+            }
+          )
+        );
+
+      const sorted =
+        responses.sort(
+          (a, b) =>
+            b.toxicity -
+            a.toxicity
+        );
+
+      setResults(sorted);
+
+      toast.success(
+        "Comparison completed successfully",
+        {
+          id: "compare-loading",
+        }
       );
 
-    setResults(sorted);
+    } catch {
 
-    setLoading(false);
+      toast.error(
+        "Failed to run comparison",
+        {
+          id: "compare-loading",
+        }
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
   }
 
   const highest =
@@ -183,9 +219,12 @@ export default function ComparePage() {
               }
               className="w-full"
               size="lg"
+              disabled={loading}
             >
 
-              Run across all 11 cell lines
+              {loading
+                ? "Running..."
+                : "Run across all 11 cell lines"}
 
             </Button>
 
@@ -194,6 +233,17 @@ export default function ComparePage() {
         </CardContent>
 
       </Card>
+
+      {/* Empty State */}
+      {!loading &&
+        results.length === 0 && (
+
+        <EmptyState
+          title="No comparison results yet"
+          description="Run a multi-cell-line comparison to visualize toxicity predictions."
+        />
+
+      )}
 
       {/* Loading */}
       {loading && (

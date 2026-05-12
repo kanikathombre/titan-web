@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  EmptyState,
+} from "@/components/ui/empty-state";
+
+import { toast } from "sonner";
+
+import {
   CreditCard,
   TrendingUp,
   Receipt,
@@ -46,7 +52,13 @@ export default function BillingPage() {
 
         </div>
 
-        <Button>
+        <Button
+          onClick={() =>
+            toast.success(
+              "Plan change flow coming soon"
+            )
+          }
+        >
 
           <CreditCard className="mr-2 h-4 w-4" />
 
@@ -218,26 +230,12 @@ export default function BillingPage() {
 
           </div>
 
-          {invoices.length ===
-          0 ? (
+          {invoices.length === 0 ? (
 
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-20 text-center">
-
-              <h3 className="text-2xl font-black">
-
-                No invoices yet
-
-              </h3>
-
-              <p className="mt-3 text-muted-foreground">
-
-                Your billing history
-                will appear here once
-                payments are processed.
-
-              </p>
-
-            </div>
+            <EmptyState
+              title="No invoices found"
+              description="Your invoices and payment history will appear here once payments are processed."
+            />
 
           ) : (
 

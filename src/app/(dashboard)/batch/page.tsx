@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  EmptyState,
+} from "@/components/ui/empty-state";
+
+import { toast } from "sonner";
+
 import { useState } from "react";
 
 import Papa from "papaparse";
@@ -64,7 +70,14 @@ export default function BatchPage() {
     const file =
       event.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+
+      toast.error(
+        "No CSV file selected"
+      );
+
+      return;
+    }
 
     Papa.parse<CsvRow>(
       file,
@@ -79,6 +92,16 @@ export default function BatchPage() {
             parsed.data
           );
 
+          toast.success(
+            "CSV parsed successfully"
+          );
+        },
+
+        error: () => {
+
+          toast.error(
+            "Failed to parse CSV"
+          );
         },
       }
     );
@@ -86,69 +109,91 @@ export default function BatchPage() {
 
   async function runBatchPredictions() {
 
-    setLoading(true);
+    if (rows.length === 0) {
 
-    const batchResults =
-      await Promise.all(
-
-        rows.map(
-          async (row) => {
-
-            try {
-
-              await new Promise(
-                (resolve) =>
-                  setTimeout(
-                    resolve,
-                    300
-                  )
-              );
-
-              if (
-                Math.random() < 0.1
-              ) {
-
-                throw new Error(
-                  "Prediction failed"
-                );
-              }
-
-              const toxicity =
-                Math.floor(
-                  Math.random() * 100
-                );
-
-              return {
-                ...row,
-
-                toxicity,
-
-                verdict:
-                  toxicity > 50
-                    ? "Toxic"
-                    : "Safe",
-              };
-
-            } catch (
-              error
-            ) {
-
-              return {
-                ...row,
-
-                error:
-                  "Failed",
-              };
-            }
-          }
-        )
+      toast.error(
+        "Upload a CSV file first"
       );
 
-    setResults(
-      batchResults
-    );
+      return;
+    }
 
-    setLoading(false);
+    setLoading(true);
+
+    try {
+
+      const batchResults =
+        await Promise.all(
+
+          rows.map(
+            async (row) => {
+
+              try {
+
+                await new Promise(
+                  (resolve) =>
+                    setTimeout(
+                      resolve,
+                      300
+                    )
+                );
+
+                if (
+                  Math.random() < 0.1
+                ) {
+
+                  throw new Error(
+                    "Prediction failed"
+                  );
+                }
+
+                const toxicity =
+                  Math.floor(
+                    Math.random() * 100
+                  );
+
+                return {
+                  ...row,
+
+                  toxicity,
+
+                  verdict:
+                    toxicity > 50
+                      ? "Toxic"
+                      : "Safe",
+                };
+
+              } catch {
+
+                return {
+                  ...row,
+
+                  error:
+                    "Failed",
+                };
+              }
+            }
+          )
+        );
+
+      setResults(
+        batchResults
+      );
+
+      toast.success(
+        "Batch predictions completed"
+      );
+
+    } catch {
+
+      toast.error(
+        "Batch prediction failed"
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
   }
 
   function handleSort(
@@ -207,68 +252,94 @@ export default function BatchPage() {
 
   function downloadTemplate() {
 
-    const csv =
-      "nanoparticle,size,shape,dosage\nGold,20,Sphere,10\nSilver,90,Rod,100";
+    try {
 
-    const blob =
-      new Blob(
-        [csv],
-        {
-          type:
-            "text/csv",
-        }
+      const csv =
+        "nanoparticle,size,shape,dosage\nGold,20,Sphere,10\nSilver,90,Rod,100";
+
+      const blob =
+        new Blob(
+          [csv],
+          {
+            type:
+              "text/csv",
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+      a.href = url;
+
+      a.download =
+        "batch-template.csv";
+
+      a.click();
+
+      toast.success(
+        "Template downloaded"
       );
 
-    const url =
-      URL.createObjectURL(
-        blob
+    } catch {
+
+      toast.error(
+        "Failed to download template"
       );
-
-    const a =
-      document.createElement(
-        "a"
-      );
-
-    a.href = url;
-
-    a.download =
-      "batch-template.csv";
-
-    a.click();
+    }
   }
 
   function downloadResults() {
 
-    const csv =
-      Papa.unparse(
-        results
+    try {
+
+      const csv =
+        Papa.unparse(
+          results
+        );
+
+      const blob =
+        new Blob(
+          [csv],
+          {
+            type:
+              "text/csv",
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+      a.href = url;
+
+      a.download =
+        "batch-results.csv";
+
+      a.click();
+
+      toast.success(
+        "Results downloaded"
       );
 
-    const blob =
-      new Blob(
-        [csv],
-        {
-          type:
-            "text/csv",
-        }
+    } catch {
+
+      toast.error(
+        "Failed to download results"
       );
-
-    const url =
-      URL.createObjectURL(
-        blob
-      );
-
-    const a =
-      document.createElement(
-        "a"
-      );
-
-    a.href = url;
-
-    a.download =
-      "batch-results.csv";
-
-    a.click();
+    }
   }
 
   return (
@@ -362,6 +433,16 @@ export default function BatchPage() {
 
       </Card>
 
+      {/* Empty State */}
+      {rows.length === 0 && (
+
+        <EmptyState
+          title="Upload a CSV File"
+          description="Upload nanoparticle datasets to begin batch prediction."
+        />
+
+      )}
+
       {/* Preview */}
       {rows.length > 0 && (
 
@@ -412,19 +493,27 @@ export default function BatchPage() {
                   <tr className="border-b border-border">
 
                     <th className="p-3 text-left">
+
                       Nanoparticle
+
                     </th>
 
                     <th className="p-3 text-left">
+
                       Size
+
                     </th>
 
                     <th className="p-3 text-left">
+
                       Shape
+
                     </th>
 
                     <th className="p-3 text-left">
+
                       Dosage
+
                     </th>
 
                   </tr>
@@ -447,19 +536,31 @@ export default function BatchPage() {
                       >
 
                         <td className="p-3">
-                          {row.nanoparticle}
+
+                          {
+                            row.nanoparticle
+                          }
+
                         </td>
 
                         <td className="p-3">
+
                           {row.size}
+
                         </td>
 
                         <td className="p-3">
+
                           {row.shape}
+
                         </td>
 
                         <td className="p-3">
-                          {row.dosage}
+
+                          {
+                            row.dosage
+                          }
+
                         </td>
 
                       </tr>

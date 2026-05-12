@@ -1,4 +1,13 @@
 "use client";
+import {
+  EmptyState,
+} from "@/components/ui/empty-state";
+
+import {
+  TableSkeleton,
+} from "@/components/ui/table-skeleton";
+
+import { toast } from "sonner";
 
 import {
   useEffect,
@@ -267,6 +276,8 @@ export default function HistoryPage() {
 
   function exportCSV() {
 
+  try {
+
     const csv =
       Papa.unparse(
         filteredData
@@ -297,7 +308,18 @@ export default function HistoryPage() {
       "prediction-history.csv";
 
     a.click();
+
+    toast.success(
+      "History exported successfully"
+    );
+
+  } catch {
+
+    toast.error(
+      "Failed to export history"
+    );
   }
+}
 
   function clearHistory() {
 
@@ -308,8 +330,20 @@ export default function HistoryPage() {
 
     if (confirmed) {
 
-      setData([]);
+        try {
 
+            setData([]);
+
+            toast.success(
+                "Prediction history cleared"
+            );
+
+        } catch {
+
+            toast.error(
+                "Failed to clear history"
+            );
+        }
     }
   }
 
@@ -317,16 +351,24 @@ export default function HistoryPage() {
     id: number
   ) {
 
-    alert(
-      `Re-running prediction #${id}`
+    toast.success(
+    `Prediction #${id} re-run started`
     );
   }
 
   if (!mounted) {
 
-    return null;
+    return (
 
-  }
+        <div className="mx-auto max-w-7xl">
+
+            <TableSkeleton />
+
+        </div>
+
+    );
+
+}
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -481,39 +523,15 @@ export default function HistoryPage() {
       </Card>
 
       {/* Empty */}
-      {filteredData.length ===
-        0 && (
+      
+      {filteredData.length === 0 && (
 
-        <Card className="border-border bg-background/80">
+        <EmptyState
+            title="No Predictions Found"
+            description="Start running toxicity predictions to populate your history."
+        />
 
-          <CardContent className="flex flex-col items-center justify-center py-24 text-center">
-
-            <h2 className="text-3xl font-black">
-
-              No Predictions Found
-
-            </h2>
-
-            <p className="mt-3 text-muted-foreground">
-
-              Start running toxicity
-              predictions to populate
-              your history.
-
-            </p>
-
-            <Button
-              className="mt-6"
-            >
-
-              Run Prediction
-
-            </Button>
-
-          </CardContent>
-
-        </Card>
-      )}
+     )}
 
       {/* Table */}
       {filteredData.length >
