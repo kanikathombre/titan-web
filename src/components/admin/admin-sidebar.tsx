@@ -23,7 +23,7 @@ const sidebarItems = [
 
   {
     label: "Predictions",
-    href: "/admin/predictions",
+    href: "/predictions",
     icon: Activity,
   },
 
