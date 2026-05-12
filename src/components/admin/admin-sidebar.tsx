@@ -56,6 +56,12 @@ const sidebarItems = [
   href: "/users",
   icon: Users,
   },
+
+  {
+  label: "Data Sources",
+  href: "/admin/data-sources",
+  icon: Database,
+  }
 ];
 
 export function AdminSidebar() {
