@@ -16,14 +16,14 @@ import {
 const sidebarItems = [
   {
     label: "Overview",
-    href: "/overview",
+    href: "/admin/overview",
     icon: LayoutDashboard,
   },
 
 
   {
     label: "Predictions",
-    href: "/predictions",
+    href: "/admin/predictions",
     icon: Activity,
   },
 
@@ -47,13 +47,13 @@ const sidebarItems = [
 
   {
   label: "Model",
-  href: "/model",
+  href: "/admin/model",
   icon: Activity,
   },
 
   {
   label: "Users",
-  href: "/users",
+  href: "/admin/users",
   icon: Users,
   },
 
