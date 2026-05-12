@@ -16,7 +16,7 @@ import {
 const sidebarItems = [
   {
     label: "Overview",
-    href: "/admin",
+    href: "/overview",
     icon: LayoutDashboard,
   },
 
