@@ -1,13 +1,20 @@
 export default function AdminPage() {
+
   return (
-    <div className="p-10">
-      <h1 className="text-5xl font-bold">
-        Admin Dashboard
+    <div>
+
+      <h1 className="text-5xl font-black">
+
+        Admin Overview
+
       </h1>
 
-      <p className="mt-4 text-muted">
-        Welcome Admin
+      <p className="mt-4 text-muted-foreground">
+
+        Welcome to the Titan AI admin dashboard.
+
       </p>
+
     </div>
   );
 }
