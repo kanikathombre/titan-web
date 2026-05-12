@@ -20,11 +20,6 @@ const sidebarItems = [
     icon: LayoutDashboard,
   },
 
-  {
-    label: "Users",
-    href: "/admin/users",
-    icon: Users,
-  },
 
   {
     label: "Predictions",
@@ -54,6 +49,12 @@ const sidebarItems = [
   label: "Model",
   href: "/model",
   icon: Activity,
+  },
+
+  {
+  label: "Users",
+  href: "/users",
+  icon: Users,
   },
 ];
 
