@@ -49,6 +49,12 @@ const sidebarItems = [
     href: "/admin/settings",
     icon: Settings,
   },
+
+  {
+  label: "Model",
+  href: "/model",
+  icon: Activity,
+  },
 ];
 
 export function AdminSidebar() {
