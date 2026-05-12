@@ -25,7 +25,7 @@ export default function DashboardLayout({
       </div>
 
       {/* Main */}
-      <div className="flex flex-1 flex-col">
+      <div className="ml-[280px] flex flex-1 flex-col">
 
         {/* Header */}
         <DashboardHeader title="Dashboard" />

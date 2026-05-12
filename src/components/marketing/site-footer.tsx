@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import Link from "next/link";
 
 import {
@@ -99,6 +101,21 @@ const footerLinks = {
 };
 
 export function SiteFooter() {
+
+  const pathname =
+    usePathname();
+
+  // Hide footer on dashboard
+  if (
+    pathname.startsWith(
+      "/dashboard"
+    )
+  ) {
+
+    return null;
+
+  }
+
   return (
     <footer className="relative overflow-hidden border-t border-white/10 bg-black/40 px-6 py-20 backdrop-blur-2xl">
 

@@ -12,7 +12,7 @@ import {
   User,
   CreditCard,
   BookOpen,
-  ChevronLeft,
+  Menu,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,43 +22,43 @@ import { useSidebar } from "@/lib/store";
 const sidebarItems = [
   {
     label: "Predict",
-    href: "/dashboard",
+    href: "/predict",
     icon: LayoutDashboard,
   },
 
   {
     label: "History",
-    href: "/dashboard/history",
+    href: "/history",
     icon: History,
   },
 
   {
     label: "Compare",
-    href: "/dashboard/compare",
+    href: "/compare",
     icon: GitCompare,
   },
 
   {
     label: "Batch",
-    href: "/dashboard/batch",
+    href: "/batch",
     icon: Files,
   },
 
   {
     label: "Account",
-    href: "/dashboard/account",
+    href: "/account",
     icon: User,
   },
 
   {
     label: "Billing",
-    href: "/dashboard/billing",
+    href: "/billing",
     icon: CreditCard,
   },
 
   {
     label: "Docs",
-    href: "/dashboard/docs",
+    href: "/docs",
     icon: BookOpen,
   },
 ];
@@ -75,7 +75,7 @@ export function DashboardSidebar() {
 
   return (
     <aside
-      className={`flex h-screen flex-col border-r border-white/10 bg-black/95 backdrop-blur-2xl transition-all duration-300 ${
+      className={`fixed left-0 top-0 flex h-screen flex-col border-r border-border bg-background transition-all duration-300 ${
         sidebarCollapsed
           ? "w-24"
           : "w-[280px]"
@@ -83,13 +83,13 @@ export function DashboardSidebar() {
     >
 
       {/* Logo */}
-      <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
+      <div className="flex h-20 items-center justify-between border-b border-border px-6">
 
         {!sidebarCollapsed && (
 
           <div>
 
-            <h1 className="text-2xl font-black">
+            <h1 className="text-2xl font-black text-foreground">
 
               Titan AI
 
@@ -107,13 +107,12 @@ export function DashboardSidebar() {
         <Button
           variant="ghost"
           size="icon"
-
           onClick={
             toggleSidebar
           }
         >
 
-          <ChevronLeft
+          <Menu
             className={`h-5 w-5 transition-transform ${
               sidebarCollapsed
                 ? "rotate-180"
@@ -141,15 +140,13 @@ export function DashboardSidebar() {
             return (
               <Link
                 key={item.href}
-
                 href={
                   item.href
                 }
-
                 className={`flex items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 ${
                   active
                     ? "bg-primary text-white shadow-lg"
-                    : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                    : "text-foreground hover:bg-gray-500 dark:hover:bg-white/30 hover:shadow-md"
                 }`}
               >
 
