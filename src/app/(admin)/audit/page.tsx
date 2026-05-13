@@ -1,4 +1,4 @@
-const auditLogs = [];
+const auditLogs: any[] = [];
 
 export default function AuditPage() {
   return (
