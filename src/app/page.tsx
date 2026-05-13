@@ -1,4 +1,9 @@
 "use client";
+import { orbitron } from "./layout";
+
+import HowItWorks from "@/components/marketing/how-it-works";
+
+import StatsSlider from "@/components/marketing/stats-slider";
 
 import { ParticlesBackground } from "@/components/marketing/particles-background";
 
@@ -6,7 +11,7 @@ import {
   ResponsiveContainer,
   RadarChart,
   PolarGrid,
-  PolarAngleAxis,
+  PolarAngleAxis, 
   Radar,
 } from "recharts";
 
@@ -32,10 +37,10 @@ import { SiteHeader } from "@/components/marketing/site-header";
 
 export default function HomePage() {
   return (
-    <main className="relative isolate min-h-screen overflow-hidden">
+    <main className="relative min-h-screen overflow-hidden bg-[#030712] text-white bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:70px_70px]">
       
       <SiteHeader />
-
+      <div className="absolute left-1/2 top-40 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-cyan-500/10 blur-[140px]" />
       {/* ================= CINEMATIC BACKGROUND ================= */}
 
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -47,11 +52,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.18),transparent_55%)]" />
 
         {/* ================= MORPHING GRADIENT BLOBS ================= */}
-        <div className="absolute left-[-10%] top-[-10%] h-[750px] w-[750px] rounded-full bg-violet-600/20 blur-[160px] animate-blob" />
-
-        <div className="absolute right-[-10%] top-[10%] h-[650px] w-[650px] rounded-full bg-cyan-500/20 blur-[160px] animate-blob" />
-
-        <div className="absolute bottom-[-20%] left-[25%] h-[700px] w-[700px] rounded-full bg-fuchsia-500/15 blur-[160px] animate-blob" />
+        
 
         {/* ================= NEURAL GLOW LINES ================= */}
         <div className="absolute left-[15%] top-[25%] h-px w-[300px] rotate-12 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
@@ -63,11 +64,7 @@ export default function HomePage() {
         
 
         {/* ================= LARGE GLOW ORBS ================= */}
-        <div className="absolute left-[20%] top-[15%] h-3 w-3 rounded-full bg-primary shadow-[0_0_40px_12px_rgba(124,58,237,0.8)]" />
-
-        <div className="absolute right-[25%] top-[30%] h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_40px_12px_rgba(34,211,238,0.8)]" />
-
-        <div className="absolute bottom-[20%] left-[40%] h-3 w-3 rounded-full bg-fuchsia-400 shadow-[0_0_40px_12px_rgba(217,70,239,0.7)]" />
+        
 
         {/* ================= VIGNETTE ================= */}
         <div className="absolute inset-0 bg-black/20" />
@@ -78,43 +75,55 @@ export default function HomePage() {
         <ParticlesBackground />
 
       {/* ================= HERO SECTION ================= */}
-      <section className="relative flex min-h-screen items-center justify-center px-6 pt-28">
+      <section className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center justify-center px-6 pt-24 text-center">
         <div className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[140px]" />
-        <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
+        <div className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center px-6 pt-24 text-center">
 
           {/* ================= LEFT CONTENT ================= */}
-          <div className="space-y-10 text-center lg:text-left">
+          <div className="space-y-10 text-center lg:text-center">
 
             {/* Badge */}
-            <div className="inline-flex items-center rounded-full border border-white/10 bg-surface/60 px-5 py-2 text-sm text-muted shadow-lg backdrop-blur-xl">
-              AI-Powered Nanotoxicity Intelligence
+            <div className="mx-auto mb-8 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-6 py-2 text-xs font-semibold tracking-[0.2em] text-cyan-400">
+
+              AI-POWERED SAFETY ASSESSMENT
+
             </div>
 
             {/* Headline */}
             <div className="max-w-[700px] space-y-8">
 
-              <h1 className="text-6xl font-black leading-[0.9] tracking-[-0.06em] md:text-[7rem]">
-
-                Predict{" "}
-
-                <span className="relative inline-block">
-
-                  {/* Glow */}
-                  <span className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 opacity-30 blur-3xl" />
-
-                  {/* Gradient Text */}
-                  <span className="relative bg-gradient-to-r from-violet-400 via-fuchsia-500 to-cyan-400 bg-clip-text text-transparent">
-                    Nanoparticle
-                  </span>
-
-                </span>
-
+              <h1
+                className={`
+                  ${orbitron.className}
+                  text-[72px]
+                  md:text-[110px]
+                  leading-[0.9]
+                  tracking-[-0.05em]
+                  font-extrabold
+                  text-center
+                  text-white
+                `}
+              >
+                Predict
                 <br />
-
-                Toxicity in Seconds
+                Nanoparticle
+                <br />
+                <span
+                  className="
+                    bg-gradient-to-r
+                    from-cyan-400
+                    via-sky-400
+                    to-blue-500
+                    bg-clip-text
+                    text-transparent
+                  "
+                >
+                  Toxicity
+                </span>{" "}
+                with AI
               </h1>
 
-              <p className="max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
+              <p className="mt-8 max-w-3xl text-center text-[20px] leading-[1.8] text-white/55">
                 Accelerate nanomedicine research with AI-driven toxicity
                 prediction, real-time analytics, and intelligent risk
                 assessment for safer and faster scientific breakthroughs.
@@ -123,7 +132,7 @@ export default function HomePage() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col items-center gap-5 sm:flex-row lg:items-start">
+            <div className="mt-14 flex items-center justify-center gap-6">
 
               <Link href="/sign-up">
 
@@ -137,466 +146,29 @@ export default function HomePage() {
 
               <Link href="/features">
 
-                <button className="rounded-2xl border border-white/10 bg-surface/60 px-8 py-4 text-lg font-semibold backdrop-blur-xl transition-all duration-300 hover:border-primary hover:text-primary hover:shadow-xl">
+                <button className="rounded-2xl bg-primary px-8 py-4 text-lg font-semibold text-white shadow-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(124,58,237,0.5)] hover:opacity-90">
 
                   Explore Features
 
                 </button>
 
               </Link>
-
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-sm text-muted lg:justify-start">
-
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-surface/50 px-4 py-2 backdrop-blur-lg">
-                <div className="h-2 w-2 rounded-full bg-success" />
-                AI Risk Analysis
-              </div>
-
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-surface/50 px-4 py-2 backdrop-blur-lg">
-                <div className="h-2 w-2 rounded-full bg-accent" />
-                Real-Time Prediction
-              </div>
-
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-surface/50 px-4 py-2 backdrop-blur-lg">
-                <div className="h-2 w-2 rounded-full bg-warning" />
-                Enterprise Ready
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* ================= RIGHT VISUAL ================= */}
-          <div className="relative flex items-center justify-center lg:mt-20">
-
-            {/* Glow Background */}
-            <div className="absolute h-[500px] w-[500px] rounded-full bg-primary/20 blur-3xl" />
-
-            {/* Dashboard Card */}
-            <div className="relative w-full max-w-xl animate-[float_6s_ease-in-out_infinite] rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_60px_rgba(124,58,237,0.15)] backdrop-blur-2xl">
-
-              {/* Animated Scan Line */}
-              <div className="absolute left-0 top-0 h-[2px] w-full bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-blob" />
-
-              {/* Header */}
-              <div className="mb-8 flex items-center justify-between border-b border-white/10 pb-5">
-
-                <div>
-
-                  <p className="text-2xl font-bold">
-                    Toxicity Prediction
-                  </p>
-
-                  <p className="text-sm text-muted">
-                    AI Analysis Dashboard
-                  </p>
-
-                </div>
-
-                <div className="rounded-xl bg-success/20 px-4 py-2 text-sm font-semibold text-success">
-                  Safe
-                </div>
-
-              </div>
-
-              {/* Stats */}
-              <div className="space-y-7">
-
-                {/* Toxicity */}
-                <div className="space-y-3">
-
-                  <div className="flex items-center justify-between text-sm">
-
-                    <span className="text-muted">
-                      Toxicity Score
-                    </span>
-
-                    <span className="font-semibold">
-                      12%
-                    </span>
-
-                  </div>
-
-                  <div className="h-3 overflow-hidden rounded-full bg-background">
-
-                    <div className="h-full w-[12%] rounded-full bg-success" />
-
-                  </div>
-
-                </div>
-
-                {/* Cell Viability */}
-                <div className="space-y-3">
-
-                  <div className="flex items-center justify-between text-sm">
-
-                    <span className="text-muted">
-                      Cell Viability
-                    </span>
-
-                    <span className="font-semibold">
-                      91%
-                    </span>
-
-                  </div>
-
-                  <div className="h-3 overflow-hidden rounded-full bg-background">
-
-                    <div className="h-full w-[91%] rounded-full bg-accent" />
-
-                  </div>
-
-                </div>
-
-                {/* Confidence */}
-                <div className="space-y-3">
-
-                  <div className="flex items-center justify-between text-sm">
-
-                    <span className="text-muted">
-                      Confidence
-                    </span>
-
-                    <span className="font-semibold">
-                      97%
-                    </span>
-
-                  </div>
-
-                  <div className="h-3 overflow-hidden rounded-full bg-background">
-
-                    <div className="h-full w-[97%] rounded-full bg-primary" />
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* Bottom Stats */}
-              <div className="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-8 text-center">
-
-                <div>
-
-                  <p className="text-3xl font-black text-primary">
-                    10K+
-                  </p>
-
-                  <p className="text-xs text-muted">
-                    Predictions
-                  </p>
-
-                </div>
-
-                <div>
-
-                  <p className="text-3xl font-black text-accent">
-                    98%
-                  </p>
-
-                  <p className="text-xs text-muted">
-                    Accuracy
-                  </p>
-
-                </div>
-
-                <div>
-
-                  <p className="text-3xl font-black text-success">
-                    24/7
-                  </p>
-
-                  <p className="text-xs text-muted">
-                    Availability
-                  </p>
-
-                </div>
-
-              </div>
-
+              
             </div>
 
           </div>
 
         </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
-
-          <div className="flex h-10 w-6 justify-center rounded-full border border-white/20">
-
-            <div className="mt-2 h-2 w-2 rounded-full bg-white/50" />
-
-          </div>
-
-        </div>
-
+        <StatsSlider />
+        <HowItWorks />
       </section>
 
-      {/* ================= HOW IT WORKS ================= */}
-      <section className="relative px-6 py-32">
-
-        {/* Background Glow */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-
-          <div className="absolute left-1/2 top-0 h-[400px] w-[400px] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
-
-        </div>
-
-        <div className="mx-auto max-w-7xl">
-
-          {/* Section Header */}
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 40,
-            }}
-
-            whileInView={{
-              opacity: 1,
-              y: 0,
-            }}
-
-            transition={{
-              duration: 0.7,
-            }}
-
-            viewport={{
-              once: true,
-            }}
-
-            className="mx-auto mb-24 max-w-3xl text-center"
-          >
-
-            <div className="mb-4 inline-flex items-center rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-sm text-muted backdrop-blur-xl">
-
-              Simple AI Workflow
-
-            </div>
-
-            <h2 className="text-5xl font-black tracking-[-0.04em] md:text-6xl">
-
-              How It Works
-
-            </h2>
-
-            <p className="mt-6 text-lg text-muted">
-
-              Titan AI transforms nanoparticle toxicity analysis into a fast,
-              intelligent, and scalable workflow powered by predictive AI models.
-
-            </p>
-
-          </motion.div>
-
-          {/* Steps */}
-          <div className="relative grid gap-8 lg:grid-cols-3">
-
-            {/* Connector Lines */}
-            <div className="absolute left-0 top-1/2 hidden h-[2px] w-full -translate-y-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent lg:block" />
-
-            {/* STEP 1 */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 50,
-              }}
-
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-
-              transition={{
-                duration: 0.7,
-                delay: 0.1,
-              }}
-
-              viewport={{
-                once: true,
-              }}
-
-              className="relative rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_50px_rgba(124,58,237,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_80px_rgba(124,58,237,0.15)]"
-            >
-
-              <div className="absolute right-6 top-4 text-7xl font-black text-white/5">
-
-                01
-
-              </div>
-
-              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
-
-                <svg
-                  className="h-10 w-10 text-primary"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16"
-                  />
-                </svg>
-
-              </div>
-
-              <h3 className="mb-4 text-2xl font-bold">
-
-                Upload Nanoparticle Data
-
-              </h3>
-
-              <p className="text-muted leading-relaxed">
-
-                Submit nanoparticle properties, experimental parameters, and
-                biological inputs securely into the AI pipeline.
-
-              </p>
-
-            </motion.div>
-
-            {/* STEP 2 */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 50,
-              }}
-
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-
-              transition={{
-                duration: 0.7,
-                delay: 0.3,
-              }}
-
-              viewport={{
-                once: true,
-              }}
-
-              className="relative rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_50px_rgba(6,182,212,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_80px_rgba(6,182,212,0.15)]"
-            >
-
-              <div className="absolute right-6 top-4 text-7xl font-black text-white/5">
-
-                02
-
-              </div>
-
-              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-accent/10">
-
-                <svg
-                  className="h-10 w-10 text-accent"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9.75 3v2.25M14.25 3v2.25M4.5 9h15M5.25 6.75h13.5A2.25 2.25 0 0121 9v9.75A2.25 2.25 0 0118.75 21H5.25A2.25 2.25 0 013 18.75V9a2.25 2.25 0 012.25-2.25z"
-                  />
-                </svg>
-
-              </div>
-
-              <h3 className="mb-4 text-2xl font-bold">
-
-                AI Toxicity Analysis
-
-              </h3>
-
-              <p className="text-muted leading-relaxed">
-
-                Titan AI evaluates toxicity risk using predictive machine learning
-                models trained on advanced nanomedicine datasets.
-
-              </p>
-
-            </motion.div>
-
-            {/* STEP 3 */}
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: 50,
-              }}
-
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-
-              transition={{
-                duration: 0.7,
-                delay: 0.5,
-              }}
-
-              viewport={{
-                once: true,
-              }}
-
-              className="relative rounded-3xl border border-white/10 bg-surface/60 p-8 shadow-[0_0_50px_rgba(59,130,246,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_80px_rgba(59,130,246,0.15)]"
-            >
-
-              <div className="absolute right-6 top-4 text-7xl font-black text-white/5">
-
-                03
-
-              </div>
-
-              <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/10">
-
-                <svg
-                  className="h-10 w-10 text-secondary"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 17l6-6 4 4 8-8"
-                  />
-                </svg>
-
-              </div>
-
-              <h3 className="mb-4 text-2xl font-bold">
-
-                Get Predictive Insights
-
-              </h3>
-
-              <p className="text-muted leading-relaxed">
-
-                Receive real-time toxicity predictions, confidence scores, and
-                actionable scientific insights instantly.
-
-              </p>
-
-            </motion.div>
-
-          </div>
-
-        </div>
-
-      </section>
+      
             
       
       {/* ================= MODEL PERFORMANCE SECTION ================= */}
 
-      <section className="relative overflow-hidden px-6 py-32">
+      <section className="relative overflow-hidden px-6 py-40">
 
         {/* Background Glow */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -823,24 +395,20 @@ export default function HomePage() {
               >
 
                 {/* Glow */}
-                <div
-                  className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${metric.color} opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-20`}
-                />
+                
 
                 {/* Circle */}
                 <div className="relative mb-6 flex h-40 w-40 items-center justify-center rounded-full border border-white/10 bg-black/40">
 
                   {/* Gradient Ring */}
-                  <div
-                    className={`absolute inset-0 rounded-full bg-gradient-to-br ${metric.color} opacity-80 blur-sm`}
-                  />
+                  
 
                   <div className="absolute inset-[6px] rounded-full bg-background" />
 
                   {/* Percentage */}
                   <div className="relative z-10 text-center">
 
-                    <h4 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-5xl font-black text-transparent">
+                    <h4 className="bg-gradient-to-r from-cyan-500/10 to-gray-300 bg-clip-text text-5xl font-black text-transparent">
 
                       {metric.value}%
 
@@ -859,7 +427,7 @@ export default function HomePage() {
 
                 <div className="mt-4 space-y-2 text-sm">
 
-                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-3 py-2">
+                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-cyan-500/5/[0.03] px-3 py-2">
 
                     <span className="text-muted">
 
@@ -875,7 +443,7 @@ export default function HomePage() {
 
                   </div>
 
-                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-3 py-2">
+                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-cyan-500/5[0.03] px-3 py-2">
 
                     <span className="text-muted">
 
@@ -972,6 +540,57 @@ export default function HomePage() {
 
       </section>
       
+
+    {/* ADD HERE */}
+
+    <section className="border-y border-border bg-card/40 px-6 py-14">
+
+      <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-4">
+
+        {[
+          {
+            label: "Predictions",
+            value: "120K+",
+          },
+          {
+            label: "Research Samples",
+            value: "50K+",
+          },
+          {
+            label: "Cell Lines",
+            value: "11",
+          },
+          {
+            label: "Model Accuracy",
+            value: "95%",
+          },
+        ].map((item) => (
+
+          <div
+            key={item.label}
+            className="text-center"
+          >
+
+            <h3 className="text-5xl font-black text-primary">
+
+              {item.value}
+
+            </h3>
+
+            <p className="mt-3 text-muted-foreground">
+
+              {item.label}
+
+            </p>
+
+          </div>
+        ))}
+
+      </div>
+
+    </section>
+
+    
     </main>
   );
 }

@@ -2,6 +2,8 @@
 
 import "./globals.css";
 
+import SmoothScroll from "@/components/smooth-scroll";
+
 import { usePathname } from "next/navigation";
 
 import { SiteFooter } from "@/components/marketing/site-footer";
@@ -9,6 +11,13 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import { Toaster } from "sonner";
+
+import { Orbitron } from "next/font/google";  
+
+export const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["700", "800", "900"],
+});
 
 export default function RootLayout({
   children,
@@ -35,7 +44,7 @@ export default function RootLayout({
     >
 
       <body>
-
+        <SmoothScroll />
         <ThemeProvider>
 
           {children}
