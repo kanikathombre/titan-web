@@ -241,3 +241,85 @@ html.lenis body {
   font-optical-sizing: auto;
   font-style: normal;
 } 
+
+@keyframes waveFloat {
+  0% {
+    transform: translateY(0px);
+  }
+
+  25% {
+    transform: translateY(-14px);
+  }
+
+  50% {
+    transform: translateY(0px);
+  }
+
+  75% {
+    transform: translateY(14px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.wave-1 {
+  animation: waveFloat 4s ease-in-out infinite;
+}
+
+.wave-2 {
+  animation: waveFloat 4s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+.wave-3 {
+  animation: waveFloat 4s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+
+.wave-4 {
+  animation: waveFloat 4s ease-in-out infinite;
+  animation-delay: 0.9s;
+}
+
+.wave-5 {
+  animation: waveFloat 4s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+.wave-6 {
+  animation: waveFloat 4s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.wave-7 {
+  animation: waveFloat 4s ease-in-out infinite;
+  animation-delay: 1.8s;
+}
+
+@import "tailwindcss";
+
+:root {
+  --background: #020617;
+  --foreground: #ffffff;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #020617;
+  color: white;
+  overflow-x: hidden;
+  font-family: Inter, sans-serif;
+}
+
+* {
+  border-color: rgba(255,255,255,0.08);
+}
+
+button {
+  cursor: pointer;
+}

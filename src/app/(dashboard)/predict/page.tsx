@@ -10,6 +10,13 @@ import { useForm } from "react-hook-form";
 
 import { z } from "zod";
 
+import {
+  Activity,
+  ShieldCheck,
+  FlaskConical,
+  BrainCircuit,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
@@ -190,18 +197,60 @@ export default function PredictPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="relative space-y-5">
 
-      {/* Header */}
-      <div>
+      {/* BG */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
-        <h1 className="text-5xl font-black">
+        <div className="absolute left-[-200px] top-[-100px] h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[140px]" />
+
+        <div className="absolute bottom-[-250px] right-[-200px] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[140px]" />
+
+        {Array.from({ length: 16 }).map(
+          (_, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-cyan-400 shadow-[0_0_18px_#22d3ee]"
+              style={{
+                width: `${2 + (i % 4)}px`,
+                height: `${2 + (i % 4)}px`,
+                left: `${(i * 7) % 100}%`,
+                top: `${(i * 13) % 100}%`,
+              }}
+              animate={{
+                x: [
+                  0,
+                  Math.random() * 120 - 60,
+                  0,
+                ],
+                y: [
+                  0,
+                  Math.random() * 120 - 60,
+                  0,
+                ],
+                opacity: [0.4, 1, 0.4],
+              }}
+              transition={{
+                duration: 6 + i,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          )
+        )}
+
+      </div>
+
+      {/* HEADER */}
+      <div className="relative z-10">
+
+        <h1 className="text-4xl font-black tracking-tight text-white">
 
           Predict Toxicity
 
         </h1>
 
-        <p className="mt-2 text-muted-foreground">
+        <p className="mt-2 text-base text-white/55">
 
           AI-powered nanoparticle toxicity prediction.
 
@@ -209,288 +258,378 @@ export default function PredictPage() {
 
       </div>
 
-      {/* Presets */}
-      <div className="flex flex-wrap gap-4">
+      {/* STATS */}
+      <div className="relative z-10 grid grid-cols-1 gap-5 md:grid-cols-4">
 
-        <Button
-          onClick={
-            loadPresetSafe
-          }
-        >
+        {[
+          {
+            title: "Prediction Accuracy",
+            value: "98.2%",
+            icon: ShieldCheck,
+          },
 
-          Safe Preset
+          {
+            title: "Datasets",
+            value: "12.4K",
+            icon: FlaskConical,
+          },
 
-        </Button>
+          {
+            title: "AI Models",
+            value: "24",
+            icon: BrainCircuit,
+          },
 
-        <Button
-          variant="secondary"
-          onClick={
-            loadPresetToxic
-          }
-        >
+          {
+            title: "Predictions",
+            value: "89K",
+            icon: Activity,
+          },
+        ].map((item, i) => {
 
-          Toxic Preset
+          const Icon = item.icon;
 
-        </Button>
+          return (
+            <Card
+              key={i}
+              className="bg-[#071427]/75 backdrop-blur-2xl border border-cyan-500/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.02),0_0_30px_rgba(0,255,255,0.03)]"
+            >
+
+              <CardContent className="flex items-center justify-between p-4">
+
+                <div>
+
+                  <p className="text-sm text-white/45">
+
+                    {item.title}
+
+                  </p>
+
+                  <h2 className="mt-2 text-2xl font-black text-white">
+
+                    {item.value}
+
+                  </h2>
+
+                </div>
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10">
+
+                  <Icon className="h-7 w-7 text-cyan-400" />
+
+                </div>
+
+              </CardContent>
+
+            </Card>
+          );
+        })}
 
       </div>
 
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit(
-          onSubmit
-        )}
-        className="grid grid-cols-1 gap-6 md:grid-cols-2"
-      >
+      {/* MAIN GRID */}
+      <div className="relative z-10 grid grid-cols-1 gap-4 xl:grid-cols-[1.45fr_0.55fr]">
 
-        {/* Nanoparticle */}
-        {/* Nanoparticle */}
-        <div className="space-y-2">
+        {/* LEFT */}
+        <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
 
-        <Select
-            onValueChange={(value) =>
-            setValue(
-                "nanoparticle",
-                value
-            )
-            }
-        >
+          <CardContent className="space-y-5 p-5">
 
-            <SelectTrigger className="w-full">
+            {/* BUTTONS */}
+            <div className="flex flex-wrap gap-3">
 
-            <SelectValue placeholder="Select Nanoparticle" />
+              <Button
+                onClick={loadPresetSafe}
+                className="bg-cyan-500 text-black hover:bg-cyan-400"
+              >
 
-            </SelectTrigger>
+                Safe Preset
 
-            <SelectContent
-            position="popper"
-            className="z-[100] min-w-[220px]"
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={loadPresetToxic}
+                className="border-cyan-500/20 bg-transparent text-white hover:bg-cyan-500/10"
+              >
+
+                Toxic Preset
+
+              </Button>
+
+            </div>
+
+            {/* FORM */}
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="grid grid-cols-1 gap-5 md:grid-cols-2"
             >
 
-            <SelectItem value="Gold">
-                Gold
-            </SelectItem>
+              {/* Nanoparticle */}
+              <Select
+                onValueChange={(value) =>
+                  setValue(
+                    "nanoparticle",
+                    value
+                  )
+                }
+              >
 
-            <SelectItem value="Silver">
-                Silver
-            </SelectItem>
+                <SelectTrigger className="h-11 border-cyan-500/10 bg-[#081325] text-white">
 
-            <SelectItem value="Titanium">
-                Titanium
-            </SelectItem>
+                  <SelectValue placeholder="Select Nanoparticle" />
 
-            </SelectContent>
+                </SelectTrigger>
 
-        </Select>
+                <SelectContent>
 
-        <p className="text-sm text-red-500">
+                  <SelectItem value="Gold">
+                    Gold
+                  </SelectItem>
 
-            {
-            errors
-                .nanoparticle
-                ?.message
-            }
+                  <SelectItem value="Silver">
+                    Silver
+                  </SelectItem>
 
-        </p>
+                  <SelectItem value="Titanium">
+                    Titanium
+                  </SelectItem>
+
+                </SelectContent>
+
+              </Select>
+
+              <Input
+                type="number"
+                placeholder="Size (nm)"
+                {...register("size")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              {/* Shape */}
+              <Select
+                onValueChange={(value) =>
+                  setValue(
+                    "shape",
+                    value
+                  )
+                }
+              >
+
+                <SelectTrigger className="h-11 border-cyan-500/10 bg-[#081325] text-white">
+
+                  <SelectValue placeholder="Select Shape" />
+
+                </SelectTrigger>
+
+                <SelectContent>
+
+                  <SelectItem value="Sphere">
+                    Sphere
+                  </SelectItem>
+
+                  <SelectItem value="Rod">
+                    Rod
+                  </SelectItem>
+
+                  <SelectItem value="Cube">
+                    Cube
+                  </SelectItem>
+
+                </SelectContent>
+
+              </Select>
+
+              <Input
+                type="number"
+                placeholder="Dosage"
+                {...register("dosage")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              <Input
+                type="number"
+                placeholder="Exposure Time"
+                {...register("exposure")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              {/* Cell line */}
+              <Select
+                onValueChange={(value) =>
+                  setValue(
+                    "cellLine",
+                    value
+                  )
+                }
+              >
+
+                <SelectTrigger className="h-11 border-cyan-500/10 bg-[#081325] text-white">
+
+                  <SelectValue placeholder="Select Cell Line" />
+
+                </SelectTrigger>
+
+                <SelectContent>
+
+                  <SelectItem value="HEK293">
+                    HEK293
+                  </SelectItem>
+
+                  <SelectItem value="A549">
+                    A549
+                  </SelectItem>
+
+                  <SelectItem value="MCF7">
+                    MCF7
+                  </SelectItem>
+
+                </SelectContent>
+
+              </Select>
+
+              <Input
+                type="number"
+                placeholder="Surface Charge"
+                {...register("surfaceCharge")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              <Input
+                placeholder="Coating (Optional)"
+                {...register("coating")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              <Input
+                type="number"
+                placeholder="Cell Viability"
+                {...register("viability")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              <Input
+                type="number"
+                placeholder="pH"
+                {...register("ph")}
+                className="h-11 border-cyan-500/10 bg-[#081325]"
+              />
+
+              {/* BUTTON */}
+              <div className="md:col-span-2">
+
+                <Button
+                  type="submit"
+                  disabled={offline}
+                  className="h-11 w-full bg-cyan-400 text-lg font-bold text-black hover:bg-cyan-300"
+                >
+
+                  Run Prediction
+
+                </Button>
+
+              </div>
+
+            </form>
+
+          </CardContent>
+
+        </Card>
+
+        {/* RIGHT PANEL */}
+        <div className="space-y-4">
+
+          <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
+
+            <CardContent className="p-5">
+
+              <p className="text-sm text-white/45">
+
+                AI Confidence
+
+              </p>
+
+              <h2 className="mt-3 text-5xl font-black text-cyan-400">
+
+                98%
+
+              </h2>
+
+              <div className="mt-6 h-3 overflow-hidden rounded-full bg-white/10">
+
+                <div className="h-full w-[98%] rounded-full bg-cyan-400" />
+
+              </div>
+
+            </CardContent>
+
+          </Card>
+
+          <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
+
+            <CardContent className="space-y-5 p-5">
+
+              <h3 className="text-xl font-bold text-white">
+
+                Live Analysis
+
+              </h3>
+
+              <div className="space-y-4">
+
+                <div className="flex items-center justify-between">
+
+                  <span className="text-white/50">
+                    Toxicity Risk
+                  </span>
+
+                  <span className="text-red-400">
+                    Moderate
+                  </span>
+
+                </div>
+
+                <div className="flex items-center justify-between">
+
+                  <span className="text-white/50">
+                    Stability
+                  </span>
+
+                  <span className="text-cyan-400">
+                    High
+                  </span>
+
+                </div>
+
+                <div className="flex items-center justify-between">
+
+                  <span className="text-white/50">
+                    Bio Compatibility
+                  </span>
+
+                  <span className="text-green-400">
+                    Safe
+                  </span>
+
+                </div>
+
+              </div>
+
+            </CardContent>
+
+          </Card>
 
         </div>
 
-        {/* Size */}
-        <div>
+      </div>
 
-          <Input
-            type="number"
-            placeholder="Size (nm)"
-            {...register("size")}
-          />
-
-        </div>
-
-        {/* Shape */}
-        {/* Shape */}
-        <div className="space-y-2">
-
-        <Select
-            onValueChange={(value) =>
-            setValue(
-                "shape",
-                value
-            )
-            }
-        >
-
-            <SelectTrigger className="w-full">
-
-            <SelectValue placeholder="Select Shape" />
-
-            </SelectTrigger>
-
-            <SelectContent
-            position="popper"
-            className="z-[100] min-w-[220px]"
-            >
-
-            <SelectItem value="Sphere">
-                Sphere
-            </SelectItem>
-
-            <SelectItem value="Rod">
-                Rod
-            </SelectItem>
-
-            <SelectItem value="Cube">
-                Cube
-            </SelectItem>
-
-            </SelectContent>
-
-        </Select>
-
-        </div>
-
-        {/* Dosage */}
-        <div>
-
-          <Input
-            type="number"
-            placeholder="Dosage"
-            {...register(
-              "dosage"
-            )}
-          />
-
-        </div>
-
-        {/* Exposure */}
-        <div>
-
-          <Input
-            type="number"
-            placeholder="Exposure Time"
-            {...register(
-              "exposure"
-            )}
-          />
-
-        </div>
-
-        {/* Cell Line */}
-        {/* Cell Line */}
-        <div className="space-y-2">
-
-        <Select
-            onValueChange={(value) =>
-            setValue(
-                "cellLine",
-                value
-            )
-            }
-        >
-
-            <SelectTrigger className="w-full">
-
-            <SelectValue placeholder="Select Cell Line" />
-
-            </SelectTrigger>
-
-            <SelectContent
-            position="popper"
-            className="z-[100] min-w-[220px]"
-            >
-
-            <SelectItem value="HEK293">
-                HEK293
-            </SelectItem>
-
-            <SelectItem value="A549">
-                A549
-            </SelectItem>
-
-            <SelectItem value="MCF7">
-                MCF7
-            </SelectItem>
-
-            </SelectContent>
-
-        </Select>
-
-        </div>
-
-        {/* Surface Charge */}
-        <div>
-
-          <Input
-            type="number"
-            placeholder="Surface Charge"
-            {...register(
-              "surfaceCharge"
-            )}
-          />
-
-        </div>
-
-        {/* Coating */}
-        <div>
-
-          <Input
-            placeholder="Coating (Optional)"
-            {...register(
-              "coating"
-            )}
-          />
-
-        </div>
-
-        {/* Viability */}
-        <div>
-
-          <Input
-            type="number"
-            placeholder="Cell Viability"
-            {...register(
-              "viability"
-            )}
-          />
-
-        </div>
-
-        {/* PH */}
-        <div>
-
-          <Input
-            type="number"
-            placeholder="pH"
-            {...register("ph")}
-          />
-
-        </div>
-
-        {/* Submit */}
-        <div className="md:col-span-2">
-
-          <Button
-            type="submit"
-            disabled={offline}
-            className="w-full"
-          >
-
-            {offline
-              ? "Offline"
-              : "Run Prediction"}
-
-          </Button>
-
-        </div>
-
-      </form>
-
-      {/* Result */}
+      {/* RESULT */}
       {result && (
 
         <motion.div
           initial={{
             opacity: 0,
-            y: 20,
+            y: 30,
           }}
 
           animate={{
@@ -499,18 +638,18 @@ export default function PredictPage() {
           }}
         >
 
-          <Card className="border-white/10 bg-black/40 backdrop-blur-xl">
+          <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
 
-            <CardContent className="space-y-4 p-8">
+            <CardContent className="space-y-4 p-5">
 
-              <h2 className="text-3xl font-black">
+              <h2 className="text-4xl font-black text-white">
 
                 Prediction Result
 
               </h2>
 
               <div
-                className={`inline-flex rounded-full px-6 py-2 text-lg font-bold ${
+                className={`inline-flex rounded-full px-6 py-3 text-xl font-black ${
                   result.verdict ===
                   "Toxic"
                     ? "bg-red-500/20 text-red-400"
@@ -518,19 +657,15 @@ export default function PredictPage() {
                 }`}
               >
 
-                {
-                  result.verdict
-                }
+                {result.verdict}
 
               </div>
 
-              <p className="text-2xl font-bold">
+              <p className="text-2xl font-bold text-white">
 
                 Toxicity Score:
                 {" "}
-                {
-                  result.score
-                }
+                {result.score}
                 %
 
               </p>

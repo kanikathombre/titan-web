@@ -74,30 +74,34 @@ export function DashboardSidebar() {
   } = useSidebar();
 
   return (
+
     <aside
-      className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-border bg-background transition-all duration-300 ${
+      className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-cyan-500/10 bg-[#071120]/80 backdrop-blur-2xl transition-all duration-300 ${
         sidebarCollapsed
-          ? "w-[90px]"
-          : "w-[280px]"
+          ? "w-[100px]"
+          : "w-[270px]"
       }`}
     >
 
-      {/* Logo */}
-      <div className="flex h-20 items-center justify-between border-b border-border px-6">
+      {/* TOP GLOW */}
+      <div className="absolute left-0 top-0 h-[300px] w-full bg-cyan-500/5 blur-3xl" />
+
+      {/* HEADER */}
+      <div className="relative flex h-24 items-center justify-between border-b border-cyan-500/10 px-6">
 
         {!sidebarCollapsed && (
 
           <div>
 
-            <h1 className="text-2xl font-black text-foreground">
+            <h1 className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-3xl font-black tracking-tight text-transparent">
 
-              Titan AI
+              NanoToxi
 
             </h1>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="mt-1 text-sm tracking-[0.2em] text-cyan-400/60">
 
-              Dashboard
+              AI PLATFORM
 
             </p>
 
@@ -110,10 +114,11 @@ export function DashboardSidebar() {
           onClick={
             toggleSidebar
           }
+          className="rounded-2xl border border-cyan-500/10 bg-cyan-500/5 text-cyan-300 transition-all duration-300 hover:bg-cyan-500/10 hover:text-cyan-200"
         >
 
           <Menu
-            className={`h-5 w-5 transition-transform ${
+            className={`h-5 w-5 transition-transform duration-300 ${
               sidebarCollapsed
                 ? "rotate-180"
                 : ""
@@ -124,8 +129,8 @@ export function DashboardSidebar() {
 
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 space-y-2 p-4">
+      {/* NAVIGATION */}
+      <nav className="relative flex-1 space-y-2.5 p-4">
 
         {sidebarItems.map(
           (item) => {
@@ -138,29 +143,71 @@ export function DashboardSidebar() {
               item.href;
 
             return (
+
               <Link
                 key={item.href}
                 href={
                   item.href
                 }
-                className={`flex items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 ${
+
+                className={`group relative flex items-center gap-4 overflow-hidden rounded-2xl border px-4 py-2.5 transition-all duration-300 ${
                   active
-                    ? "bg-primary text-white shadow-lg"
-                    : "text-foreground hover:bg-gray-500 dark:hover:bg-white/30 hover:shadow-md"
+
+                    ? `
+                      border-cyan-400/20
+                      bg-cyan-500/10
+                      text-white
+                      shadow-[0_0_30px_rgba(34,211,238,0.12)]
+                    `
+
+                    : `
+                      border-transparent
+                      text-white/70
+                      hover:border-cyan-500/10
+                      hover:bg-cyan-500/5
+                      hover:text-white
+                    `
                 }`}
               >
 
-                <Icon className="h-5 w-5 shrink-0" />
+                {/* ACTIVE GLOW */}
+                {active && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-blue-500/5" />
+                )}
 
+                {/* ICON */}
+                <div
+                  className={`relative flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-300 ${
+                    active
+
+                      ? `
+                        bg-cyan-400/15
+                        text-cyan-300
+                        shadow-[0_0_20px_rgba(34,211,238,0.2)]
+                      `
+
+                      : `
+                        bg-white/[0.03]
+                        text-white/60
+                        group-hover:bg-cyan-500/10
+                        group-hover:text-cyan-300
+                      `
+                  }`}
+                >
+
+                  <Icon className="h-5 w-5 shrink-0" />
+
+                </div>
+
+                {/* LABEL */}
                 {!sidebarCollapsed && (
 
-                  <span className="font-medium">
+                  <span className="relative text-[15px] font-medium tracking-wide">
 
-                    {
-                      item.label
-                    }
+                    {item.label}
 
                   </span>
+
                 )}
 
               </Link>
@@ -169,6 +216,37 @@ export function DashboardSidebar() {
         )}
 
       </nav>
+
+      {/* BOTTOM PANEL */}
+      {!sidebarCollapsed && (
+
+        <div className="relative border-t border-cyan-500/10 p-5">
+
+          <div className="rounded-3xl border border-cyan-500/10 bg-cyan-500/[0.03] p-5 backdrop-blur-xl">
+
+            <p className="text-sm font-medium text-cyan-300">
+
+              AI Status
+
+            </p>
+
+            <div className="mt-3 flex items-center gap-3">
+
+              <div className="h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_15px_#22d3ee]" />
+
+              <span className="text-sm text-white/70">
+
+                Systems Operational
+
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
 
     </aside>
   );

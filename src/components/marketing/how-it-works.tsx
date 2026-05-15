@@ -1,6 +1,17 @@
 "use client";
 
-import { motion } from "framer-motion";
+import {
+  motion,
+  useInView,
+} from "framer-motion";
+
+import {
+  useRef,
+  useState,
+  useEffect,
+} from "react";
+
+import NanoDashboard from "./nano-dashboard";
 
 import {
   Beaker,
@@ -77,9 +88,60 @@ const steps = [
   },
 ];
 
-export default function HowItWorks() {
+function StepSection({
+  children,
+  index,
+  activeStep,
+  setActiveStep,
+}: any) {
+
+  const ref = useRef(null);
+
+  const inView = useInView(ref, {
+    amount: 0.7,
+  });
+
+  useEffect(() => {
+
+    if (inView) {
+      setActiveStep(index);
+    }
+
+  }, [inView, index, setActiveStep]);
+
+  const isActive =
+    activeStep === index;
+
   return (
-    <section className="relative overflow-hidden px-8 py-40">
+    <motion.div
+      ref={ref}
+
+      animate={{
+        opacity: isActive ? 1 : 0.08,
+        scale: isActive ? 1 : 0.95,
+        filter: isActive
+          ? "blur(0px)"
+          : "blur(3px)",
+      }}
+
+      transition={{
+        duration: 1,
+        ease: "easeInOut",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export default function HowItWorks() {
+
+  const [activeStep, setActiveStep] =
+    useState(0);
+
+  return (
+
+    <section className="relative overflow-hidden bg-[#020617]">
 
       {/* CINEMATIC BACKGROUND */}
 
@@ -93,7 +155,7 @@ export default function HowItWorks() {
 
       </div>
 
-      <div className="mx-auto max-w-[1800px]">
+      <div className="mx-auto max-w-[1920px] px-6 lg:px-10">
 
         {/* HEADER */}
 
@@ -112,22 +174,155 @@ export default function HowItWorks() {
           viewport={{
             once: true,
           }}
-          className="mb-36"
+          className="
+            relative
+            flex
+            min-h-[28vh]
+            flex-col
+            justify-end
+            pb-18
+            items-start
+            text-left
+          "
         >
 
-          <p className="mb-6 text-[11px] tracking-[0.4em] text-cyan-400">
+          {/* FLOATING PARTICLES */}
 
+          <motion.div
+            animate={{
+              y: [0, -30, 0],
+            }}
+            transition={{
+              duration: 7,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              absolute
+              left-[6%]
+              top-[35%]
+              h-6
+              w-6
+              rounded-full
+              bg-white
+              blur-[1px]
+              shadow-[0_0_30px_rgba(255,255,255,0.9)]
+            "
+          />
+
+          <motion.div
+            animate={{
+              y: [0, 25, 0],
+            }}
+            transition={{
+              duration: 9,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              absolute
+              left-[22%]
+              top-[68%]
+              h-5
+              w-5
+              rounded-full
+              bg-cyan-400
+              shadow-[0_0_30px_rgba(34,211,238,0.8)]
+            "
+          />
+
+          <motion.div
+            animate={{
+              y: [0, -20, 0],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              absolute
+              right-[20%]
+              top-[28%]
+              h-5
+              w-5
+              rounded-full
+              bg-cyan-400
+              shadow-[0_0_30px_rgba(34,211,238,0.8)]
+            "
+          />
+
+          <motion.div
+            animate={{
+              y: [0, 30, 0],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              absolute
+              right-[10%]
+              bottom-[12%]
+              h-6
+              w-6
+              rounded-full
+              bg-violet-500
+              shadow-[0_0_30px_rgba(139,92,246,0.9)]
+            "
+          />
+
+          {/* CONNECTING LINE */}
+
+          <div className="absolute right-[22%] top-[30%] hidden h-[1px] w-[180px] rotate-[28deg] bg-cyan-400/20 lg:block" />
+
+          {/* OVERVIEW */}
+
+          <p
+            className="
+              orbitron
+              mb-10
+              text-[12px]
+              tracking-[0.45em]
+              text-cyan-400
+            "
+          >
             OVERVIEW
-
           </p>
 
-          <h2 className="orbitron text-[110px] leading-[0.88] tracking-[-0.08em] font-black text-white">
+          {/* TITLE */}
+
+          <h2
+            className="
+              orbitron
+              max-w-none
+              text-left
+              text-[90px]
+              font-black
+              leading-[0.9]
+              tracking-[-0.03em]
+              text-white
+              drop-shadow-[0_0_24px_rgba(255,255,255,0.20)]
+            "
+          >
 
             How Titan Works
 
           </h2>
 
-          <p className="mt-10 max-w-3xl text-[20px] leading-[2] text-white/35">
+          {/* SUBTEXT */}
+
+          <p
+            className="
+              mt-10
+              max-w-[900px]
+              text-left
+              text-[20px]
+              leading-[0]
+              text-white/35
+            "
+          >
 
             A comprehensive multi-stage ML pipeline engineered for
             nanoparticle toxicity intelligence.
@@ -145,356 +340,229 @@ export default function HowItWorks() {
           <div
             className="
               absolute
-              left-[25px]
-              top-0
+              left-[0px]
+              top-[-10px]
               hidden
               h-full
               w-[1px]
-              bg-cyan-400/20
+              bg-cyan-400/15
               lg:block
             "
           />
 
-          <div className="space-y-44">
+          <div className="space-y-0">
 
             {steps.map((step, index) => {
-
-              const isActive = index === 0;
 
               const Icon = step.icon;
 
               return (
-                <motion.div
+
+                <StepSection
                   key={step.id}
-
-                  initial={{
-                    opacity: 0,
-                    y: 80,
-                  }}
-
-                  whileInView={{
-                    opacity: 1,
-                    y: 0,
-                  }}
-
-                  transition={{
-                    duration: 0.9,
-                    delay: index * 0.08,
-                  }}
-
-                  viewport={{
-                    once: true,
-                    amount: 0.3,
-                  }}
-
-                  className={`
-                    relative
-                    grid
-                    items-center
-                    gap-6
-                    lg:grid-cols-[0.78fr_1.22fr]
-                    transition-all
-                    duration-700
-                    ${
-                      isActive
-                        ? "opacity-100"
-                        : "opacity-[0.07] scale-[0.985]"
-                    }
-                  `}
+                  index={index}
+                  activeStep={activeStep}
+                  setActiveStep={setActiveStep}
                 >
 
-                  {/* LEFT CONTENT */}
+                  <div
+                    className={`
+                      relative isolate
+                      grid
+                      items-center
+                      gap-40
+                      lg:grid-cols-[0.65fr_1.35fr]
+                      transition-all
+                      duration-700
+                      ${index !== 0 ? "-mt-40" : ""}
+                    `}
+                  >
 
-                  <div className="relative pl-4">
+                    {/* LEFT CONTENT */}
 
-                    {/* TIMELINE DOT */}
+                    <div className="relative pl-8">
 
-                    <div
-                      className="
-                        absolute
-                        left-[20px]
-                        top-7
-                        hidden
-                        h-3
-                        w-3
-                        rounded-full
-                        border
-                        border-cyan-400/60
-                        bg-[#020817]
-                        lg:block
-                      "
-                    >
-
-                      <div className="absolute inset-[2px] rounded-full bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.8)]" />
-
-                    </div>
-
-                    {/* STEP HEADER */}
-
-                    <div className="mb-10 flex items-center gap-6">
-
-                      {/* ICON */}
+                      {/* TIMELINE DOT */}
 
                       <div
                         className="
-                          flex
-                          h-16
-                          w-16
-                          items-center
-                          justify-center
-                          rounded-2xl
-                          bg-cyan-500/[0.04]
-                          backdrop-blur-xl
+                          absolute
+                          left-[0px]
+                          translate-x-[-50%]
+                          top-[-100px]
+                          hidden
+                          h-4
+                          w-4
+                          rounded-full
+                          border
+                          border-cyan-400/70
+                          bg-[#020817]
+                          lg:block
                         "
                       >
 
-                        <Icon className="h-7 w-7 text-cyan-400" />
+                        <div
+                          className="
+                            absolute
+                            inset-[3px]
+                            rounded-full
+                            bg-cyan-400
+                            shadow-[0_0_18px_rgba(34,211,238,0.95)]
+                          "
+                        />
 
                       </div>
 
-                      {/* STEP LABEL */}
+                      {/* STEP HEADER */}
 
-                      <span className="orbitron text-[11px] tracking-[0.35em] text-cyan-400">
+                      <div className="relative top-[-110px] mb-6 flex items-center gap-4">
 
-                        Step {step.id}
+                        <div
+                          className="
+                            flex
+                            h-12
+                            w-12
+                            items-center
+                            justify-center
+                            rounded-2xl
+                            bg-cyan-500/[0.04]
+                            backdrop-blur-xl
+                          "
+                        >
 
-                      </span>
-
-                    </div>
-
-                    {/* TITLE */}
-
-                    <h3
-                      className="
-                        orbitron
-                        text-[58px]
-                        leading-[0.88]
-                        tracking-[-0.08em]
-                        font-black
-                        text-white
-                      "
-                    >
-
-                      {step.title}
-
-                    </h3>
-
-                    {/* SUBTITLE */}
-
-                    <p className="mt-6 text-[20px] text-white/60">
-
-                      {step.subtitle}
-
-                    </p>
-
-                    {/* DESCRIPTION */}
-
-                    <p className="mt-8 max-w-xl text-[17px] leading-[2.1] text-white/35">
-
-                      {step.description}
-
-                    </p>
-
-                    {/* BUTTON */}
-
-                    {index === 0 && (
-                      <button
-                        className="
-                          mt-12
-                          rounded-full
-                          bg-cyan-400
-                          px-10
-                          py-5
-                          text-lg
-                          font-semibold
-                          text-black
-                          transition-all
-                          duration-500
-                          hover:shadow-[0_0_30px_rgba(34,211,238,0.35)]
-                        "
-                      >
-
-                        Try Live Demo →
-
-                      </button>
-                    )}
-
-                  </div>
-
-                  {/* RIGHT VISUAL */}
-
-                  <div className="relative">
-
-                    <div
-                      className="
-                        relative
-                        h-[760px]
-                        overflow-hidden
-                        rounded-[42px]
-                        bg-[#020817]/96
-                        backdrop-blur-3xl
-                        shadow-[0_0_80px_rgba(34,211,238,0.015)]
-                      "
-                    >
-
-                      {/* DARK OVERLAY */}
-
-                      <div className="absolute inset-0 bg-black/25" />
-
-                      {/* SOFT GRADIENT */}
-
-                      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.02] via-transparent to-blue-500/[0.02]" />
-
-                      {/* GRID */}
-
-                      <div
-                        className="
-                          absolute inset-0 opacity-[0.12]
-                          bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)]
-                          bg-[size:60px_60px]
-                        "
-                      />
-
-                      {/* FLOATING PARTICLES */}
-
-                      {[
-                        { size: 7, top: "12%", left: "20%" },
-                        { size: 5, top: "30%", left: "70%" },
-                        { size: 8, top: "60%", left: "40%" },
-                        { size: 6, top: "80%", left: "85%" },
-                        { size: 4, top: "45%", left: "15%" },
-                        { size: 8, top: "22%", left: "55%" },
-                        { size: 5, top: "72%", left: "65%" },
-                        { size: 7, top: "15%", left: "85%" },
-                        { size: 4, top: "90%", left: "35%" },
-                      ].map((particle, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute rounded-full bg-cyan-400"
-                          animate={{
-                            y: [0, -25, 0, 25, 0],
-                          }}
-                          transition={{
-                            duration: 12 + i,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                          style={{
-                            width: `${particle.size}px`,
-                            height: `${particle.size}px`,
-                            top: particle.top,
-                            left: particle.left,
-                            opacity: 0.5,
-                            boxShadow:
-                              "0 0 18px rgba(34,211,238,0.6)",
-                          }}
-                        />
-                      ))}
-
-                      {/* STEP 1 VISUAL */}
-
-                      {index === 0 && (
-                        <div className="absolute inset-0">
-
-                          {[
-                            {
-                              size: 24,
-                              x: 12,
-                              delay: 0,
-                            },
-                            {
-                              size: 42,
-                              x: 28,
-                              delay: 1,
-                            },
-                            {
-                              size: 82,
-                              x: 48,
-                              delay: 2,
-                            },
-                            {
-                              size: 34,
-                              x: 66,
-                              delay: 3,
-                            },
-                            {
-                              size: 58,
-                              x: 84,
-                              delay: 4,
-                            },
-                          ].map((node, i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute"
-                              style={{
-                                left: `${node.x}%`,
-                                top: "58%",
-                              }}
-                              animate={{
-                                y: [0, -35, 0, 35, 0],
-                              }}
-                              transition={{
-                                duration: 12,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: node.delay,
-                              }}
-                            >
-
-                              {/* CONNECTION */}
-
-                              {i !== 4 && (
-                                <div
-                                  className="
-                                    absolute
-                                    left-full
-                                    top-1/2
-                                    h-[1px]
-                                    w-32
-                                    bg-cyan-400/10
-                                  "
-                                />
-                              )}
-
-                              {/* NODE */}
-
-                              <div
-                                className="
-                                  rounded-full
-                                  border
-                                  border-cyan-400/20
-                                  bg-cyan-400/10
-                                  backdrop-blur-xl
-                                "
-                                style={{
-                                  width: `${node.size}px`,
-                                  height: `${node.size}px`,
-                                  boxShadow:
-                                    "0 0 40px rgba(34,211,238,0.14)",
-                                }}
-                              />
-
-                            </motion.div>
-                          ))}
+                          <Icon className="h-6 w-6 text-cyan-400" />
 
                         </div>
+
+                        <span
+                          className="
+                            orbitron
+                            text-[14px]
+                            tracking-[0.38em]
+                            text-cyan-300/95
+                          "
+                        >
+
+                          Step {step.id}
+
+                        </span>
+
+                      </div>
+
+                      {/* TITLE */}
+
+                      <h3
+                        className="
+                          relative
+                          -mt-28
+                          orbitron
+                          text-[45px]
+                          leading-[0.88]
+                          tracking-[-0.06em]
+                          font-black
+                          text-white
+                          drop-shadow-[0_0_18px_rgba(255,255,255,0.14)]
+                        "
+                      >
+
+                        {step.title}
+
+                      </h3>
+
+                      {/* SUBTITLE */}
+
+                      <p className="mt-5 text-[18px] text-white/60">
+
+                        {step.subtitle}
+
+                      </p>
+
+                      {/* DESCRIPTION */}
+
+                      <p
+                        className="
+                          mt-4
+                          max-w-lg
+                          text-[17px]
+                          leading-[2.1]
+                          text-white/35
+                        "
+                      >
+
+                        {step.description}
+
+                      </p>
+
+                      {/* BUTTON */}
+
+                      {index === 0 && (
+                        <button
+                          className="
+                            mt-8
+                            rounded-2xl
+                            border
+                            border-cyan-400/40
+                            bg-cyan-400
+                            px-6
+                            py-4
+                            text-lg
+                            font-semibold
+                            text-black
+                            shadow-[0_0_30px_rgba(34,211,238,0.25)]
+                            transition-all
+                            duration-500
+                            hover:scale-[1.02]
+                          "
+                        >
+
+                          Try Live Demo →
+
+                        </button>
                       )}
 
-                      {/* STEP LABEL */}
+                    </div>
 
-                      <div className="absolute bottom-10 left-10">
+                    {/* RIGHT VISUAL */}
 
-                        <p className="orbitron text-[11px] tracking-[0.35em] text-cyan-400">
+                    <div className="relative pl-20">
 
-                          STEP {step.id}
+                      <div
+                        className="
+                          relative
+                          h-[600px]
+                          overflow-hidden
+                          rounded-[36px]
+                          bg-[#030712]/98
+                          backdrop-blur-3xl
+                          shadow-[0_0_80px_rgba(34,211,238,0.015)]
+                        "
+                      >
 
-                        </p>
+                        <div className="absolute inset-0 bg-black/25" />
 
-                        <h4 className="mt-4 text-3xl font-semibold text-white">
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.02] via-transparent to-blue-500/[0.02]" />
 
-                          {step.title}
+                        <div className="relative h-[720px] w-[760px] overflow-hidden rounded-[40px] bg-[#020817]/90">
 
-                        </h4>
+                          <NanoDashboard step={step.id} />
+
+                          <div className="absolute bottom-10 left-10">
+
+                            <p className="orbitron text-[11px] tracking-[0.35em] text-cyan-400">
+
+                              STEP {step.id}
+
+                            </p>
+
+                            <h4 className="mt-4 text-3xl font-semibold text-white">
+
+                              {step.title}
+
+                            </h4>
+
+                          </div>
+
+                        </div>
 
                       </div>
 
@@ -502,7 +570,7 @@ export default function HowItWorks() {
 
                   </div>
 
-                </motion.div>
+                </StepSection>
               );
             })}
 

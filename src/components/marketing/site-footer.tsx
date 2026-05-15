@@ -109,7 +109,10 @@ export function SiteFooter() {
   if (
     pathname.startsWith(
       "/dashboard"
-    )
+    )||
+    pathname.startsWith("/admin")||
+    pathname === "/sign-in" ||
+    pathname === "/sign-up"
   ) {
 
     return null;

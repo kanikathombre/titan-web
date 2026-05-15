@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
 
 import { useForm } from "react-hook-form";
@@ -33,10 +34,39 @@ type SignInFormData = z.infer<
 >;
 
 export default function SignInPage() {
+
   const router = useRouter();
 
   const [serverError, setServerError] =
     useState("");
+
+  // FIXED PARTICLES STATE
+  const [particles, setParticles] = useState<
+    {
+      size: number;
+      left: number;
+      top: number;
+      duration: number;
+      delay: number;
+    }[]
+  >([]);
+
+  useEffect(() => {
+
+    const generatedParticles = Array.from(
+      { length: 50 },
+      () => ({
+        size: Math.random() * 4 + 2,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 8 + Math.random() * 6,
+        delay: Math.random() * 5,
+      })
+    );
+
+    setParticles(generatedParticles);
+
+  }, []);
 
   const {
     register,
@@ -58,6 +88,7 @@ export default function SignInPage() {
   async function onSubmit(
     data: SignInFormData
   ) {
+
     setServerError("");
 
     try {
@@ -141,184 +172,219 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
 
-      <div className="w-full max-w-md surface border border-theme rounded-3xl p-8 shadow-2xl">
+    <main className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-[#020617]">
 
-        {/* Header */}
-        <div className="space-y-2 mb-8">
+      {/* BACKGROUND */}
+      <div className="absolute inset-0 overflow-hidden">
 
-          <h1 className="text-4xl font-bold">
-            Welcome Back
-          </h1>
+        {/* LEFT GLOW */}
+        <div className="absolute left-[-250px] top-[-150px] h-[650px] w-[650px] rounded-full bg-cyan-500/10 blur-[160px]" />
 
-          <p className="text-muted">
-            Sign in to your Titan account
-          </p>
+        {/* RIGHT GLOW */}
+        <div className="absolute bottom-[-200px] right-[-250px] h-[650px] w-[650px] rounded-full bg-blue-500/10 blur-[160px]" />
 
-        </div>
+        {/* CENTER SOFT LIGHT */}
+        <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.03] blur-[140px]" />
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit(
-            onSubmit
-          )}
-          className="space-y-5"
-        >
+        {/* MOVING PARTICLES */}
+        {particles.map((particle, i) => (
 
-          {/* Username */}
-          <div className="space-y-2">
+          <div
+            key={i}
+            className="absolute rounded-full bg-cyan-400 animate-float"
+            style={{
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              left: `${particle.left}%`,
+              top: `${particle.top}%`,
+              opacity: 0.8,
+              boxShadow: "0 0 16px #22d3ee",
+              animationDuration: `${particle.duration}s`,
+              animationDelay: `${particle.delay}s`,
+            }}
+          />
 
-            <Label>
-              Username
-            </Label>
+        ))}
 
-            <Input
-              placeholder="Enter username"
-              {...register(
-                "username"
-              )}
-            />
+        <style jsx>{`
+          @keyframes float {
 
-            {errors.username && (
-              <p className="text-danger text-sm">
-                {
-                  errors
-                    .username
-                    .message
-                }
-              </p>
-            )}
-
-          </div>
-
-          {/* Password */}
-          <div className="space-y-2">
-
-            <Label>
-              Password
-            </Label>
-
-            <Input
-              type="password"
-              placeholder="Enter password"
-              {...register(
-                "password"
-              )}
-            />
-
-            {errors.password && (
-              <p className="text-danger text-sm">
-                {
-                  errors
-                    .password
-                    .message
-                }
-              </p>
-            )}
-
-          </div>
-
-          {/* Remember Me */}
-          <div className="flex items-center gap-2">
-
-            <input
-              type="checkbox"
-              {...register(
-                "rememberMe"
-              )}
-            />
-
-            <Label>
-              Remember me
-            </Label>
-
-          </div>
-
-          {/* Server Error */}
-          {serverError && (
-            <p className="text-danger text-sm">
-              {serverError}
-            </p>
-          )}
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className="w-full bg-primary hover:opacity-90"
-            disabled={
-              isSubmitting
+            0% {
+              transform: translate(0px, 0px);
             }
-          >
 
-            {isSubmitting
-              ? "Signing In..."
-              : "Sign In"}
+            25% {
+              transform: translate(40px, -60px);
+            }
 
-          </Button>
+            50% {
+              transform: translate(-30px, 50px);
+            }
 
-        </form>
+            75% {
+              transform: translate(60px, 20px);
+            }
 
-        {/* Credentials */}
-        <div className="mt-8 space-y-4">
+            100% {
+              transform: translate(0px, 0px);
+            }
+          }
 
-          <div className="surface border border-theme rounded-xl p-4 text-sm space-y-5">
-
-            {/* User Credentials */}
-            <div>
-
-              <p className="font-semibold mb-2">
-                User Credentials
-              </p>
-
-              <p>
-                Username: demo
-              </p>
-
-              <p>
-                Password: password123
-              </p>
-
-            </div>
-
-            {/* Admin Credentials */}
-            <div>
-
-              <p className="font-semibold mb-2">
-                Admin Credentials
-              </p>
-
-              <p>
-                Username: admin
-              </p>
-
-              <p>
-                Password: admin123
-              </p>
-
-            </div>
-
-          </div>
-
-          {/* Signup */}
-          <p className="text-sm text-muted text-center">
-
-            Don&apos;t have an
-            account?{" "}
-
-            <a
-              href="/sign-up"
-              className="text-primary font-medium"
-            >
-              Sign Up
-            </a>
-
-          </p>
-
-        </div>
+          .animate-float {
+            animation-name: float;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+          }
+        `}</style>
 
       </div>
 
-    </div>
+      {/* CENTER CONTENT */}
+      <div className="relative z-10 flex w-full max-w-[430px] flex-col items-center">
+
+        {/* CARD */}
+        <div className="w-[445px] rounded-[28px] border border-cyan-500/10 bg-[#061120]/90 px-10 py-6 shadow-[0_0_60px_rgba(0,255,255,0.05)] backdrop-blur-2xl">
+
+          {/* HEADER */}
+          <div className="mb-7 text-center">
+
+            <h1
+              className="mb-3 text-[30px] font-bold uppercase tracking-[0.14em] text-white"
+              style={{
+                fontFamily: "Orbitron, sans-serif",
+              }}
+            >
+              Welcome Back
+            </h1>
+
+            <p className="text-base text-white/40">
+              Sign in to access the platform.
+            </p>
+
+          </div>
+
+          {/* GOOGLE */}
+          <button
+            type="button"
+            className="mb-6 flex h-11 w-full items-center justify-center gap-3 rounded-2xl border border-cyan-500/10 bg-[#081325] text-base font-semibold text-white transition-all duration-300 hover:border-cyan-400/30 hover:bg-cyan-500/10"
+          >
+
+            <span className="text-lg">G</span>
+
+            Continue with Google
+
+          </button>
+
+          {/* DIVIDER */}
+          <div className="mb-6 flex items-center gap-4">
+
+            <div className="h-px flex-1 bg-white/10" />
+
+            <span className="text-sm text-white/35">
+              or continue with email
+            </span>
+
+            <div className="h-px flex-1 bg-white/10" />
+
+          </div>
+
+          {/* FORM */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-3"
+          >
+
+            {/* USERNAME */}
+            <div>
+
+              <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
+                Username
+              </Label>
+
+              <Input
+                placeholder="name@company.com"
+                {...register("username")}
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325] px-5 text-white placeholder:text-white/25 focus:border-cyan-400/40"
+              />
+
+            </div>
+
+            {/* PASSWORD */}
+            <div>
+
+              <div className="mb-2 flex items-center justify-between">
+
+                <Label className="text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
+                  Password
+                </Label>
+
+                <button
+                  type="button"
+                  className="text-sm text-cyan-400 hover:text-cyan-300"
+                >
+                  Forgot?
+                </button>
+
+              </div>
+
+              <Input
+                type="password"
+                placeholder="••••••••"
+                {...register("password")}
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325] px-5 text-white placeholder:text-white/25 focus:border-cyan-400/40"
+              />
+
+            </div>
+
+            {/* REMEMBER */}
+            <div className="flex items-center gap-3">
+
+              <input
+                type="checkbox"
+                {...register("rememberMe")}
+                className="h-4 w-4 accent-cyan-400"
+              />
+
+              <Label className="text-sm text-white/55">
+                Remember me
+              </Label>
+
+            </div>
+
+            {/* BUTTON */}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-11 w-full rounded-2xl bg-cyan-400 text-base font-semibold text-black shadow-[0_0_40px_rgba(34,211,238,0.35)] transition-all duration-300 hover:bg-cyan-300"
+            >
+
+              {isSubmitting
+                ? "Signing In..."
+                : "Login →"}
+
+            </Button>
+
+          </form>
+
+        </div>
+
+        {/* SIGN UP */}
+        <p className="mt-3 text-center text-sm text-white/35">
+
+          Don&apos;t have an account?
+
+          <a
+            href="/sign-up"
+            className="ml-2 font-semibold text-cyan-400 hover:text-cyan-300"
+          >
+            Sign up
+          </a>
+
+        </p>
+
+      </div>
+
+    </main>
   );
 }
