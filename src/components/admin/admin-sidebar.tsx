@@ -11,6 +11,8 @@ import {
   ShieldCheck,
   Database,
   Settings,
+  BrainCircuit,
+  ServerCog,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -20,7 +22,6 @@ const sidebarItems = [
     icon: LayoutDashboard,
   },
 
-
   {
     label: "Predictions",
     href: "/admin/predictions",
@@ -28,15 +29,33 @@ const sidebarItems = [
   },
 
   {
-    label: "Moderation",
-    href: "/admin/moderation",
+    label: "Health",
+    href: "/admin/health",
     icon: ShieldCheck,
   },
 
   {
-    label: "Datasets",
-    href: "/admin/datasets",
+    label: "Audit Trails",
+    href: "/audit",
     icon: Database,
+  },
+
+  {
+    label: "Models",
+    href: "/admin/model",
+    icon: BrainCircuit,
+  },
+
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+  },
+
+  {
+    label: "Data Sources",
+    href: "/admin/data-sources",
+    icon: ServerCog,
   },
 
   {
@@ -44,24 +63,6 @@ const sidebarItems = [
     href: "/admin/settings",
     icon: Settings,
   },
-
-  {
-  label: "Model",
-  href: "/admin/model",
-  icon: Activity,
-  },
-
-  {
-  label: "Users",
-  href: "/admin/users",
-  icon: Users,
-  },
-
-  {
-  label: "Data Sources",
-  href: "/admin/data-sources",
-  icon: Database,
-  }
 ];
 
 export function AdminSidebar() {
@@ -70,22 +71,23 @@ export function AdminSidebar() {
     usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 flex h-screen w-[280px] flex-col border-r border-border bg-background">
 
-      {/* Logo */}
-      <div className="flex h-20 items-center border-b border-border px-6">
+    <aside className="fixed left-0 top-0 flex h-screen w-[280px] flex-col border-r border-slate-200 bg-[#111827] text-white">
+
+      {/* LOGO */}
+      <div className="flex h-24 items-center border-b border-white/10 px-7">
 
         <div>
 
-          <h1 className="text-2xl font-black text-foreground">
+          <h1 className="text-3xl font-black tracking-tight text-cyan-400">
 
-            Titan AI
+            NanoToxi
 
           </h1>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-1 text-sm tracking-[0.3em] text-slate-400">
 
-            Admin Panel
+            AI CONTROL CENTER
 
           </p>
 
@@ -93,8 +95,19 @@ export function AdminSidebar() {
 
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 space-y-2 p-4">
+      {/* MENU */}
+      <div className="px-5 pt-6">
+
+        <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
+
+          Management
+
+        </p>
+
+      </div>
+
+      {/* NAVIGATION */}
+      <nav className="flex-1 space-y-1 px-4">
 
         {sidebarItems.map(
           (item) => {
@@ -107,20 +120,39 @@ export function AdminSidebar() {
               item.href;
 
             return (
+
               <Link
                 key={item.href}
                 href={
                   item.href
                 }
-                className={`flex items-center gap-4 rounded-2xl px-4 py-3 transition-all duration-300 ${
+
+                className={`group flex items-center gap-4 rounded-xl px-4 py-3 transition-all duration-200 ${
                   active
-                    ? "bg-red-500 text-white shadow-lg"
-                    : "text-foreground hover:bg-gray-200 dark:hover:bg-white/10"
+                    ? "bg-cyan-500/10 text-cyan-300"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
 
-                <Icon className="h-5 w-5 shrink-0" />
+                {/* ACTIVE INDICATOR */}
+                <div
+                  className={`h-6 w-1 rounded-full transition-all ${
+                    active
+                      ? "bg-cyan-400"
+                      : "bg-transparent"
+                  }`}
+                />
 
+                {/* ICON */}
+                <Icon
+                  className={`h-5 w-5 shrink-0 transition-all ${
+                    active
+                      ? "text-cyan-300"
+                      : "text-slate-400 group-hover:text-white"
+                  }`}
+                />
+
+                {/* LABEL */}
                 <span className="font-medium">
 
                   {item.label}
@@ -133,6 +165,33 @@ export function AdminSidebar() {
         )}
 
       </nav>
+
+      {/* FOOTER */}
+      <div className="border-t border-white/10 p-5">
+
+        <div className="rounded-2xl bg-white/5 p-4">
+
+          <p className="text-sm font-semibold text-cyan-300">
+
+            System Status
+
+          </p>
+
+          <div className="mt-3 flex items-center gap-2">
+
+            <div className="h-2 w-2 rounded-full bg-green-400" />
+
+            <span className="text-sm text-slate-300">
+
+              All systems operational
+
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
 
     </aside>
   );

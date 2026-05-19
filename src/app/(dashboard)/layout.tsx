@@ -92,10 +92,10 @@ export default function DashboardLayout({
 
       {/* MAIN */}
       <div
-        className={`relative z-10 flex flex-1 flex-col transition-all duration-300 ${
+        className={`relative z-10 flex flex-1 flex-col border-l border-cyan-500/10 transition-all duration-300 ${
           sidebarCollapsed
             ? "ml-[100px]"
-            : "ml-[290px]"
+            : "ml-[270px]"
         }`}
       >
 

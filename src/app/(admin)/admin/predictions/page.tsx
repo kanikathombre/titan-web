@@ -6,42 +6,26 @@ import {
 } from "react";
 
 import {
-  useSearchParams,
   useRouter,
+  useSearchParams,
 } from "next/navigation";
 
 import Papa from "papaparse";
 
 import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-
-import {
-  Button,
-} from "@/components/ui/button";
-
-import {
-  Input,
-} from "@/components/ui/input";
-
-import {
-  Badge,
-} from "@/components/ui/badge";
-
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
-
-import {
   Download,
   ChevronLeft,
   ChevronRight,
+  Activity,
+  AlertTriangle,
+  ShieldCheck,
+  Zap,
+  Search,
 } from "lucide-react";
+
+import {
+  useTheme,
+} from "@/context/theme-context";
 
 type Log = {
   id: number;
@@ -98,6 +82,13 @@ const logsData =
   );
 
 export default function PredictionsPage() {
+
+  const {
+    theme,
+  } = useTheme();
+
+  const dark =
+    theme === "dark";
 
   const router =
     useRouter();
@@ -244,151 +235,294 @@ export default function PredictionsPage() {
   }
 
   return (
+
     <div className="space-y-8">
 
-      {/* Header */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      {/* HERO */}
+      <div className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+        dark
+          ? "border-white/10 bg-[#0F172A]"
+          : "border-slate-200 bg-white"
+      }`}>
 
-        <div>
+        <div className="flex items-start justify-between">
 
-          <h1 className="text-5xl font-black">
+          <div>
 
-            Prediction Logs
+            <div className="mb-4 inline-flex rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
 
-          </h1>
+              AI Monitoring Active
 
-          <p className="mt-3 text-muted-foreground">
+            </div>
 
-            Monitor all model
-            predictions across
-            the platform.
+            <h1 className={`text-5xl font-black tracking-tight ${
+              dark
+                ? "text-white"
+                : "text-slate-900"
+            }`}>
 
-          </p>
+              Prediction Intelligence
+
+            </h1>
+
+            <p className={`mt-4 max-w-3xl text-lg ${
+              dark
+                ? "text-slate-400"
+                : "text-slate-500"
+            }`}>
+
+              Monitor nanoparticle prediction activity,
+              toxicity verdicts, AI confidence scores,
+              and inference performance across the platform.
+
+            </p>
+
+          </div>
+
+          <button
+            onClick={
+              exportCSV
+            }
+            className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 font-semibold text-white transition hover:bg-cyan-600"
+          >
+
+            <Download className="h-5 w-5" />
+
+            Export CSV
+
+          </button>
 
         </div>
 
-        <Button
-          onClick={
-            exportCSV
+      </div>
+
+      {/* METRICS */}
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+        {[
+          {
+            icon: Activity,
+            title: "Total Predictions",
+            value: "124K",
+            bg: "bg-cyan-50",
+            iconColor: "text-cyan-500",
+            badge: "+18%",
+            badgeBg:
+              "bg-green-100 text-green-700",
+          },
+
+          {
+            icon: AlertTriangle,
+            title: "Toxic Verdicts",
+            value: "38%",
+            bg: "bg-red-50",
+            iconColor: "text-red-500",
+            badge: "High",
+            badgeBg:
+              "bg-red-100 text-red-700",
+          },
+
+          {
+            icon: ShieldCheck,
+            title: "Avg Confidence",
+            value: "97.8%",
+            bg: "bg-emerald-50",
+            iconColor: "text-emerald-500",
+            badge: "Stable",
+            badgeBg:
+              "bg-emerald-100 text-emerald-700",
+          },
+
+          {
+            icon: Zap,
+            title: "Avg Latency",
+            value: "124ms",
+            bg: "bg-yellow-50",
+            iconColor: "text-yellow-500",
+            badge: "Fast",
+            badgeBg:
+              "bg-yellow-100 text-yellow-700",
+          },
+        ].map(
+          (
+            item,
+            i
+          ) => {
+
+            const Icon =
+              item.icon;
+
+            return (
+
+              <div
+                key={i}
+                className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+                  dark
+                    ? "border-white/10 bg-[#0F172A]"
+                    : "border-slate-200 bg-white"
+                }`}
+              >
+
+                <div className="flex items-center justify-between">
+
+                  <div className={`rounded-2xl p-4 ${item.bg}`}>
+
+                    <Icon className={`h-6 w-6 ${item.iconColor}`} />
+
+                  </div>
+
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.badgeBg}`}>
+
+                    {item.badge}
+
+                  </span>
+
+                </div>
+
+                <p className={`mt-6 text-sm ${
+                  dark
+                    ? "text-slate-400"
+                    : "text-slate-500"
+                }`}>
+
+                  {item.title}
+
+                </p>
+
+                <h2 className={`mt-2 text-4xl font-black ${
+                  dark
+                    ? "text-white"
+                    : "text-slate-900"
+                }`}>
+
+                  {item.value}
+
+                </h2>
+
+              </div>
+            );
           }
-        >
-
-          <Download className="mr-2 h-4 w-4" />
-
-          Export CSV
-
-        </Button>
+        )}
 
       </div>
 
-      {/* Filters */}
-      <Card className="border-border bg-background/80">
+      {/* FILTERS */}
+      <div className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+        dark
+          ? "border-white/10 bg-[#0F172A]"
+          : "border-slate-200 bg-white"
+      }`}>
 
-        <CardContent className="grid gap-4 p-6 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
 
-          <Input
-            placeholder="Search by user..."
-            value={search}
+          {/* SEARCH */}
+          <div className={`flex items-center gap-3 rounded-2xl border px-4 ${
+            dark
+              ? "border-white/10 bg-white/5"
+              : "border-slate-200 bg-slate-50"
+          }`}>
+
+            <Search className="h-5 w-5 text-slate-400" />
+
+            <input
+              placeholder="Search by user..."
+              value={search}
+              onChange={(e) =>
+                updateQuery(
+                  "search",
+                  e.target.value
+                )
+              }
+              className={`h-14 w-full bg-transparent outline-none ${
+                dark
+                  ? "text-white placeholder:text-slate-500"
+                  : "text-slate-900 placeholder:text-slate-400"
+              }`}
+            />
+
+          </div>
+
+          {/* SELECT */}
+          <select
+            value={verdict}
             onChange={(e) =>
               updateQuery(
-                "search",
+                "verdict",
                 e.target.value
               )
             }
-          />
-
-          <Select
-            value={verdict}
-            onValueChange={(
-              value
-            ) =>
-              updateQuery(
-                "verdict",
-                value
-              )
-            }
+            className={`h-14 rounded-2xl border px-4 outline-none ${
+              dark
+                ? "border-white/10 bg-white/5 text-white"
+                : "border-slate-200 bg-slate-50 text-slate-900"
+            }`}
           >
 
-            <SelectTrigger>
+            <option value="all">
 
-              <SelectValue placeholder="Filter verdict" />
+              All Verdicts
 
-            </SelectTrigger>
+            </option>
 
-            <SelectContent>
+            <option value="Safe">
 
-              <SelectItem value="all">
+              Safe
 
-                All
+            </option>
 
-              </SelectItem>
+            <option value="Toxic">
 
-              <SelectItem value="Safe">
+              Toxic
 
-                Safe
+            </option>
 
-              </SelectItem>
+          </select>
 
-              <SelectItem value="Toxic">
+        </div>
 
-                Toxic
+      </div>
 
-              </SelectItem>
+      {/* TABLE */}
+      <div className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+        dark
+          ? "border-white/10 bg-[#0F172A]"
+          : "border-slate-200 bg-white"
+      }`}>
 
-            </SelectContent>
+        <div className="overflow-x-auto">
 
-          </Select>
-
-        </CardContent>
-
-      </Card>
-
-      {/* Table */}
-      <Card className="border-border bg-background/80">
-
-        <CardContent className="overflow-auto p-6">
-
-          <table className="w-full border-collapse">
+          <table className="w-full">
 
             <thead>
 
-              <tr className="border-b border-border">
+              <tr className={`border-b ${
+                dark
+                  ? "border-white/10"
+                  : "border-slate-200"
+              }`}>
 
-                <th className="p-4 text-left">
+                {[
+                  "Timestamp",
+                  "User",
+                  "Nanoparticle",
+                  "Verdict",
+                  "Confidence",
+                  "Latency",
+                ].map((header) => (
 
-                  Timestamp
+                  <th
+                    key={header}
+                    className={`px-4 py-4 text-left text-sm font-bold ${
+                      dark
+                        ? "text-slate-400"
+                        : "text-slate-500"
+                    }`}
+                  >
 
-                </th>
+                    {header}
 
-                <th className="p-4 text-left">
-
-                  User
-
-                </th>
-
-                <th className="p-4 text-left">
-
-                  Inputs
-
-                </th>
-
-                <th className="p-4 text-left">
-
-                  Verdict
-
-                </th>
-
-                <th className="p-4 text-left">
-
-                  Confidence
-
-                </th>
-
-                <th className="p-4 text-left">
-
-                  Latency
-
-                </th>
+                  </th>
+                ))}
 
               </tr>
 
@@ -406,67 +540,74 @@ export default function PredictionsPage() {
                         log
                       )
                     }
-                    className="cursor-pointer border-b border-border transition hover:bg-muted/30"
+                    className={`cursor-pointer border-b transition ${
+                      dark
+                        ? "border-white/5 hover:bg-white/5"
+                        : "border-slate-100 hover:bg-slate-50"
+                    }`}
                   >
 
-                    <td className="p-4">
+                    <td className={`px-4 py-5 ${
+                      dark
+                        ? "text-slate-300"
+                        : "text-slate-600"
+                    }`}>
 
-                      {
-                        log.timestamp
-                      }
-
-                    </td>
-
-                    <td className="p-4">
-
-                      {
-                        log.user
-                      }
+                      {log.timestamp}
 
                     </td>
 
-                    <td className="p-4">
+                    <td className={`px-4 py-5 font-semibold ${
+                      dark
+                        ? "text-white"
+                        : "text-slate-900"
+                    }`}>
 
-                      {
-                        log.inputs
-                      }
-
-                    </td>
-
-                    <td className="p-4">
-
-                      <Badge
-                        variant={
-                          log.verdict ===
-                          "Toxic"
-                            ? "destructive"
-                            : "default"
-                        }
-                      >
-
-                        {
-                          log.verdict
-                        }
-
-                      </Badge>
+                      {log.user}
 
                     </td>
 
-                    <td className="p-4">
+                    <td className={`px-4 py-5 ${
+                      dark
+                        ? "text-slate-300"
+                        : "text-slate-600"
+                    }`}>
 
-                      {
-                        log.confidence
-                      }
-                      %
+                      {log.inputs}
 
                     </td>
 
-                    <td className="p-4">
+                    <td className="px-4 py-5">
 
-                      {
-                        log.latency
-                      }
-                      ms
+                      <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                        log.verdict === "Toxic"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-emerald-100 text-emerald-700"
+                      }`}>
+
+                        {log.verdict}
+
+                      </span>
+
+                    </td>
+
+                    <td className={`px-4 py-5 ${
+                      dark
+                        ? "text-slate-300"
+                        : "text-slate-600"
+                    }`}>
+
+                      {log.confidence}%
+
+                    </td>
+
+                    <td className={`px-4 py-5 ${
+                      dark
+                        ? "text-slate-300"
+                        : "text-slate-600"
+                    }`}>
+
+                      {log.latency}ms
 
                     </td>
 
@@ -478,177 +619,75 @@ export default function PredictionsPage() {
 
           </table>
 
-          {/* Pagination */}
-          <div className="mt-6 flex items-center justify-between">
+        </div>
 
-            <Button
-              variant="secondary"
-              disabled={
-                currentPage === 1
-              }
-              onClick={() =>
-                updateQuery(
-                  "page",
-                  String(
-                    currentPage - 1
-                  )
+        {/* PAGINATION */}
+        <div className="mt-8 flex items-center justify-between">
+
+          <button
+            disabled={
+              currentPage === 1
+            }
+            onClick={() =>
+              updateQuery(
+                "page",
+                String(
+                  currentPage - 1
                 )
-              }
-            >
+              )
+            }
+            className={`flex items-center gap-2 rounded-2xl border px-5 py-3 font-semibold transition disabled:opacity-40 ${
+              dark
+                ? "border-white/10 text-white hover:bg-white/5"
+                : "border-slate-200 text-slate-700 hover:bg-slate-50"
+            }`}
+          >
 
-              <ChevronLeft className="mr-2 h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
 
-              Previous
+            Previous
 
-            </Button>
+          </button>
 
-            <p className="text-sm text-muted-foreground">
+          <p className={`text-sm ${
+            dark
+              ? "text-slate-400"
+              : "text-slate-500"
+          }`}>
 
-              Page {currentPage} of{" "}
-              {totalPages}
+            Page {currentPage} of {totalPages}
 
-            </p>
+          </p>
 
-            <Button
-              variant="secondary"
-              disabled={
-                currentPage ===
-                totalPages
-              }
-              onClick={() =>
-                updateQuery(
-                  "page",
-                  String(
-                    currentPage + 1
-                  )
+          <button
+            disabled={
+              currentPage ===
+              totalPages
+            }
+            onClick={() =>
+              updateQuery(
+                "page",
+                String(
+                  currentPage + 1
                 )
-              }
-            >
+              )
+            }
+            className={`flex items-center gap-2 rounded-2xl border px-5 py-3 font-semibold transition disabled:opacity-40 ${
+              dark
+                ? "border-white/10 text-white hover:bg-white/5"
+                : "border-slate-200 text-slate-700 hover:bg-slate-50"
+            }`}
+          >
 
-              Next
+            Next
 
-              <ChevronRight className="ml-2 h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
 
-            </Button>
+          </button>
 
-          </div>
+        </div>
 
-        </CardContent>
-
-      </Card>
-
-      {/* Detail Panel */}
-      {selectedLog && (
-
-        <Card className="border-border bg-background/80">
-
-          <CardContent className="space-y-4 p-6">
-
-            <div className="flex items-center justify-between">
-
-              <h2 className="text-2xl font-black">
-
-                Prediction Detail
-
-              </h2>
-
-              <Button
-                variant="secondary"
-                onClick={() =>
-                  setSelectedLog(
-                    null
-                  )
-                }
-              >
-
-                Close
-
-              </Button>
-
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-
-              <p>
-
-                <strong>
-                  User:
-                </strong>{" "}
-
-                {
-                  selectedLog.user
-                }
-
-              </p>
-
-              <p>
-
-                <strong>
-                  Timestamp:
-                </strong>{" "}
-
-                {
-                  selectedLog.timestamp
-                }
-
-              </p>
-
-              <p>
-
-                <strong>
-                  Inputs:
-                </strong>{" "}
-
-                {
-                  selectedLog.inputs
-                }
-
-              </p>
-
-              <p>
-
-                <strong>
-                  Output:
-                </strong>{" "}
-
-                {
-                  selectedLog.output
-                }
-
-              </p>
-
-              <p>
-
-                <strong>
-                  Confidence:
-                </strong>{" "}
-
-                {
-                  selectedLog.confidence
-                }
-                %
-
-              </p>
-
-              <p>
-
-                <strong>
-                  Latency:
-                </strong>{" "}
-
-                {
-                  selectedLog.latency
-                }
-                ms
-
-              </p>
-
-            </div>
-
-          </CardContent>
-
-        </Card>
-      )}
+      </div>
 
     </div>
   );

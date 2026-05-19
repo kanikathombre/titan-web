@@ -112,7 +112,8 @@ export function SiteFooter() {
     )||
     pathname.startsWith("/admin")||
     pathname === "/sign-in" ||
-    pathname === "/sign-up"
+    pathname === "/sign-up" ||
+    pathname === "/audit"
   ) {
 
     return null;
@@ -154,7 +155,7 @@ export function SiteFooter() {
 
                 <h2 className="text-2xl font-black">
 
-                  Titan AI
+                  NanoToxi AI
 
                 </h2>
 
@@ -170,7 +171,7 @@ export function SiteFooter() {
 
             <p className="mt-6 max-w-md leading-relaxed text-muted">
 
-              Titan AI accelerates nanotoxicity research using predictive AI,
+              NanoToxi AI accelerates nanotoxicity research using predictive AI,
               scientific intelligence, and enterprise-grade biotechnology
               workflows.
 
@@ -261,7 +262,7 @@ export function SiteFooter() {
 
           <p>
 
-            © 2026 Titan AI. All rights reserved.
+            © 2026 NanoToxi AI. All rights reserved.
 
           </p>
 

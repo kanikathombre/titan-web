@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,7 +74,6 @@ export default function PredictPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
     setValue,
   } = useForm<PredictForm>({
     resolver: zodResolver(
@@ -199,58 +199,22 @@ export default function PredictPage() {
   return (
     <div className="relative space-y-5">
 
-      {/* BG */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-
-        <div className="absolute left-[-200px] top-[-100px] h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[140px]" />
-
-        <div className="absolute bottom-[-250px] right-[-200px] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[140px]" />
-
-        {Array.from({ length: 16 }).map(
-          (_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-cyan-400 shadow-[0_0_18px_#22d3ee]"
-              style={{
-                width: `${2 + (i % 4)}px`,
-                height: `${2 + (i % 4)}px`,
-                left: `${(i * 7) % 100}%`,
-                top: `${(i * 13) % 100}%`,
-              }}
-              animate={{
-                x: [
-                  0,
-                  Math.random() * 120 - 60,
-                  0,
-                ],
-                y: [
-                  0,
-                  Math.random() * 120 - 60,
-                  0,
-                ],
-                opacity: [0.4, 1, 0.4],
-              }}
-              transition={{
-                duration: 6 + i,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          )
-        )}
-
-      </div>
-
       {/* HEADER */}
       <div className="relative z-10">
 
-        <h1 className="text-4xl font-black tracking-tight text-white">
-
-          Predict Toxicity
-
+        <h1
+            className="text-5xl font-black text-transparent"
+            style={{
+                background:
+                "linear-gradient(to right, #ffffff 35%, #67e8f9 75%, #22d3ee 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+            }}
+        >
+            Predict Toxicity
         </h1>
 
-        <p className="mt-2 text-base text-white/55">
+        <p className="mt-2 text-lg text-white/50">
 
           AI-powered nanoparticle toxicity prediction.
 
@@ -259,7 +223,7 @@ export default function PredictPage() {
       </div>
 
       {/* STATS */}
-      <div className="relative z-10 grid grid-cols-1 gap-5 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
 
         {[
           {
@@ -292,10 +256,10 @@ export default function PredictPage() {
           return (
             <Card
               key={i}
-              className="bg-[#071427]/75 backdrop-blur-2xl border border-cyan-500/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.02),0_0_30px_rgba(0,255,255,0.03)]"
+              className="rounded-[26px] border border-cyan-500/10 bg-[#071120]/70 backdrop-blur-xl transition-all duration-300 hover:border-cyan-400/20"
             >
 
-              <CardContent className="flex items-center justify-between p-4">
+              <CardContent className="flex items-center justify-between p-5">
 
                 <div>
 
@@ -305,7 +269,7 @@ export default function PredictPage() {
 
                   </p>
 
-                  <h2 className="mt-2 text-2xl font-black text-white">
+                  <h2 className="mt-2 text-3xl font-black text-white">
 
                     {item.value}
 
@@ -313,7 +277,7 @@ export default function PredictPage() {
 
                 </div>
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10">
 
                   <Icon className="h-7 w-7 text-cyan-400" />
 
@@ -328,19 +292,19 @@ export default function PredictPage() {
       </div>
 
       {/* MAIN GRID */}
-      <div className="relative z-10 grid grid-cols-1 gap-4 xl:grid-cols-[1.45fr_0.55fr]">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.45fr_0.55fr]">
 
         {/* LEFT */}
-        <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
+        <Card className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 backdrop-blur-xl">
 
-          <CardContent className="space-y-5 p-5">
+          <CardContent className="space-y-4 p-4">
 
             {/* BUTTONS */}
             <div className="flex flex-wrap gap-3">
 
               <Button
                 onClick={loadPresetSafe}
-                className="bg-cyan-500 text-black hover:bg-cyan-400"
+                className="rounded-2xl bg-cyan-400 text-black shadow-[0_0_25px_rgba(34,211,238,0.2)] hover:bg-cyan-300"
               >
 
                 Safe Preset
@@ -350,7 +314,7 @@ export default function PredictPage() {
               <Button
                 variant="outline"
                 onClick={loadPresetToxic}
-                className="border-cyan-500/20 bg-transparent text-white hover:bg-cyan-500/10"
+                className="rounded-2xl border border-cyan-500/10 bg-[#081325]/70 text-white hover:border-cyan-400/20 hover:bg-cyan-500/5"
               >
 
                 Toxic Preset
@@ -362,10 +326,9 @@ export default function PredictPage() {
             {/* FORM */}
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="grid grid-cols-1 gap-5 md:grid-cols-2"
+              className="grid grid-cols-1 gap-4 md:grid-cols-2"
             >
 
-              {/* Nanoparticle */}
               <Select
                 onValueChange={(value) =>
                   setValue(
@@ -375,7 +338,7 @@ export default function PredictPage() {
                 }
               >
 
-                <SelectTrigger className="h-11 border-cyan-500/10 bg-[#081325] text-white">
+                <SelectTrigger className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white">
 
                   <SelectValue placeholder="Select Nanoparticle" />
 
@@ -403,10 +366,9 @@ export default function PredictPage() {
                 type="number"
                 placeholder="Size (nm)"
                 {...register("size")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
-              {/* Shape */}
               <Select
                 onValueChange={(value) =>
                   setValue(
@@ -416,7 +378,7 @@ export default function PredictPage() {
                 }
               >
 
-                <SelectTrigger className="h-11 border-cyan-500/10 bg-[#081325] text-white">
+                <SelectTrigger className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white">
 
                   <SelectValue placeholder="Select Shape" />
 
@@ -444,17 +406,16 @@ export default function PredictPage() {
                 type="number"
                 placeholder="Dosage"
                 {...register("dosage")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
               <Input
                 type="number"
                 placeholder="Exposure Time"
                 {...register("exposure")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
-              {/* Cell line */}
               <Select
                 onValueChange={(value) =>
                   setValue(
@@ -464,7 +425,7 @@ export default function PredictPage() {
                 }
               >
 
-                <SelectTrigger className="h-11 border-cyan-500/10 bg-[#081325] text-white">
+                <SelectTrigger className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white">
 
                   <SelectValue placeholder="Select Cell Line" />
 
@@ -492,36 +453,35 @@ export default function PredictPage() {
                 type="number"
                 placeholder="Surface Charge"
                 {...register("surfaceCharge")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
               <Input
                 placeholder="Coating (Optional)"
                 {...register("coating")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
               <Input
                 type="number"
                 placeholder="Cell Viability"
                 {...register("viability")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
               <Input
                 type="number"
                 placeholder="pH"
                 {...register("ph")}
-                className="h-11 border-cyan-500/10 bg-[#081325]"
+                className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white placeholder:text-white/30"
               />
 
-              {/* BUTTON */}
               <div className="md:col-span-2">
 
                 <Button
                   type="submit"
                   disabled={offline}
-                  className="h-11 w-full bg-cyan-400 text-lg font-bold text-black hover:bg-cyan-300"
+                  className="h-11 w-full rounded-2xl bg-cyan-400 text-lg font-bold text-black shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:bg-cyan-300"
                 >
 
                   Run Prediction
@@ -537,11 +497,11 @@ export default function PredictPage() {
         </Card>
 
         {/* RIGHT PANEL */}
-        <div className="space-y-4">
+        <div className="space-y-5">
 
-          <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
+          <Card className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 backdrop-blur-xl">
 
-            <CardContent className="p-5">
+            <CardContent className="p-6">
 
               <p className="text-sm text-white/45">
 
@@ -549,7 +509,7 @@ export default function PredictPage() {
 
               </p>
 
-              <h2 className="mt-3 text-5xl font-black text-cyan-400">
+              <h2 className="mt-3 text-6xl font-black text-cyan-400">
 
                 98%
 
@@ -565,11 +525,11 @@ export default function PredictPage() {
 
           </Card>
 
-          <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
+          <Card className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 backdrop-blur-xl">
 
-            <CardContent className="space-y-5 p-5">
+            <CardContent className="space-y-5 p-6">
 
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-2xl font-bold text-white">
 
                 Live Analysis
 
@@ -638,9 +598,9 @@ export default function PredictPage() {
           }}
         >
 
-          <Card className="border border-white/[0.04] shadow-[0_0_25px_rgba(0,255,255,0.02)] bg-[#071427]/80 backdrop-blur-xl">
+          <Card className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 backdrop-blur-xl">
 
-            <CardContent className="space-y-4 p-5">
+            <CardContent className="space-y-4 p-6">
 
               <h2 className="text-4xl font-black text-white">
 
@@ -680,3 +640,4 @@ export default function PredictPage() {
     </div>
   );
 }
+

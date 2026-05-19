@@ -1,12 +1,19 @@
 "use client";
 
+import { SiteHeader } from "@/components/marketing/site-header";
+
+import React from "react";
+
 import Link from "next/link";
+
+import { usePathname } from "next/navigation";
 
 import { motion } from "framer-motion";
 
 import {
   Check,
   X,
+  Sparkles,
 } from "lucide-react";
 
 const pricingPlans = [
@@ -124,22 +131,140 @@ const comparisonFeatures = [
 ];
 
 export default function PricingPage() {
+
+  const pathname =
+    usePathname();
+
+  const particles = Array.from(
+  { length: 70 },
+  (_, i) => ({
+    id: i,
+
+    size:
+      (i % 5) + 2,
+
+    top:
+      (i * 13) % 100,
+
+    left:
+      (i * 17) % 100,
+
+    duration:
+      18 + (i % 10),
+
+    delay:
+      (i % 6),
+  })
+);
   return (
-    <main className="min-h-screen bg-background px-6 py-28 text-foreground">
 
-      {/* Background Glow */}
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <main className="relative min-h-screen overflow-hidden bg-[#020617] text-white">
+     <SiteHeader />
 
-        <div className="absolute left-1/3 top-20 h-[400px] w-[400px] rounded-full bg-primary/20 blur-3xl" />
+      {/* PARTICLES */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
-        <div className="absolute bottom-0 right-0 h-[350px] w-[350px] rounded-full bg-cyan-500/10 blur-3xl" />
+        {particles.map(
+          (
+            particle,
+            i
+          ) => (
+
+            <div
+              key={particle.id}
+              className="absolute rounded-full bg-cyan-400"
+
+              style={{
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+                top: `${particle.top}%`,
+                left: `${particle.left}%`,
+                opacity: 0.8,
+
+                boxShadow:
+                  "0 0 25px #22d3ee",
+
+                animation: `floatParticle ${particle.duration}s ease-in-out infinite`,
+                animationDelay: `${particle.delay}s`,
+              }}
+            />
+          )
+        )}
 
       </div>
 
-      {/* Header */}
-      <section className="mx-auto max-w-4xl text-center">
+      {/* GRID */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
+
+      {/* GLOWS */}
+      <div className="absolute left-[-250px] top-[-100px] h-[600px] w-[600px] rounded-full bg-cyan-500/10 blur-[160px]" />
+
+      <div className="absolute bottom-[-200px] right-[-200px] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[160px]" />
+
+     
+        
+
+      {/* HERO */}
+      <section className="relative z-10 mx-auto flex max-w-7xl flex-col items-center px-6 pb-24 pt-36 text-center">
 
         <motion.div
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          transition={{
+            duration: 0.6,
+          }}
+
+          className="mb-8 flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-8 py-3 text-sm font-semibold tracking-[0.25em] text-cyan-300 backdrop-blur-xl"
+        >
+
+          <Sparkles className="h-4 w-4" />
+
+          FLEXIBLE AI PRICING
+
+        </motion.div>
+
+        <motion.h1
+          initial={{
+            opacity: 0,
+            y: 40,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          transition={{
+            duration: 0.8,
+          }}
+
+          className="max-w-6xl text-6xl font-black uppercase leading-[0.9] tracking-tight md:text-[120px]"
+          style={{
+            fontFamily:
+              "Orbitron, sans-serif",
+          }}
+        >
+
+          NANOTOXI
+          <br />
+
+          <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+
+            PRICING
+
+          </span>
+
+        </motion.h1>
+
+        <motion.p
           initial={{
             opacity: 0,
             y: 30,
@@ -151,250 +276,195 @@ export default function PricingPage() {
           }}
 
           transition={{
-            duration: 0.6,
+            delay: 0.2,
+            duration: 0.8,
           }}
+
+          className="mt-10 max-w-4xl text-2xl leading-10 text-slate-400"
         >
 
-          <div className="mb-6 inline-flex rounded-full border border-white/10 bg-surface px-5 py-2 text-sm text-muted backdrop-blur-xl">
+          Scale nanotoxicity prediction workflows
+          with enterprise-grade AI,
+          advanced analytics,
+          and flexible infrastructure
+          designed for modern biotech teams.
 
-            Flexible Pricing
-
-          </div>
-
-          <h1 className="text-5xl font-black md:text-7xl">
-
-            Simple Pricing
-            <span className="bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
-
-              {" "}
-              For AI Research
-
-            </span>
-
-          </h1>
-
-          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
-
-            Scale nanotoxicity prediction workflows with enterprise-grade AI,
-            advanced analytics, and flexible infrastructure designed for modern
-            biotech teams.
-
-          </p>
-
-        </motion.div>
+        </motion.p>
 
       </section>
 
-      {/* Pricing Cards */}
-      <section className="mx-auto mt-24 grid max-w-7xl gap-8 lg:grid-cols-3">
+      {/* PRICING CARDS */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-24">
 
-        {pricingPlans.map(
-          (plan, index) => (
+        <div className="grid gap-8 lg:grid-cols-3">
 
-            <motion.div
-              key={plan.name}
+          {pricingPlans.map(
+            (
+              plan,
+              index
+            ) => (
 
-              initial={{
-                opacity: 0,
-                y: 40,
-              }}
+              <motion.div
+                key={plan.name}
 
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
+                initial={{
+                  opacity: 0,
+                  y: 40,
+                }}
 
-              transition={{
-                duration: 0.5,
-                delay:
-                  index * 0.1,
-              }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                }}
 
-              viewport={{
-                once: true,
-              }}
+                transition={{
+                  duration: 0.5,
+                  delay:
+                    index * 0.1,
+                }}
 
-              className={`group relative overflow-hidden rounded-[2rem] border p-10 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 ${
-                plan.popular
-                  ? "border-primary/40 bg-primary/10 shadow-[0_0_80px_rgba(124,58,237,0.25)]"
-                  : "border-white/10 bg-surface/50 hover:border-primary/20"
-              }`}
-            >
+                viewport={{
+                  once: true,
+                }}
 
-              {/* Glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-cyan-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                className={`group relative overflow-hidden rounded-[2rem] border p-10 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 ${
+                  plan.popular
+                    ? "border-cyan-400/40 bg-cyan-500/10 shadow-[0_0_80px_rgba(34,211,238,0.20)]"
+                    : "border-white/10 bg-[#04112a]/80 hover:border-cyan-400/20"
+                }`}
+              >
 
-              {plan.popular && (
+                {plan.popular && (
 
-                <div className="absolute right-6 top-6 rounded-full bg-primary px-4 py-1 text-xs font-bold text-white">
+                  <div className="absolute right-6 top-6 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-1 text-xs font-bold text-black">
 
-                  MOST POPULAR
+                    MOST POPULAR
 
-                </div>
-              )}
+                  </div>
+                )}
 
-              <div className="relative z-10">
+                <div className="relative z-10 flex h-full flex-col">
 
-                <h2 className="text-3xl font-black">
-
-                  {plan.name}
-
-                </h2>
-
-                <div className="mt-6 flex items-end gap-2">
-
-                  <span className="text-5xl font-black">
-
-                    {plan.price}
-
-                  </span>
-
-                  {plan.price !==
-                    "Custom" && (
-
-                    <span className="mb-1 text-muted">
-
-                      /month
-
-                    </span>
-                  )}
-
-                </div>
-
-                <p className="mt-5 text-muted leading-relaxed">
-
-                  {plan.description}
-
-                </p>
-
-                <div className="mt-8 space-y-4">
-
-                  {plan.features.map(
-                    (feature) => (
-
-                      <div
-                        key={feature}
-                        className="flex items-center gap-3"
-                      >
-
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
-
-                          <Check className="h-4 w-4 text-primary" />
-
-                        </div>
-
-                        <span className="text-sm">
-
-                          {feature}
-
-                        </span>
-
-                      </div>
-                    )
-                  )}
-
-                </div>
-
-                <Link href="/sign-up">
-
-                  <button
-                    className={`mt-10 w-full rounded-2xl px-6 py-4 font-semibold transition-all duration-300 ${
-                      plan.popular
-                        ? "bg-primary text-white hover:opacity-90"
-                        : "border border-white/10 bg-white/5 hover:border-primary hover:bg-primary/10"
-                    }`}
+                  <h2
+                    className="text-4xl font-black uppercase"
+                    style={{
+                      fontFamily:
+                        "Orbitron, sans-serif",
+                    }}
                   >
 
-                    Get Started
+                    {plan.name}
 
-                  </button>
+                  </h2>
 
-                </Link>
+                  <div className="mt-6 flex items-end gap-2">
 
-              </div>
+                    <span className="text-6xl font-black">
 
-            </motion.div>
-          )
-        )}
+                      {plan.price}
+
+                    </span>
+
+                    {plan.price !==
+                      "Custom" && (
+
+                      <span className="mb-1 text-slate-400">
+
+                        /month
+
+                      </span>
+                    )}
+
+                  </div>
+
+                  <p className="mt-5 leading-relaxed text-slate-400">
+
+                    {plan.description}
+
+                  </p>
+
+                  <div className="mt-8 flex-1 space-y-4">
+
+                    {plan.features.map(
+                      (feature) => (
+
+                        <div
+                          key={feature}
+                          className="flex items-center gap-3"
+                        >
+
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-500/20">
+
+                            <Check className="h-4 w-4 text-cyan-400" />
+
+                          </div>
+
+                          <span className="text-sm">
+
+                            {feature}
+
+                          </span>
+
+                        </div>
+                      )
+                    )}
+
+                  </div>
+
+                  <div className="mt-10">
+
+                    <Link href="/sign-up">
+
+                      <button
+                        className={`w-full rounded-2xl px-6 py-4 font-semibold transition-all duration-300 ${
+                          plan.popular
+                            ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-black shadow-[0_0_35px_rgba(34,211,238,0.3)] hover:scale-[1.02]"
+                            : "border border-white/10 bg-white/5 text-white hover:border-cyan-400 hover:bg-cyan-500/10"
+                        }`}
+                      >
+
+                        Get Started
+
+                      </button>
+
+                    </Link>
+
+                  </div>
+
+                </div>
+
+              </motion.div>
+            )
+          )}
+
+        </div>
 
       </section>
 
-      {/* Comparison Table */}
-      <section className="mx-auto mt-32 max-w-6xl">
+      {/* COMPARISON */}
+      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-32">
 
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 30,
-          }}
-
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          transition={{
-            duration: 0.6,
-          }}
-
-          viewport={{
-            once: true,
-          }}
-
-          className="overflow-hidden rounded-[2rem] border border-white/10 bg-surface/40 backdrop-blur-2xl"
-        >
+        <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#04112a]/80 backdrop-blur-2xl">
 
           <div className="border-b border-white/10 p-8">
 
-            <h2 className="text-4xl font-black">
+            <h2
+              className="text-4xl font-black uppercase"
+              style={{
+                fontFamily:
+                  "Orbitron, sans-serif",
+              }}
+            >
 
               Feature Comparison
 
             </h2>
-
-            <p className="mt-3 text-muted">
-
-              Compare plans and capabilities across all tiers.
-
-            </p>
 
           </div>
 
           <div className="overflow-x-auto">
 
             <table className="w-full min-w-[700px]">
-
-              <thead>
-
-                <tr className="border-b border-white/10">
-
-                  <th className="px-8 py-5 text-left">
-
-                    Features
-
-                  </th>
-
-                  <th className="px-8 py-5 text-center">
-
-                    Starter
-
-                  </th>
-
-                  <th className="px-8 py-5 text-center">
-
-                    Professional
-
-                  </th>
-
-                  <th className="px-8 py-5 text-center">
-
-                    Enterprise
-
-                  </th>
-
-                </tr>
-
-              </thead>
 
               <tbody>
 
@@ -430,7 +500,7 @@ export default function PricingPage() {
 
                               {value ? (
 
-                                <Check className="h-5 w-5 text-emerald-400" />
+                                <Check className="h-5 w-5 text-cyan-400" />
 
                               ) : (
 
@@ -454,9 +524,47 @@ export default function PricingPage() {
 
           </div>
 
-        </motion.div>
+        </div>
 
       </section>
+
+      {/* PARTICLE ANIMATION */}
+      <style jsx global>{`
+
+        @keyframes floatParticle {
+
+          0% {
+            transform:
+              translateY(0px)
+              translateX(0px);
+          }
+
+          25% {
+            transform:
+              translateY(-30px)
+              translateX(12px);
+          }
+
+          50% {
+            transform:
+              translateY(15px)
+              translateX(-18px);
+          }
+
+          75% {
+            transform:
+              translateY(-12px)
+              translateX(20px);
+          }
+
+          100% {
+            transform:
+              translateY(0px)
+              translateX(0px);
+          }
+        }
+
+      `}</style>
 
     </main>
   );

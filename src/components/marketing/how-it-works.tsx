@@ -275,7 +275,7 @@ export default function HowItWorks() {
 
           {/* CONNECTING LINE */}
 
-          <div className="absolute right-[22%] top-[30%] hidden h-[1px] w-[180px] rotate-[28deg] bg-cyan-400/20 lg:block" />
+          
 
           {/* OVERVIEW */}
 
@@ -307,7 +307,7 @@ export default function HowItWorks() {
             "
           >
 
-            How Titan Works
+            How NanoToxi AI Works
 
           </h2>
 
@@ -371,7 +371,7 @@ export default function HowItWorks() {
                       grid
                       items-center
                       gap-40
-                      lg:grid-cols-[0.65fr_1.35fr]
+                      lg:grid-cols-[minmax(480px,0.8fr)_minmax(760px,1fr)]
                       transition-all
                       duration-700
                       ${index !== 0 ? "-mt-40" : ""}
@@ -524,49 +524,66 @@ export default function HowItWorks() {
 
                     {/* RIGHT VISUAL */}
 
-                    <div className="relative pl-20">
+                    {/* RIGHT VISUAL */}
 
-                      <div
-                        className="
-                          relative
-                          h-[600px]
-                          overflow-hidden
-                          rounded-[36px]
-                          bg-[#030712]/98
-                          backdrop-blur-3xl
-                          shadow-[0_0_80px_rgba(34,211,238,0.015)]
-                        "
-                      >
+<div
+  className="
+    relative
+    flex
+    items-center
+    justify-center
+  "
+>
 
-                        <div className="absolute inset-0 bg-black/25" />
+  <div
+    className="
+      relative
+      flex
+      h-[620px]
+      w-full
+      items-center
+      justify-center
+    "
+  >
 
-                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.02] via-transparent to-blue-500/[0.02]" />
+    <div
+  className="
+    relative
+    flex
+    h-[520px]
+    w-[820px]
+    items-center
+    justify-center
+    overflow-hidden
+    rounded-[40px]
+  "
+>
 
-                        <div className="relative h-[720px] w-[760px] overflow-hidden rounded-[40px] bg-[#020817]/90">
+      
 
-                          <NanoDashboard step={step.id} />
+      {/* DASHBOARD */}
+      <div
+        className="
+          relative
+          flex
+          h-full
+          w-full
+          items-center
+          justify-center
+        "
+      >
 
-                          <div className="absolute bottom-10 left-10">
+        <NanoDashboard step={step.id} />
 
-                            <p className="orbitron text-[11px] tracking-[0.35em] text-cyan-400">
+      </div>
 
-                              STEP {step.id}
+      
 
-                            </p>
+    </div>
 
-                            <h4 className="mt-4 text-3xl font-semibold text-white">
+  </div>
 
-                              {step.title}
-
-                            </h4>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                    </div>
+</div>
 
                   </div>
 

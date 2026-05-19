@@ -84,7 +84,7 @@ export function DashboardHeader({
   }
 
   return (
-    <header className="sticky top-0 z-40 flex h-20 items-center justify-between border-b border-white/10 bg-background/70 px-6 backdrop-blur-2xl">
+    <header className="sticky top-0 z-40 flex h-24 items-center justify-between border-b border-white/10 bg-background/70 px-6 backdrop-blur-2xl">
 
       {/* Left */}
       <div className="flex items-center gap-3">
@@ -133,7 +133,7 @@ export function DashboardHeader({
 
         <div>
 
-          <h1 className="text-3xl font-black">
+          <h1 className="text-5xl font-black">
 
             {title}
 

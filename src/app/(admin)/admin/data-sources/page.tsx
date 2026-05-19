@@ -3,308 +3,595 @@
 import dataSources from "@/data/data-sources.json";
 
 import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-
-import {
-  Badge,
-} from "@/components/ui/badge";
-
-import {
   Database,
   ExternalLink,
+  Activity,
+  ShieldCheck,
+  HardDrive,
+  Workflow,
 } from "lucide-react";
 
 import {
-  Button,
-} from "@/components/ui/button";
+  useTheme,
+} from "@/context/theme-context";
 
 export default function DataSourcesPage() {
 
+  const {
+    theme,
+  } = useTheme();
+
+  const dark =
+    theme === "dark";
+
   return (
-    <div className="space-y-10">
 
-      {/* Header */}
-      <div>
-
-        <div className="flex items-center gap-3">
-
-          <h1 className="text-5xl font-black">
-
-            Data Sources
-
-          </h1>
-
-          <Badge variant="secondary">
-
-            TRAINING DATA
-
-          </Badge>
-
-        </div>
-
-        <p className="mt-3 text-muted-foreground">
-
-          Monitor datasets,
-          class balance, and
-          training pipelines.
-
-        </p>
-
-      </div>
-
-      {/* Source Cards */}
-      <div className="grid gap-6 lg:grid-cols-3">
-
-        {dataSources.map(
-          (source) => (
-
-            <Card
-              key={source.id}
-              className="border-border bg-background/80"
-            >
-
-              <CardContent className="space-y-6 p-6">
-
-                <div className="flex items-center justify-between">
-
-                  <div className="flex items-center gap-3">
-
-                    <Database className="h-6 w-6 text-primary" />
-
-                    <h2 className="text-2xl font-black">
-
-                      {
-                        source.name
-                      }
-
-                    </h2>
-
-                  </div>
-
-                  <Badge>
-
-                    ACTIVE
-
-                  </Badge>
-
-                </div>
-
-                {/* Rows */}
-                <div>
-
-                  <p className="text-sm text-muted-foreground">
-
-                    Total Rows
-
-                  </p>
-
-                  <h3 className="mt-2 text-4xl font-black">
-
-                    {source.rows.toLocaleString()}
-
-                  </h3>
-
-                </div>
-
-                {/* Class Balance */}
-                <div>
-
-                  <div className="mb-2 flex items-center justify-between text-sm">
-
-                    <span>
-
-                      Toxic
-
-                    </span>
-
-                    <span>
-
-                      {
-                        source.toxic
-                      }
-                      %
-
-                    </span>
-
-                  </div>
-
-                  <div className="h-3 overflow-hidden rounded-full bg-muted">
-
-                    <div
-                      className="h-full rounded-full bg-purple-500"
-                      style={{
-                        width: `${source.toxic}%`,
-                      }}
-                    />
-
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between text-sm">
-
-                    <span>
-
-                      Safe
-
-                    </span>
-
-                    <span>
-
-                      {
-                        source.safe
-                      }
-                      %
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-                {/* Metadata */}
-                <div className="space-y-2 text-sm">
-
-                  <div className="flex justify-between">
-
-                    <span className="text-muted-foreground">
-
-                      Last Updated
-
-                    </span>
-
-                    <span>
-
-                      {
-                        source.lastUpdated
-                      }
-
-                    </span>
-
-                  </div>
-
-                  <div className="flex justify-between">
-
-                    <span className="text-muted-foreground">
-
-                      Owner
-
-                    </span>
-
-                    <span>
-
-                      {
-                        source.owner
-                      }
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-                {/* Notebook */}
-                <Button
-                  asChild
-                  className="w-full"
-                >
-
-                  <a
-                    href={
-                      source.notebook
-                    }
-                    target="_blank"
-                  >
-
-                    <ExternalLink className="mr-2 h-4 w-4" />
-
-                    Open Notebook
-
-                  </a>
-
-                </Button>
-
-              </CardContent>
-
-            </Card>
-          )
-        )}
-
-      </div>
-
-      {/* Pipeline Diagram */}
-      <Card className="border-border bg-background/80">
-
-        <CardContent className="space-y-8 p-10">
+    <div className="space-y-8 overflow-hidden">
+
+      {/* HERO */}
+      <div
+        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+          dark
+            ? "border-white/10 bg-[#0F172A]"
+            : "border-slate-200 bg-white"
+        }`}
+      >
+
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
 
-            <h2 className="text-3xl font-black">
+            <div className="mb-4 inline-flex rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
 
-              Training Pipeline
+              Training Pipelines Active
 
-            </h2>
+            </div>
 
-            <p className="mt-2 text-muted-foreground">
+            <h1
+              className={`text-5xl font-black tracking-tight ${
+                dark
+                  ? "text-white"
+                  : "text-slate-900"
+              }`}
+            >
 
-              End-to-end data flow
-              for Titan AI models.
+              Data Sources
+
+            </h1>
+
+            <p
+              className={`mt-4 max-w-3xl text-lg ${
+                dark
+                  ? "text-slate-400"
+                  : "text-slate-500"
+              }`}
+            >
+
+              Monitor datasets,
+              ingestion workflows,
+              training pipelines,
+              and AI dataset integrity.
 
             </p>
 
           </div>
 
-          <div className="flex flex-col items-center gap-6 lg:flex-row lg:justify-between">
+          <div
+            className={`hidden rounded-3xl p-5 lg:flex ${
+              dark
+                ? "bg-cyan-500/10"
+                : "bg-cyan-50"
+            }`}
+          >
 
-            <PipelineNode label="Raw CSVs" />
-
-            <Arrow />
-
-            <PipelineNode label="Cleaning" />
-
-            <Arrow />
-
-            <PipelineNode label="Feature Engineering" />
-
-            <Arrow />
-
-            <PipelineNode label="Model Training" />
-
-            <Arrow />
-
-            <PipelineNode label="Evaluation" />
+            <Database className="h-16 w-16 text-cyan-500" />
 
           </div>
 
-        </CardContent>
+        </div>
 
-      </Card>
+      </div>
+
+      {/* METRICS */}
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+        <MetricCard
+          dark={dark}
+          title="Total Datasets"
+          value="42"
+          icon={
+            <Database className="h-6 w-6 text-cyan-500" />
+          }
+          badge="Active"
+          badgeColor="bg-cyan-100 text-cyan-700"
+          iconBg={dark ? "bg-cyan-500/10" : "bg-cyan-50"}
+        />
+
+        <MetricCard
+          dark={dark}
+          title="Data Integrity"
+          value="99.2%"
+          icon={
+            <ShieldCheck className="h-6 w-6 text-emerald-500" />
+          }
+          badge="Healthy"
+          badgeColor="bg-emerald-100 text-emerald-700"
+          iconBg={dark ? "bg-emerald-500/10" : "bg-emerald-50"}
+        />
+
+        <MetricCard
+          dark={dark}
+          title="Storage Usage"
+          value="8.6TB"
+          icon={
+            <HardDrive className="h-6 w-6 text-violet-500" />
+          }
+          badge="Synced"
+          badgeColor="bg-violet-100 text-violet-700"
+          iconBg={dark ? "bg-violet-500/10" : "bg-violet-50"}
+        />
+
+        <MetricCard
+          dark={dark}
+          title="Daily Uploads"
+          value="14.2K"
+          icon={
+            <Activity className="h-6 w-6 text-yellow-500" />
+          }
+          badge="Live"
+          badgeColor="bg-yellow-100 text-yellow-700"
+          iconBg={dark ? "bg-yellow-500/10" : "bg-yellow-50"}
+        />
+
+      </div>
+
+      {/* DATASET CARDS */}
+      <div className="grid gap-6 xl:grid-cols-3">
+
+        {dataSources.map((source) => (
+
+          <div
+            key={source.id}
+            className={`rounded-3xl border p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+              dark
+                ? "border-white/10 bg-[#0F172A]"
+                : "border-slate-200 bg-white"
+            }`}
+          >
+
+            {/* TOP */}
+            <div className="flex items-start justify-between gap-4">
+
+              <div className="flex min-w-0 items-center gap-4">
+
+                <div
+                  className={`rounded-2xl p-3 ${
+                    dark
+                      ? "bg-cyan-500/10"
+                      : "bg-cyan-50"
+                  }`}
+                >
+
+                  <Database className="h-5 w-5 text-cyan-500" />
+
+                </div>
+
+                <div className="flex-1">
+
+                  <h2
+                    className={`min-h-[76px] break-words text-[30px] font-black leading-tight tracking-tight ${
+                      dark
+                        ? "text-white"
+                        : "text-slate-900"
+                    }`}
+                  >
+
+                    {source.name}
+
+                  </h2>
+
+                  <p
+                    className={`text-sm ${
+                      dark
+                        ? "text-slate-400"
+                        : "text-slate-500"
+                    }`}
+                  >
+
+                    AI Dataset
+
+                  </p>
+
+                </div>
+
+              </div>
+
+              <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+
+                ACTIVE
+
+              </span>
+
+            </div>
+
+            {/* ROWS */}
+            <div className="mt-6">
+
+              <p
+                className={`text-sm ${
+                  dark
+                    ? "text-slate-400"
+                    : "text-slate-500"
+                }`}
+              >
+
+                Total Rows
+
+              </p>
+
+              <h3
+                className={`mt-2 text-[42px] font-black tracking-tight ${
+                  dark
+                    ? "text-white"
+                    : "text-slate-900"
+                }`}
+              >
+
+                {source.rows.toLocaleString()}
+
+              </h3>
+
+            </div>
+
+            {/* TOXIC */}
+            <div className="mt-6">
+
+              <div className="mb-2 flex items-center justify-between text-sm">
+
+                <span
+                  className={`font-medium ${
+                    dark
+                      ? "text-slate-300"
+                      : "text-slate-600"
+                  }`}
+                >
+
+                  Toxic Samples
+
+                </span>
+
+                <span className="font-bold text-red-500">
+
+                  {source.toxic}%
+
+                </span>
+
+              </div>
+
+              <div
+                className={`h-2 overflow-hidden rounded-full ${
+                  dark
+                    ? "bg-slate-800"
+                    : "bg-slate-100"
+                }`}
+              >
+
+                <div
+                  className="h-full rounded-full bg-red-400"
+                  style={{
+                    width: `${source.toxic}%`,
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+            {/* SAFE */}
+            <div className="mt-5">
+
+              <div className="mb-2 flex items-center justify-between text-sm">
+
+                <span
+                  className={`font-medium ${
+                    dark
+                      ? "text-slate-300"
+                      : "text-slate-600"
+                  }`}
+                >
+
+                  Safe Samples
+
+                </span>
+
+                <span className="font-bold text-cyan-600">
+
+                  {source.safe}%
+
+                </span>
+
+              </div>
+
+              <div
+                className={`h-2 overflow-hidden rounded-full ${
+                  dark
+                    ? "bg-slate-800"
+                    : "bg-slate-100"
+                }`}
+              >
+
+                <div
+                  className="h-full rounded-full bg-cyan-400"
+                  style={{
+                    width: `${source.safe}%`,
+                  }}
+                />
+
+              </div>
+
+            </div>
+
+            {/* META */}
+            <div className="mt-6 space-y-3">
+
+              <div className="flex items-center justify-between">
+
+                <span
+                  className={`text-sm ${
+                    dark
+                      ? "text-slate-400"
+                      : "text-slate-500"
+                  }`}
+                >
+
+                  Last Updated
+
+                </span>
+
+                <span
+                  className={`font-semibold ${
+                    dark
+                      ? "text-slate-200"
+                      : "text-slate-700"
+                  }`}
+                >
+
+                  {source.lastUpdated}
+
+                </span>
+
+              </div>
+
+              <div className="flex items-center justify-between">
+
+                <span
+                  className={`text-sm ${
+                    dark
+                      ? "text-slate-400"
+                      : "text-slate-500"
+                  }`}
+                >
+
+                  Owner
+
+                </span>
+
+                <span
+                  className={`font-semibold ${
+                    dark
+                      ? "text-slate-200"
+                      : "text-slate-700"
+                  }`}
+                >
+
+                  {source.owner}
+
+                </span>
+
+              </div>
+
+            </div>
+
+            {/* BUTTON */}
+            <a
+              href={source.notebook}
+              target="_blank"
+              className={`mt-6 flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold text-white transition ${
+                dark
+                  ? "bg-cyan-500 hover:bg-cyan-400"
+                  : "bg-slate-900 hover:bg-cyan-500"
+              }`}
+            >
+
+              <ExternalLink className="h-4 w-4" />
+
+              Open Notebook
+
+            </a>
+
+          </div>
+        ))}
+
+      </div>
+
+      {/* PIPELINE */}
+      <div
+        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+          dark
+            ? "border-white/10 bg-[#0F172A]"
+            : "border-slate-200 bg-white"
+        }`}
+      >
+
+        <div className="flex items-center justify-between">
+
+          <div>
+
+            <h2
+              className={`text-3xl font-black ${
+                dark
+                  ? "text-white"
+                  : "text-slate-900"
+              }`}
+            >
+
+              AI Training Pipeline
+
+            </h2>
+
+            <p
+              className={`mt-2 ${
+                dark
+                  ? "text-slate-400"
+                  : "text-slate-500"
+              }`}
+            >
+
+              Dataset ingestion and model workflow
+
+            </p>
+
+          </div>
+
+          <div className="rounded-full bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700">
+
+            Workflow Active
+
+          </div>
+
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+
+          <PipelineCard
+            dark={dark}
+            label="Raw CSVs"
+            color={dark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-700"}
+          />
+
+          <PipelineCard
+            dark={dark}
+            label="Cleaning"
+            color={dark ? "bg-violet-500/10 text-violet-400" : "bg-violet-50 text-violet-700"}
+          />
+
+          <PipelineCard
+            dark={dark}
+            label="Feature Engineering"
+            color={dark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-700"}
+          />
+
+          <PipelineCard
+            dark={dark}
+            label="Model Training"
+            color={dark ? "bg-yellow-500/10 text-yellow-400" : "bg-yellow-50 text-yellow-700"}
+          />
+
+          <PipelineCard
+            dark={dark}
+            label="Evaluation"
+            color={dark ? "bg-red-500/10 text-red-400" : "bg-red-50 text-red-700"}
+          />
+
+        </div>
+
+      </div>
 
     </div>
   );
 }
 
-function PipelineNode({
+function MetricCard({
+  title,
+  value,
+  icon,
+  badge,
+  badgeColor,
+  iconBg,
+  dark,
+}: any) {
+
+  return (
+
+    <div
+      className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+        dark
+          ? "border-white/10 bg-[#0F172A]"
+          : "border-slate-200 bg-white"
+      }`}
+    >
+
+      <div className="flex items-center justify-between">
+
+        <div className={`rounded-2xl ${iconBg} p-4`}>
+
+          {icon}
+
+        </div>
+
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeColor}`}>
+
+          {badge}
+
+        </span>
+
+      </div>
+
+      <p
+        className={`mt-6 text-sm ${
+          dark
+            ? "text-slate-400"
+            : "text-slate-500"
+        }`}
+      >
+
+        {title}
+
+      </p>
+
+      <h2
+        className={`mt-2 text-4xl font-black ${
+          dark
+            ? "text-white"
+            : "text-slate-900"
+        }`}
+      >
+
+        {value}
+
+      </h2>
+
+    </div>
+  );
+}
+
+function PipelineCard({
   label,
+  color,
+  dark,
 }: {
   label: string;
+  color: string;
+  dark: boolean;
 }) {
 
   return (
-    <div className="flex h-28 w-48 items-center justify-center rounded-3xl border border-border bg-muted/30 text-center text-lg font-bold">
 
-      {label}
+    <div
+      className={`flex h-32 flex-col items-center justify-center rounded-3xl border ${color} ${
+        dark
+          ? "border-white/10"
+          : "border-slate-200"
+      }`}
+    >
 
-    </div>
-  );
-}
+      <Workflow className="mb-3 h-8 w-8" />
 
-function Arrow() {
+      <span className="text-center text-base font-black">
 
-  return (
-    <div className="text-4xl font-black text-primary">
+        {label}
 
-      →
+      </span>
 
     </div>
   );

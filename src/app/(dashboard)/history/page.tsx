@@ -1,4 +1,5 @@
 "use client";
+
 import {
   EmptyState,
 } from "@/components/ui/empty-state";
@@ -25,6 +26,10 @@ import {
   Download,
   RotateCcw,
   Trash2,
+  Activity,
+  ShieldCheck,
+  AlertTriangle,
+  BrainCircuit,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -147,6 +152,9 @@ export default function HistoryPage() {
   const [searchDate, setSearchDate] =
     useState("");
 
+  const [searchQuery, setSearchQuery] =
+    useState("");
+
   const [sortKey, setSortKey] =
     useState<
       keyof Prediction
@@ -221,6 +229,29 @@ export default function HistoryPage() {
           );
       }
 
+      if (searchQuery) {
+
+        filtered =
+          filtered.filter(
+            (item) =>
+              item.cellLine
+                .toLowerCase()
+                .includes(
+                  searchQuery.toLowerCase()
+                ) ||
+
+              item.verdict
+                .toLowerCase()
+                .includes(
+                  searchQuery.toLowerCase()
+                ) ||
+
+              String(item.id).includes(
+                searchQuery
+              )
+          );
+      }
+
       filtered.sort(
         (a, b) => {
 
@@ -270,56 +301,57 @@ export default function HistoryPage() {
       verdictFilter,
       cellLineFilter,
       searchDate,
+      searchQuery,
       sortKey,
       sortDirection,
     ]);
 
   function exportCSV() {
 
-  try {
+    try {
 
-    const csv =
-      Papa.unparse(
-        filteredData
+      const csv =
+        Papa.unparse(
+          filteredData
+        );
+
+      const blob =
+        new Blob(
+          [csv],
+          {
+            type:
+              "text/csv",
+          }
+        );
+
+      const url =
+        URL.createObjectURL(
+          blob
+        );
+
+      const a =
+        document.createElement(
+          "a"
+        );
+
+      a.href = url;
+
+      a.download =
+        "prediction-history.csv";
+
+      a.click();
+
+      toast.success(
+        "History exported successfully"
       );
 
-    const blob =
-      new Blob(
-        [csv],
-        {
-          type:
-            "text/csv",
-        }
+    } catch {
+
+      toast.error(
+        "Failed to export history"
       );
-
-    const url =
-      URL.createObjectURL(
-        blob
-      );
-
-    const a =
-      document.createElement(
-        "a"
-      );
-
-    a.href = url;
-
-    a.download =
-      "prediction-history.csv";
-
-    a.click();
-
-    toast.success(
-      "History exported successfully"
-    );
-
-  } catch {
-
-    toast.error(
-      "Failed to export history"
-    );
+    }
   }
-}
 
   function clearHistory() {
 
@@ -330,20 +362,20 @@ export default function HistoryPage() {
 
     if (confirmed) {
 
-        try {
+      try {
 
-            setData([]);
+        setData([]);
 
-            toast.success(
-                "Prediction history cleared"
-            );
+        toast.success(
+          "Prediction history cleared"
+        );
 
-        } catch {
+      } catch {
 
-            toast.error(
-                "Failed to clear history"
-            );
-        }
+        toast.error(
+          "Failed to clear history"
+        );
+      }
     }
   }
 
@@ -352,7 +384,7 @@ export default function HistoryPage() {
   ) {
 
     toast.success(
-    `Prediction #${id} re-run started`
+      `Prediction #${id} re-run started`
     );
   }
 
@@ -360,31 +392,30 @@ export default function HistoryPage() {
 
     return (
 
-        <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl">
 
-            <TableSkeleton />
+        <TableSkeleton />
 
-        </div>
+      </div>
 
     );
-
-}
+  }
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
 
-      {/* Header */}
+      {/* HEADER */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
         <div>
 
-          <h1 className="text-5xl font-black">
+          <h1 className="bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-5xl font-black text-transparent">
 
             Prediction History
 
           </h1>
 
-          <p className="mt-3 text-muted-foreground">
+          <p className="mt-3 text-white/45">
 
             Review and manage all
             past nanoparticle
@@ -400,6 +431,7 @@ export default function HistoryPage() {
             onClick={
               exportCSV
             }
+            className="border border-cyan-500/10 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20"
           >
 
             <Download className="mr-2 h-4 w-4" />
@@ -409,10 +441,10 @@ export default function HistoryPage() {
           </Button>
 
           <Button
-            variant="destructive"
             onClick={
               clearHistory
             }
+            className="border border-red-500/10 bg-red-500/10 text-red-300 hover:bg-red-500/20"
           >
 
             <Trash2 className="mr-2 h-4 w-4" />
@@ -425,10 +457,130 @@ export default function HistoryPage() {
 
       </div>
 
-      {/* Filters */}
-      <Card className="border-border bg-background/80">
+      {/* STATS */}
+      <div className="grid gap-4 md:grid-cols-4">
 
-        <CardContent className="grid gap-4 p-6 md:grid-cols-3">
+        {[
+          {
+            label:
+              "Total Predictions",
+
+            value:
+              data.length,
+
+            icon:
+              Activity,
+          },
+
+          {
+            label:
+              "Safe Samples",
+
+            value:
+              data.filter(
+                (d) =>
+                  d.verdict ===
+                  "Safe"
+              ).length,
+
+            icon:
+              ShieldCheck,
+          },
+
+          {
+            label:
+              "Toxic Samples",
+
+            value:
+              data.filter(
+                (d) =>
+                  d.verdict ===
+                  "Toxic"
+              ).length,
+
+            icon:
+              AlertTriangle,
+          },
+
+          {
+            label:
+              "Avg Confidence",
+
+            value: `${Math.round(
+              data.reduce(
+                (a, b) =>
+                  a +
+                  b.confidence,
+                0
+              ) / data.length
+            )}%`,
+
+            icon:
+              BrainCircuit,
+          },
+        ].map((item) => {
+
+          const Icon =
+            item.icon;
+
+          return (
+            <Card
+              key={
+                item.label
+              }
+              className="border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-xl"
+            >
+
+              <CardContent className="flex items-center justify-between p-6">
+
+                <div>
+
+                  <p className="text-sm text-white/45">
+
+                    {
+                      item.label
+                    }
+
+                  </p>
+
+                  <h2 className="mt-3 text-4xl font-black text-white">
+
+                    {
+                      item.value
+                    }
+
+                  </h2>
+
+                </div>
+
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10">
+
+                  <Icon className="h-8 w-8 text-cyan-400" />
+
+                </div>
+
+              </CardContent>
+
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* FILTERS */}
+      <Card className="border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-xl">
+
+        <CardContent className="grid gap-4 p-6 md:grid-cols-4">
+
+          <Input
+            placeholder="Search predictions..."
+            value={searchQuery}
+            onChange={(e) =>
+              setSearchQuery(
+                e.target.value
+              )
+            }
+            className="border-cyan-500/10 bg-[#020817] text-white placeholder:text-white/30"
+          />
 
           <Select
             onValueChange={
@@ -436,7 +588,7 @@ export default function HistoryPage() {
             }
           >
 
-            <SelectTrigger>
+            <SelectTrigger className="border-cyan-500/10 bg-[#020817] text-white">
 
               <SelectValue placeholder="Filter by verdict" />
 
@@ -472,7 +624,7 @@ export default function HistoryPage() {
             }
           >
 
-            <SelectTrigger>
+            <SelectTrigger className="border-cyan-500/10 bg-[#020817] text-white">
 
               <SelectValue placeholder="Filter by cell line" />
 
@@ -516,28 +668,28 @@ export default function HistoryPage() {
                 e.target.value
               )
             }
+            className="border-cyan-500/10 bg-[#020817] text-white"
           />
 
         </CardContent>
 
       </Card>
 
-      {/* Empty */}
-      
+      {/* EMPTY */}
       {filteredData.length === 0 && (
 
         <EmptyState
-            title="No Predictions Found"
-            description="Start running toxicity predictions to populate your history."
+          title="No Predictions Found"
+          description="Start running toxicity predictions to populate your history."
         />
 
-     )}
+      )}
 
-      {/* Table */}
+      {/* TABLE */}
       {filteredData.length >
         0 && (
 
-        <Card className="border-border bg-background/80">
+        <Card className="border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-xl">
 
           <CardContent className="overflow-auto p-6">
 
@@ -545,7 +697,7 @@ export default function HistoryPage() {
 
               <thead>
 
-                <tr className="border-b border-border">
+                <tr className="border-b border-cyan-500/10">
 
                   {[
                     "timestamp",
@@ -566,7 +718,7 @@ export default function HistoryPage() {
                             key as keyof Prediction
                           )
                         }
-                        className="cursor-pointer p-4 text-left capitalize hover:text-primary"
+                        className="cursor-pointer p-4 text-left capitalize text-white/60 transition-colors hover:text-cyan-300"
                       >
 
                         {key}
@@ -575,7 +727,7 @@ export default function HistoryPage() {
                     )
                   )}
 
-                  <th className="p-4 text-left">
+                  <th className="p-4 text-left text-white/60">
 
                     Actions
 
@@ -594,10 +746,10 @@ export default function HistoryPage() {
 
                     <tr
                       key={item.id}
-                      className="border-b border-border"
+                      className="border-b border-cyan-500/10 transition-colors hover:bg-cyan-500/[0.03]"
                     >
 
-                      <td className="p-4">
+                      <td className="p-4 text-white/80">
 
                         {format(
                           new Date(
@@ -608,7 +760,7 @@ export default function HistoryPage() {
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-4 text-white">
 
                         {
                           item.cellLine
@@ -616,19 +768,19 @@ export default function HistoryPage() {
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-4 text-white/80">
 
                         {item.dose}
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-4 text-white/80">
 
                         {item.time}
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-4 text-white/80">
 
                         {item.size}
 
@@ -637,11 +789,11 @@ export default function HistoryPage() {
                       <td className="p-4">
 
                         <span
-                          className={`rounded-full px-3 py-1 text-sm font-medium ${
+                          className={`rounded-full border px-3 py-1 text-sm font-medium ${
                             item.verdict ===
                             "Toxic"
-                              ? "bg-red-500/20 text-red-400"
-                              : "bg-green-500/20 text-green-400"
+                              ? "border-red-500/20 bg-red-500/10 text-red-400"
+                              : "border-cyan-500/20 bg-cyan-500/10 text-cyan-300"
                           }`}
                         >
 
@@ -653,13 +805,13 @@ export default function HistoryPage() {
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-4 text-white/80">
 
                         {item.prob}%
 
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-4 text-white/80">
 
                         {
                           item.confidence
@@ -672,12 +824,12 @@ export default function HistoryPage() {
 
                         <Button
                           size="sm"
-                          variant="secondary"
                           onClick={() =>
                             rerunPrediction(
                               item.id
                             )
                           }
+                          className="border border-cyan-500/10 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20"
                         >
 
                           <RotateCcw className="mr-2 h-4 w-4" />

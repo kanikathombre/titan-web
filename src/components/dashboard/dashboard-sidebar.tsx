@@ -11,7 +11,7 @@ import {
   Files,
   User,
   CreditCard,
-  BookOpen,
+//  BookOpen,
   Menu,
 } from "lucide-react";
 
@@ -56,11 +56,11 @@ const sidebarItems = [
     icon: CreditCard,
   },
 
-  {
-    label: "Docs",
-    href: "/docs",
-    icon: BookOpen,
-  },
+ // {
+  //  label: "Docs",
+  //  href: "/docs",
+  //  icon: BookOpen,
+  // },
 ];
 
 export function DashboardSidebar() {
@@ -91,21 +91,28 @@ export function DashboardSidebar() {
 
         {!sidebarCollapsed && (
 
-          <div>
+          <Link
+  href="/dashboard"
+  className="transition-opacity hover:opacity-80"
+>
 
-            <h1 className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-3xl font-black tracking-tight text-transparent">
+  <div>
 
-              NanoToxi
+    <h1 className="bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-2xl font-black text-transparent">
 
-            </h1>
+      NanoToxi
 
-            <p className="mt-1 text-sm tracking-[0.2em] text-cyan-400/60">
+    </h1>
 
-              AI PLATFORM
+    <p className="mt-1 text-sm tracking-[0.35em] text-cyan-400/80">
 
-            </p>
+      AI PLATFORM
 
-          </div>
+    </p>
+
+  </div>
+
+</Link>
         )}
 
         <Button
@@ -130,7 +137,9 @@ export function DashboardSidebar() {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="relative flex-1 space-y-2.5 p-4">
+      <nav className="flex flex-1 flex-col justify-between p-4">
+        <div className="space-y-6">
+
 
         {sidebarItems.map(
           (item) => {
@@ -214,6 +223,8 @@ export function DashboardSidebar() {
             );
           }
         )}
+
+        </div>
 
       </nav>
 

@@ -14,10 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+
+
 const signInSchema = z.object({
-  username: z
+  email: z
     .string()
-    .min(3, "Username is required"),
+    .min(3, "Email is required"),
 
   password: z
     .string()
@@ -86,90 +88,90 @@ export default function SignInPage() {
   });
 
   async function onSubmit(
-    data: SignInFormData
-  ) {
+  data: SignInFormData
+) {
 
-    setServerError("");
+  setServerError("");
 
-    try {
+  try {
 
-      // ================= ADMIN LOGIN =================
-      if (
-        data.username === "admin" &&
-        data.password === "admin123"
-      ) {
+    // ================= ADMIN LOGIN =================
+    if (
+      data.email === "admin" &&
+      data.password === "admin123"
+    ) {
 
-        await fetch("/api/auth/login", {
-          method: "POST",
+      await fetch("/api/auth/login", {
+        method: "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
 
-          body: JSON.stringify({
-            username: data.username,
-          }),
-        });
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
 
-        toast.success(
-          "Admin signed in successfully"
-        );
-
-        router.push("/admin");
-
-        return;
-      }
-
-      // ================= USER LOGIN =================
-      if (
-        data.username === "demo" &&
-        data.password ===
-          "password123"
-      ) {
-
-        await fetch("/api/auth/login", {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            username: data.username,
-          }),
-        });
-
-        toast.success(
-          "Signed in successfully"
-        );
-
-        router.push("/dashboard");
-
-        return;
-      }
-
-      // ================= INVALID CREDS =================
-      toast.error(
-        "Invalid username or password"
+      toast.success(
+        "Admin signed in successfully"
       );
 
-      setServerError(
-        "Invalid username or password"
-      );
+      router.push("/admin");
 
-    } catch {
-
-      toast.error(
-        "Something went wrong"
-      );
-
-      setServerError(
-        "Something went wrong"
-      );
+      return;
     }
+
+    // ================= USER LOGIN =================
+    if (
+      data.email === "demo" &&
+      data.password ===
+        "password123"
+    ) {
+
+      await fetch("/api/auth/login", {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          email: data.email,
+        }),
+      });
+
+      toast.success(
+        "Signed in successfully"
+      );
+
+      router.push("/dashboard");
+
+      return;
+    }
+
+    // ================= INVALID =================
+    toast.error(
+      "Invalid email or password"
+    );
+
+    setServerError(
+      "Invalid email or password"
+    );
+
+  } catch {
+
+    toast.error(
+      "Something went wrong"
+    );
+
+    setServerError(
+      "Something went wrong"
+    );
   }
+}
 
   return (
 
@@ -295,16 +297,16 @@ export default function SignInPage() {
             className="space-y-3"
           >
 
-            {/* USERNAME */}
+            {/* EMAIL */}
             <div>
 
               <Label className="mb-2 block text-xs font-semibold uppercase tracking-[0.25em] text-white/45">
-                Username
+                Email
               </Label>
 
               <Input
-                placeholder="name@company.com"
-                {...register("username")}
+                placeholder="user@example.com"
+                {...register("email")}
                 className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325] px-5 text-white placeholder:text-white/25 focus:border-cyan-400/40"
               />
 

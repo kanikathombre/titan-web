@@ -345,37 +345,37 @@ export default function BatchPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8">
 
-      {/* Header */}
+      {/* HEADER */}
       <div>
 
-        <h1 className="text-5xl font-black">
+        <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-6xl font-black text-transparent">
 
           Batch Prediction
 
         </h1>
 
-        <p className="mt-3 text-muted-foreground">
+        <p className="mt-4 text-lg text-white/45">
 
-          Upload CSV files and
-          run predictions across
-          multiple nanoparticles.
+          Upload CSV files and run AI toxicity
+          predictions across multiple nanoparticles.
 
         </p>
 
       </div>
 
-      {/* Upload */}
-      <Card className="border-border bg-background/80">
+      {/* UPLOAD CARD */}
+      <Card className="overflow-hidden rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
-        <CardContent className="space-y-6 p-8">
+        <CardContent className="space-y-8 p-8">
 
+          {/* ACTION BUTTONS */}
           <div className="flex flex-wrap gap-4">
 
             <Button
               onClick={
                 downloadTemplate
               }
-              variant="secondary"
+              className="rounded-2xl border border-cyan-500/10 bg-[#081325] text-white transition-all duration-300 hover:bg-cyan-500/10"
             >
 
               <Download className="mr-2 h-4 w-4" />
@@ -384,35 +384,22 @@ export default function BatchPage() {
 
             </Button>
 
-            {results.length > 0 && (
-
-              <Button
-                onClick={
-                  downloadResults
-                }
-              >
-
-                <Download className="mr-2 h-4 w-4" />
-
-                Download Results
-
-              </Button>
-            )}
+            
 
           </div>
 
-          {/* Dropzone */}
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-muted/20 p-16 transition hover:bg-muted/40">
+          {/* DROPZONE */}
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-[28px] border border-dashed border-cyan-500/10 bg-[#081325]/50 p-16 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-500/5">
 
-            <Upload className="h-10 w-10" />
+            <Upload className="h-12 w-12 text-cyan-400" />
 
-            <p className="mt-4 text-lg font-medium">
+            <p className="mt-5 text-xl font-semibold text-white">
 
               Upload CSV File
 
             </p>
 
-            <p className="text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-white/45">
 
               Drag & drop or click to browse
 
@@ -433,7 +420,7 @@ export default function BatchPage() {
 
       </Card>
 
-      {/* Empty State */}
+      {/* EMPTY STATE */}
       {rows.length === 0 && (
 
         <EmptyState
@@ -443,7 +430,7 @@ export default function BatchPage() {
 
       )}
 
-      {/* Preview */}
+      {/* CSV PREVIEW */}
       {rows.length > 0 && (
 
         <motion.div
@@ -457,17 +444,27 @@ export default function BatchPage() {
           }}
         >
 
-          <Card className="border-border bg-background/80">
+          <Card className="overflow-hidden rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
             <CardContent className="space-y-6 overflow-auto p-8">
 
               <div className="flex items-center justify-between">
 
-                <h2 className="text-2xl font-black">
+                <div>
 
-                  CSV Preview
+                  <h2 className="text-3xl font-black text-white">
 
-                </h2>
+                    CSV Preview
+
+                  </h2>
+
+                  <p className="mt-2 text-white/45">
+
+                    Verify uploaded nanoparticle data
+
+                  </p>
+
+                </div>
 
                 <Button
                   onClick={
@@ -476,6 +473,7 @@ export default function BatchPage() {
                   disabled={
                     loading
                   }
+                  className="rounded-2xl bg-cyan-400 px-6 text-black shadow-[0_0_30px_rgba(34,211,238,0.25)] transition-all duration-300 hover:bg-cyan-300"
                 >
 
                   {loading
@@ -490,27 +488,27 @@ export default function BatchPage() {
 
                 <thead>
 
-                  <tr className="border-b border-border">
+                  <tr className="border-b border-cyan-500/10 text-white/55">
 
-                    <th className="p-3 text-left">
+                    <th className="p-4 text-left">
 
                       Nanoparticle
 
                     </th>
 
-                    <th className="p-3 text-left">
+                    <th className="p-4 text-left">
 
                       Size
 
                     </th>
 
-                    <th className="p-3 text-left">
+                    <th className="p-4 text-left">
 
                       Shape
 
                     </th>
 
-                    <th className="p-3 text-left">
+                    <th className="p-4 text-left">
 
                       Dosage
 
@@ -532,10 +530,10 @@ export default function BatchPage() {
                         key={
                           index
                         }
-                        className="border-b border-border"
+                        className="border-b border-cyan-500/5 text-white/80"
                       >
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {
                             row.nanoparticle
@@ -543,19 +541,19 @@ export default function BatchPage() {
 
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {row.size}
 
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {row.shape}
 
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {
                             row.dosage
@@ -578,7 +576,7 @@ export default function BatchPage() {
         </motion.div>
       )}
 
-      {/* Results */}
+      {/* RESULTS */}
       {results.length > 0 && (
 
         <motion.div
@@ -592,21 +590,58 @@ export default function BatchPage() {
           }}
         >
 
-          <Card className="border-border bg-background/80">
+          <Card className="overflow-hidden rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
             <CardContent className="overflow-auto p-8">
 
-              <h2 className="mb-6 text-2xl font-black">
+              <div className="mb-8 flex items-start justify-between">
 
-                Prediction Results
+  <div>
 
-              </h2>
+    <h2 className="text-3xl font-black text-white">
+
+      Prediction Results
+
+    </h2>
+
+    <p className="mt-2 text-white/45">
+
+      AI-generated nanoparticle toxicity outcomes
+
+    </p>
+
+  </div>
+
+  <div className="flex flex-col items-end gap-4">
+
+    <div className="rounded-full border border-cyan-500/10 bg-cyan-500/10 px-5 py-2 text-cyan-300">
+
+      Live Analytics
+
+    </div>
+
+    <Button
+      onClick={
+        downloadResults
+      }
+      className="rounded-2xl border border-cyan-500/10 bg-[#081325] px-5 text-cyan-300 transition-all duration-300 hover:bg-cyan-500/10 hover:text-cyan-200"
+    >
+
+      <Download className="mr-2 h-4 w-4" />
+
+      Download Results
+
+    </Button>
+
+  </div>
+
+</div>
 
               <table className="w-full border-collapse">
 
                 <thead>
 
-                  <tr className="border-b border-border">
+                  <tr className="border-b border-cyan-500/10 text-white/55">
 
                     <th
                       onClick={() =>
@@ -614,7 +649,7 @@ export default function BatchPage() {
                           "nanoparticle"
                         )
                       }
-                      className="cursor-pointer p-3 text-left hover:text-primary"
+                      className="cursor-pointer p-4 text-left hover:text-cyan-300"
                     >
 
                       <div className="flex items-center gap-2">
@@ -633,7 +668,7 @@ export default function BatchPage() {
                           "toxicity"
                         )
                       }
-                      className="cursor-pointer p-3 text-left hover:text-primary"
+                      className="cursor-pointer p-4 text-left hover:text-cyan-300"
                     >
 
                       <div className="flex items-center gap-2">
@@ -652,7 +687,7 @@ export default function BatchPage() {
                           "verdict"
                         )
                       }
-                      className="cursor-pointer p-3 text-left hover:text-primary"
+                      className="cursor-pointer p-4 text-left hover:text-cyan-300"
                     >
 
                       <div className="flex items-center gap-2">
@@ -665,7 +700,7 @@ export default function BatchPage() {
 
                     </th>
 
-                    <th className="p-3 text-left">
+                    <th className="p-4 text-left">
 
                       Status
 
@@ -687,10 +722,10 @@ export default function BatchPage() {
                         key={
                           index
                         }
-                        className="border-b border-border"
+                        className="border-b border-cyan-500/5 text-white/80"
                       >
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {
                             row.nanoparticle
@@ -698,7 +733,7 @@ export default function BatchPage() {
 
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {
                             row.toxicity ??
@@ -707,7 +742,7 @@ export default function BatchPage() {
 
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           <span
                             className={`rounded-full px-3 py-1 text-sm font-medium ${
@@ -727,7 +762,7 @@ export default function BatchPage() {
 
                         </td>
 
-                        <td className="p-3">
+                        <td className="p-4">
 
                           {row.error
                             ? "❌ Failed"

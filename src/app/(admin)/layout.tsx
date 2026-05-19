@@ -1,8 +1,13 @@
+"use client";
+
 import type {
   ReactNode,
 } from "react";
 
-import { redirect } from "next/navigation";
+import {
+  ThemeProvider,
+  useTheme,
+} from "@/context/theme-context";
 
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 
@@ -12,33 +17,39 @@ type Props = {
   children: ReactNode;
 };
 
-export default function AdminLayout({
+function DashboardLayout({
   children,
 }: Props) {
 
-  // MOCK ROLE CHECK
-  const role = "admin";
-
-  // Route protection
-  if (role !== "admin") {
-
-    redirect("/");
-
-  }
+  const { theme } =
+    useTheme();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
 
-      {/* Sidebar */}
+    <div
+      className={`
+        flex
+        min-h-screen
+        transition-all
+        duration-300
+        ${
+          theme === "dark"
+            ? "bg-[#020817] text-white"
+            : "bg-[#F5F7FB] text-slate-900"
+        }
+      `}
+    >
+
+      {/* SIDEBAR */}
       <AdminSidebar />
 
-      {/* Main */}
-      <div className="ml-[280px] flex min-h-screen flex-col">
+      {/* MAIN */}
+      <div className="ml-[280px] flex min-h-screen flex-1 flex-col">
 
-        {/* Header */}
+        {/* HEADER */}
         <AdminHeader />
 
-        {/* Content */}
+        {/* CONTENT */}
         <main className="flex-1 p-8">
 
           {children}
@@ -48,5 +59,23 @@ export default function AdminLayout({
       </div>
 
     </div>
+  );
+}
+
+export default function AdminLayout({
+  children,
+}: Props) {
+
+  return (
+
+    <ThemeProvider>
+
+      <DashboardLayout>
+
+        {children}
+
+      </DashboardLayout>
+
+    </ThemeProvider>
   );
 }

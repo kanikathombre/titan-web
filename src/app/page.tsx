@@ -168,377 +168,374 @@ export default function HomePage() {
       
       {/* ================= MODEL PERFORMANCE SECTION ================= */}
 
-      <section className="relative overflow-hidden px-6 py-40">
+      {/* ================= MODEL PERFORMANCE SECTION ================= */}
 
-        {/* Background Glow */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
+<section className="relative overflow-hidden px-6 py-40">
 
-          <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]" />
+  {/* BACKGROUND */}
+  <div className="absolute inset-0 -z-10 overflow-hidden">
 
-        </div>
+    {/* GRID */}
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:70px_70px]" />
 
-        <div className="mx-auto max-w-7xl">
-
-          {/* Header */}
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 40,
-            }}
-
-            whileInView={{
-              opacity: 1,
-              y: 0,
-            }}
-
-            transition={{
-              duration: 0.7,
-            }}
-
-            viewport={{
-              once: true,
-            }}
-
-            className="mx-auto mb-20 max-w-3xl text-center"
-          >
-
-            <div className="mb-4 inline-flex items-center rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-sm text-muted backdrop-blur-xl">
-
-              AI Model Evaluation
-
-            </div>
-
-            <h2 className="text-5xl font-black tracking-[-0.04em] md:text-6xl">
-
-              Model Performance
-
-            </h2>
-
-            <p className="mt-6 text-lg text-muted">
-
-              Titan AI delivers highly accurate nanoparticle toxicity predictions
-              validated through advanced machine learning benchmarking.
-
-            </p>
-
-          </motion.div>
-
-          {/* Stats Tiles */}
-          <div className="mb-16 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-            {[
-              {
-                label: "Accuracy",
-                value:
-                  modelMetrics.accuracy,
-              },
-
-              {
-                label: "Precision",
-                value:
-                  modelMetrics.precision,
-              },
-
-              {
-                label: "Recall",
-                value:
-                  modelMetrics.recall,
-              },
-
-              {
-                label: "F1 Score",
-                value:
-                  modelMetrics.f1Score,
-              },
-            ].map((stat, index) => (
-
-              <motion.div
-                key={stat.label}
-
-                initial={{
-                  opacity: 0,
-                  y: 40,
-                }}
-
-                whileInView={{
-                  opacity: 1,
-                  y: 0,
-                }}
-
-                transition={{
-                  duration: 0.6,
-                  delay:
-                    index * 0.1,
-                }}
-
-                viewport={{
-                  once: true,
-                }}
-
-                className="group rounded-3xl border border-white/10 bg-surface/60 p-8 text-center backdrop-blur-2xl transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 hover:shadow-[0_0_80px_rgba(124,58,237,0.15)]"
-              >
-
-                <p className="text-sm uppercase tracking-widest text-muted">
-
-                  {stat.label}
-
-                </p>
-
-                <h3 className="mt-4 bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-5xl font-black text-transparent">
-
-                  {stat.value}
-
-                </h3>
-
-              </motion.div>
-            ))}
-
-          </div>
-
-          {/* ================= PERFORMANCE VISUALS ================= */}
-
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 50,
-          }}
-
-          whileInView={{
-            opacity: 1,
-            y: 0,
-          }}
-
-          transition={{
-            duration: 0.7,
-          }}
-
-          viewport={{
-            once: true,
-          }}
-
-          className="rounded-[2rem] border border-white/10 bg-surface/60 p-10 backdrop-blur-2xl"
-        >
-
-          <div className="mb-12 text-center">
-
-            <h3 className="text-4xl font-black">
-
-              Generalization Benchmark
-
-            </h3>
-
-            <p className="mt-4 text-lg text-muted">
-
-              Comparing in-distribution performance against LOSO
-              evaluation using advanced AI validation metrics.
-
-            </p>
-
-          </div>
-
-          <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-4">
-
-            {[
-              {
-                label: "Accuracy",
-                value: 98,
-                color:
-                  "from-violet-500 to-fuchsia-500",
-              },
-
-              {
-                label: "Precision",
-                value: 97,
-                color:
-                  "from-cyan-400 to-blue-500",
-              },
-
-              {
-                label: "Recall",
-                value: 96,
-                color:
-                  "from-emerald-400 to-green-500",
-              },
-
-              {
-                label: "F1 Score",
-                value: 97,
-                color:
-                  "from-orange-400 to-pink-500",
-              },
-            ].map((metric, index) => (
-
-              <motion.div
-                key={metric.label}
-
-                initial={{
-                  opacity: 0,
-                  scale: 0.8,
-                }}
-
-                whileInView={{
-                  opacity: 1,
-                  scale: 1,
-                }}
-
-                transition={{
-                  duration: 0.6,
-                  delay:
-                    index * 0.1,
-                }}
-
-                viewport={{
-                  once: true,
-                }}
-
-                className="group relative flex flex-col items-center rounded-3xl border border-white/10 bg-black/40 p-8 transition-all duration-500 hover:-translate-y-3 hover:border-primary/30 hover:shadow-[0_0_100px_rgba(124,58,237,0.18)]"
-              >
-
-                {/* Glow */}
-                
-
-                {/* Circle */}
-                <div className="relative mb-6 flex h-40 w-40 items-center justify-center rounded-full border border-white/10 bg-black/40">
-
-                  {/* Gradient Ring */}
-                  
-
-                  <div className="absolute inset-[6px] rounded-full bg-background" />
-
-                  {/* Percentage */}
-                  <div className="relative z-10 text-center">
-
-                    <h4 className="bg-gradient-to-r from-cyan-500/10 to-gray-300 bg-clip-text text-5xl font-black text-transparent">
-
-                      {metric.value}%
-
-                    </h4>
-
-                  </div>
-
-                </div>
-
-                {/* Label */}
-                <h4 className="text-2xl font-bold">
-
-                  {metric.label}
-
-                </h4>
-
-                <div className="mt-4 space-y-2 text-sm">
-
-                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-cyan-500/5/[0.03] px-3 py-2">
-
-                    <span className="text-muted">
-
-                      In-Distribution
-
-                    </span>
-
-                    <span className="font-semibold text-primary">
-
-                      {metric.value}%
-
-                    </span>
-
-                  </div>
-
-                  <div className="flex items-center justify-between rounded-xl border border-white/5 bg-cyan-500/5[0.03] px-3 py-2">
-
-                    <span className="text-muted">
-
-                      LOSO
-
-                    </span>
-
-                    <span className="font-semibold text-cyan-400">
-
-                      {metric.value - 7}%
-
-                    </span>
-
-                  </div>
-
-                  {/* Small Radar Comparison */}
-                  <div className="mt-20 rounded-[2rem] border border-white/10 bg-black/30 p-10 backdrop-blur-2xl">
-
-                    <div className="mb-8 text-center">
-
-                      <h4 className="text-3xl font-bold">
-
-                        In-Distribution vs LOSO
-
-                      </h4>
-
-                      <p className="mt-3 text-muted">
-
-                        Comparative evaluation across validation strategies.
-
-                      </p>
-
-                    </div>
-
-                    <div className="h-[350px] w-full">
-
-                      <ResponsiveContainer
-                        width="100%"
-                        height="100%"
-                      >
-
-                        <RadarChart
-                          data={
-                            performanceComparison
-                          }
-                        >
-
-                          <PolarGrid
-                            stroke="#27272A"
-                          />
-
-                          <PolarAngleAxis
-                            dataKey="metric"
-                            tick={{
-                              fill: "#94A3B8",
-                              fontSize: 14,
-                            }}
-                          />
-
-                          <Radar
-                            name="In-Distribution"
-                            dataKey="inDistribution"
-                            stroke="#7C3AED"
-                            fill="#7C3AED"
-                            fillOpacity={0.35}
-                          />
-
-                          <Radar
-                            name="LOSO"
-                            dataKey="loso"
-                            stroke="#22D3EE"
-                            fill="#22D3EE"
-                            fillOpacity={0.25}
-                          />
-
-                        </RadarChart>
-
-                      </ResponsiveContainer>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </motion.div>
-    ))}
+    {/* GLOW */}
+    <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-[140px]" />
 
   </div>
 
-</motion.div>
+  <div className="mx-auto max-w-7xl">
+
+    {/* HEADER */}
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: 40,
+      }}
+
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+
+      transition={{
+        duration: 0.7,
+      }}
+
+      viewport={{
+        once: true,
+      }}
+
+      className="mx-auto mb-24 max-w-4xl text-center"
+    >
+
+      <div className="mb-5 inline-flex items-center rounded-full border border-cyan-500/20 bg-cyan-500/10 px-5 py-2 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300 backdrop-blur-xl">
+
+        AI Benchmarking System
+
+      </div>
+
+      <h2
+        className={`${orbitron.className} text-6xl font-black leading-[0.95] tracking-[-0.04em] md:text-8xl`}
+      >
+
+        MODEL
+
+        <br />
+
+        <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+
+          PERFORMANCE
+
+        </span>
+
+      </h2>
+
+      <p className="mx-auto mt-10 max-w-3xl text-xl leading-relaxed text-white/60">
+
+        NanoToxi AI achieves state-of-the-art toxicity
+        prediction performance using advanced neural
+        validation, LOSO benchmarking, and real-time
+        scientific inference systems.
+
+      </p>
+
+    </motion.div>
+
+    {/* MAIN GRID */}
+    <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
+
+      {/* LEFT SIDE */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          x: -40,
+        }}
+
+        whileInView={{
+          opacity: 1,
+          x: 0,
+        }}
+
+        transition={{
+          duration: 0.7,
+        }}
+
+        viewport={{
+          once: true,
+        }}
+
+        className="rounded-[2.5rem] border border-cyan-500/10 bg-white/[0.03] p-10 backdrop-blur-2xl shadow-[0_0_100px_rgba(34,211,238,0.08)]"
+      >
+
+        {/* TOP STATS */}
+        <div className="grid gap-6 md:grid-cols-2">
+
+          {[
+            {
+              label: "Accuracy",
+              value:
+                modelMetrics.accuracy,
+            },
+
+            {
+              label: "Precision",
+              value:
+                modelMetrics.precision,
+            },
+
+            {
+              label: "Recall",
+              value:
+                modelMetrics.recall,
+            },
+
+            {
+              label: "F1 Score",
+              value:
+                modelMetrics.f1Score,
+            },
+          ].map((metric) => (
+
+            <div
+              key={metric.label}
+              className="group rounded-[2rem] border border-cyan-500/10 bg-[#081225]/60 p-8 transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/30 hover:shadow-[0_0_70px_rgba(34,211,238,0.15)]"
+            >
+
+              <p className="text-sm uppercase tracking-[0.25em] text-white/50">
+
+                {metric.label}
+
+              </p>
+
+              <div className="mt-6 flex items-end justify-between">
+
+                <h3 className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-6xl font-black text-transparent">
+
+                  {metric.value}
+
+                </h3>
+
+                <div className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-sm font-semibold text-cyan-300">
+
+                  +2.4%
+
+                </div>
+
+              </div>
+
+              {/* BAR */}
+              <div className="mt-8 h-3 overflow-hidden rounded-full bg-white/5">
+
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                  style={{
+                    width:
+                      `${parseInt(metric.value)}%`,
+                  }}
+                />
+
+              </div>
+
+            </div>
+          ))}
 
         </div>
 
-      </section>
+        {/* RADAR CHART */}
+        <div className="relative mt-12 rounded-[2rem] border border-cyan-500/10 bg-[#081225]/50 p-8">
+
+          {/* GLOW */}
+          <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-[90px]" />
+
+          <div className="mb-8 text-center">
+
+            <h3
+              className={`${orbitron.className} text-3xl font-black uppercase`}
+            >
+
+              VALIDATION MATRIX
+
+            </h3>
+
+            <p className="mt-3 text-white/60">
+
+              In-Distribution vs LOSO comparison.
+
+            </p>
+
+          </div>
+
+          <div className="relative h-[420px] w-full">
+
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
+
+              <RadarChart
+                data={
+                  performanceComparison
+                }
+              >
+
+                <PolarGrid
+                  stroke="#1E293B"
+                />
+
+                <PolarAngleAxis
+                  dataKey="metric"
+
+                  tick={{
+                    fill: "#94A3B8",
+                    fontSize: 14,
+                  }}
+                />
+
+                <Radar
+                  name="In Distribution"
+                  dataKey="inDistribution"
+                  stroke="#22D3EE"
+                  fill="#22D3EE"
+                  fillOpacity={0.35}
+                />
+
+                <Radar
+                  name="LOSO"
+                  dataKey="loso"
+                  stroke="#3B82F6"
+                  fill="#3B82F6"
+                  fillOpacity={0.25}
+                />
+
+              </RadarChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
+
+      </motion.div>
+
+      {/* RIGHT SIDE */}
+      <motion.div
+        initial={{
+          opacity: 0,
+          x: 40,
+        }}
+
+        whileInView={{
+          opacity: 1,
+          x: 0,
+        }}
+
+        transition={{
+          duration: 0.7,
+        }}
+
+        viewport={{
+          once: true,
+        }}
+
+        className="flex flex-col gap-8"
+      >
+
+        {/* AI SCORE */}
+        <div className="relative overflow-hidden rounded-[2.5rem] border border-cyan-500/10 bg-white/[0.03] p-10 text-center backdrop-blur-2xl">
+
+          {/* GLOW */}
+          <div className="absolute left-1/2 top-1/2 h-[250px] w-[250px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-[100px]" />
+
+          <p className="relative z-10 text-sm uppercase tracking-[0.3em] text-white/50">
+
+            AI CONFIDENCE SCORE
+
+          </p>
+
+          <div className="relative z-10 mt-10 flex items-center justify-center">
+
+            <div className="relative flex h-[240px] w-[240px] items-center justify-center rounded-full border border-cyan-400/20 bg-cyan-500/5 shadow-[0_0_100px_rgba(34,211,238,0.15)]">
+
+              {/* OUTER RING */}
+              <div className="absolute inset-0 rounded-full border-[4px] border-cyan-400/20 border-t-cyan-300 animate-spin" />
+
+              {/* INNER */}
+              <div className="absolute inset-[10px] rounded-full bg-[#020617]" />
+
+              {/* VALUE */}
+              <div className="relative z-10">
+
+                <h3 className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-7xl font-black text-transparent drop-shadow-[0_0_20px_rgba(34,211,238,0.45)]">
+
+                  98%
+
+                </h3>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <p className="relative z-10 mt-10 text-lg leading-relaxed text-white/60">
+
+            NanoToxi AI consistently maintains extremely
+            high confidence during real-time nanoparticle
+            toxicity inference and validation.
+
+          </p>
+
+        </div>
+
+        {/* BOTTOM STATS */}
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-1">
+
+          {[
+            {
+              label: "Predictions",
+              value: "120K+",
+            },
+
+            {
+              label: "Research Samples",
+              value: "50K+",
+            },
+
+            {
+              label: "Cell Lines",
+              value: "11",
+            },
+          ].map((item) => (
+
+            <div
+              key={item.label}
+              className="rounded-[2rem] border border-cyan-500/10 bg-white/[0.03] p-8 backdrop-blur-2xl transition-all duration-500 hover:border-cyan-400/30 hover:shadow-[0_0_60px_rgba(34,211,238,0.12)]"
+            >
+
+              <p className="text-sm uppercase tracking-[0.25em] text-white/50">
+
+                {item.label}
+
+              </p>
+
+              <h3 className="mt-4 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-5xl font-black text-transparent">
+
+                {item.value}
+
+              </h3>
+
+            </div>
+          ))}
+
+        </div>
+
+      </motion.div>
+
+    </div>
+
+  </div>
+
+</section>
       
 
     {/* ADD HERE */}
