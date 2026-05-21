@@ -1,9 +1,15 @@
 "use client";
 
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import { api } from "@/lib/api";
+
+import {
   Activity,
   AlertTriangle,
-  CheckCircle2,
   Database,
   FlaskConical,
   ShieldCheck,
@@ -11,41 +17,157 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+
 export default function DashboardPage() {
 
-  const stats = [
-    {
-      title: "Total Predictions",
-      value: "12,480",
-      icon: Activity,
-    },
+  const [stats, setStats] =
+    useState<any>(null);
 
-    {
-      title: "Safe Samples",
-      value: "8,214",
-      icon: ShieldCheck,
-    },
+  const [
+    recentPredictions,
+    setRecentPredictions,
+  ] = useState<any[]>([]);
 
-    {
-      title: "Toxic Samples",
-      value: "4,266",
-      icon: AlertTriangle,
-    },
+  const [
+    trendData,
+    setTrendData,
+  ] = useState<any[]>([]);
 
-    {
-      title: "Model Accuracy",
-      value: "97.2%",
-      icon: TrendingUp,
-    },
-  ];
+  const [
+    toxicityData,
+    setToxicityData,
+  ] = useState<any[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+
+    async function loadDashboard() {
+
+      try {
+
+        setLoading(true);
+
+        const [
+          statsResponse,
+          recentResponse,
+          trendResponse,
+          toxicityResponse,
+        ] = await Promise.all([
+
+          api.dashboardStats(),
+
+          api.recentPredictions(),
+
+          api.predictionsOverTime(
+            30
+          ),
+
+          api.toxicityDistribution(),
+        ]);
+
+        console.log(
+          "Dashboard Stats:",
+          statsResponse
+        );
+
+        console.log(
+          "Recent Predictions:",
+          recentResponse
+        );
+
+        console.log(
+          "Trend Response:",
+          trendResponse
+        );
+
+        console.log(
+          "Toxicity Distribution:",
+          toxicityResponse
+        );
+
+        setStats(
+          statsResponse
+        );
+
+        setRecentPredictions(
+
+          recentResponse.predictions ||
+          recentResponse ||
+          []
+
+        );
+
+        setTrendData(
+          trendResponse.series || []
+        );
+
+        setToxicityData([
+          {
+            name: "Toxic",
+
+            value:
+              toxicityResponse.toxic_pct,
+          },
+
+          {
+            name:
+              "Non-Toxic",
+
+            value:
+              toxicityResponse.nontoxic_pct,
+          },
+        ]);
+
+      } catch (error) {
+
+        console.error(error);
+
+      } finally {
+
+        setLoading(false);
+      }
+    }
+
+    loadDashboard();
+
+  }, []);
+
+  if (loading || !stats) {
+
+    return (
+
+      <div className="flex h-[60vh] items-center justify-center">
+
+        <div className="text-xl text-cyan-300">
+
+          Loading dashboard...
+
+        </div>
+
+      </div>
+    );
+  }
 
   return (
+
     <div className="space-y-7">
 
       {/* HERO */}
       <section className="relative overflow-hidden rounded-[32px] border border-cyan-500/10 bg-[#071120]/80 p-10 backdrop-blur-xl">
 
-        {/* glow */}
         <div className="absolute right-[-120px] top-[-120px] h-[260px] w-[260px] rounded-full bg-cyan-500/10 blur-[120px]" />
 
         <div className="relative z-10 flex items-center justify-between">
@@ -61,19 +183,25 @@ export default function DashboardPage() {
               </div>
 
               <span className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-1 text-sm text-cyan-300">
+
                 AI System Online
+
               </span>
 
             </div>
 
             <h1 className="mb-3 text-5xl font-black text-white">
+
               NanoToxi AI Dashboard
+
             </h1>
 
             <p className="max-w-2xl text-lg text-white/55">
+
               AI-powered nanoparticle toxicity prediction and
               scientific intelligence platform for advanced
               nanomedicine workflows.
+
             </p>
 
           </div>
@@ -99,11 +227,57 @@ export default function DashboardPage() {
       {/* STATS */}
       <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
 
-        {stats.map((item, index) => {
+        {[
+          {
+            title:
+              "Total Predictions",
+
+            value:
+              stats.total_predictions,
+
+            icon:
+              Activity,
+          },
+
+          {
+            title:
+              "Safe Samples",
+
+            value:
+              stats.nontoxic_count,
+
+            icon:
+              ShieldCheck,
+          },
+
+          {
+            title:
+              "Toxic Samples",
+
+            value:
+              stats.toxic_count,
+
+            icon:
+              AlertTriangle,
+          },
+
+          {
+            title:
+              "Avg Confidence",
+
+            value: `${Math.round(
+              stats.avg_confidence * 100
+            )}%`,
+
+            icon:
+              TrendingUp,
+          },
+        ].map((item, index) => {
 
           const Icon = item.icon;
 
           return (
+
             <div
               key={index}
               className="rounded-[26px] border border-cyan-500/10 bg-[#071120]/70 p-6 backdrop-blur-xl transition-all duration-300 hover:border-cyan-400/30 hover:bg-cyan-500/[0.03]"
@@ -120,11 +294,15 @@ export default function DashboardPage() {
               </div>
 
               <p className="mb-2 text-sm text-white/45">
+
                 {item.title}
+
               </p>
 
               <h2 className="text-4xl font-black text-white">
+
                 {item.value}
+
               </h2>
 
             </div>
@@ -136,7 +314,7 @@ export default function DashboardPage() {
       {/* CHARTS */}
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
-        {/* LEFT */}
+        {/* LEFT CHART */}
         <div className="xl:col-span-2 rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 p-7 backdrop-blur-xl">
 
           <div className="mb-8 flex items-center justify-between">
@@ -144,164 +322,273 @@ export default function DashboardPage() {
             <div>
 
               <h2 className="text-2xl font-bold text-white">
+
                 Toxicity Trends
+
               </h2>
 
               <p className="text-white/45">
-                Weekly nanoparticle analysis
+
+                Real backend analytics
+
               </p>
 
             </div>
 
             <span className="rounded-full bg-cyan-500/10 px-4 py-1 text-sm text-cyan-300">
+
               Live Analytics
+
             </span>
 
           </div>
 
-          {/* fake chart */}
-          <div className="relative h-[300px] w-full overflow-hidden rounded-[24px] border border-cyan-500/10 bg-[#081325]">
+          <div className="h-[320px] w-full">
 
-  {/* GRID */}
-  <div className="absolute inset-0 opacity-20">
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
+            >
 
-    {Array.from({ length: 6 }).map((_, i) => (
-      <div
-        key={i}
-        className="absolute left-0 w-full border-t border-cyan-500/10"
-        style={{
-          top: `${i * 20}%`,
-        }}
-      />
-    ))}
+              <AreaChart
+                data={trendData}
+              >
+
+                <defs>
+
+                  <linearGradient
+                    id="colorToxic"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+
+                    <stop
+                      offset="5%"
+                      stopColor="#ef4444"
+                      stopOpacity={0.8}
+                    />
+
+                    <stop
+                      offset="95%"
+                      stopColor="#ef4444"
+                      stopOpacity={0}
+                    />
+
+                  </linearGradient>
+
+                  <linearGradient
+                    id="colorSafe"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+
+                    <stop
+                      offset="5%"
+                      stopColor="#22d3ee"
+                      stopOpacity={0.8}
+                    />
+
+                    <stop
+                      offset="95%"
+                      stopColor="#22d3ee"
+                      stopOpacity={0}
+                    />
+
+                  </linearGradient>
+
+                </defs>
+
+                <XAxis
+                  dataKey="date"
+                  stroke="#94a3b8"
+                />
+
+                <YAxis
+                  stroke="#94a3b8"
+                />
+
+                <Tooltip />
+
+                <Area
+                  type="monotone"
+                  dataKey="toxic"
+                  stroke="#ef4444"
+                  fillOpacity={1}
+                  fill="url(#colorToxic)"
+                />
+
+                <Area
+                  type="monotone"
+                  dataKey="nontoxic"
+                  stroke="#22d3ee"
+                  fillOpacity={1}
+                  fill="url(#colorSafe)"
+                />
+
+              </AreaChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
+
+        {/* RIGHT CHART */}
+        {/* RIGHT ANALYTICS */}
+<div className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 p-7 backdrop-blur-xl">
+
+  <div className="mb-7">
+
+    <h2 className="text-2xl font-bold text-white">
+
+      Toxicity Distribution
+
+    </h2>
+
+    <p className="text-white/45">
+
+      Live prediction ratio
+
+    </p>
 
   </div>
 
-  {/* SVG LINE CHART */}
-  <svg
-    viewBox="0 0 800 300"
-    className="absolute inset-0 h-full w-full"
-    preserveAspectRatio="none"
-  >
+  <div className="space-y-8">
 
-    {/* AREA GLOW */}
-    <path
-      d="
-        M0 260
-        C80 210, 120 120, 200 150
-        C280 180, 340 70, 420 110
-        C500 150, 560 230, 640 180
-        C700 150, 740 90, 800 120
-        L800 300
-        L0 300
-        Z
-      "
-      fill="url(#gradientFill)"
-      opacity="0.35"
-    />
+    {/* TOXIC */}
+    <div>
 
-    {/* MAIN LINE */}
-    <path
-      d="
-        M0 260
-        C80 210, 120 120, 200 150
-        C280 180, 340 70, 420 110
-        C500 150, 560 230, 640 180
-        C700 150, 740 90, 800 120
-      "
-      fill="none"
-      stroke="#22d3ee"
-      strokeWidth="5"
-      strokeLinecap="round"
-      filter="url(#glow)"
-    />
+      <div className="mb-3 flex items-center justify-between">
 
-    {/* GLOW */}
-    <defs>
+        <span className="text-white">
 
-      <linearGradient
-        id="gradientFill"
-        x1="0"
-        x2="0"
-        y1="0"
-        y2="1"
-      >
-        <stop
-          offset="0%"
-          stopColor="#22d3ee"
-          stopOpacity="0.8"
+          Toxic Samples
+
+        </span>
+
+        <span className="font-bold text-red-400">
+
+          {toxicityData[0]?.value || 0}%
+
+        </span>
+
+      </div>
+
+      <div className="h-4 overflow-hidden rounded-full bg-white/5">
+
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-red-500 to-red-400 transition-all duration-700"
+          style={{
+            width: `${toxicityData[0]?.value || 0}%`,
+          }}
         />
 
-        <stop
-          offset="100%"
-          stopColor="#22d3ee"
-          stopOpacity="0"
+      </div>
+
+    </div>
+
+    {/* SAFE */}
+    <div>
+
+      <div className="mb-3 flex items-center justify-between">
+
+        <span className="text-white">
+
+          Non-Toxic Samples
+
+        </span>
+
+        <span className="font-bold text-cyan-300">
+
+          {toxicityData[1]?.value || 0}%
+
+        </span>
+
+      </div>
+
+      <div className="h-4 overflow-hidden rounded-full bg-white/5">
+
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-cyan-300 transition-all duration-700"
+          style={{
+            width: `${toxicityData[1]?.value || 0}%`,
+          }}
         />
 
-      </linearGradient>
+      </div>
 
-      <filter id="glow">
+    </div>
 
-        <feGaussianBlur
-          stdDeviation="6"
-          result="blur"
-        />
+    {/* SUMMARY CARDS */}
+    <div className="grid grid-cols-2 gap-4 pt-4">
 
-        <feMerge>
+      <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.05] p-5">
 
-          <feMergeNode in="blur" />
+        <p className="mb-2 text-sm text-red-300/70">
 
-          <feMergeNode in="SourceGraphic" />
+          Toxic Count
 
-        </feMerge>
+        </p>
 
-      </filter>
+        <h3 className="text-3xl font-black text-red-400">
 
-    </defs>
+          {stats.toxic_count}
 
-  </svg>
+        </h3>
 
-  {/* LABELS */}
-  <div className="absolute bottom-4 left-6 right-6 flex justify-between text-xs text-white/35">
+      </div>
 
-    <span>Jan</span>
-    <span>Feb</span>
-    <span>Mar</span>
-    <span>Apr</span>
-    <span>May</span>
-    <span>Jun</span>
-    <span>Jul</span>
-    <span>Aug</span>
+      <div className="rounded-2xl border border-cyan-500/10 bg-cyan-500/[0.05] p-5">
+
+        <p className="mb-2 text-sm text-cyan-300/70">
+
+          Safe Count
+
+        </p>
+
+        <h3 className="text-3xl font-black text-cyan-300">
+
+          {stats.nontoxic_count}
+
+        </h3>
+
+      </div>
+
+    </div>
 
   </div>
 
 </div>
 
+      </section>
+
+      {/* RECENT */}
+      <section className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 p-7 backdrop-blur-xl">
+
+        <div className="mb-7">
+
+          <h2 className="text-2xl font-bold text-white">
+
+            Recent Predictions
+
+          </h2>
+
+          <p className="text-white/45">
+
+            Latest AI analysis
+
+          </p>
+
         </div>
 
-        {/* RIGHT */}
-        <div className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 p-7 backdrop-blur-xl">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 
-          <div className="mb-7">
-
-            <h2 className="text-2xl font-bold text-white">
-              Recent Predictions
-            </h2>
-
-            <p className="text-white/45">
-              Latest AI analysis
-            </p>
-
-          </div>
-
-          <div className="space-y-4">
-
-            {[
-              "Gold Nanoparticles",
-              "Silver Oxide",
-              "Silica NP",
-              "Iron Oxide",
-            ].map((item, i) => (
+          {recentPredictions.map(
+            (item, i) => (
 
               <div
                 key={i}
@@ -311,23 +598,41 @@ export default function DashboardPage() {
                 <div>
 
                   <p className="font-semibold text-white">
-                    {item}
+
+                    {
+                      item.nanoparticle_name
+                    }
+
                   </p>
 
                   <p className="text-sm text-white/40">
-                    Prediction complete
+
+                    {
+                      item.risk_level
+                    }
+
                   </p>
 
                 </div>
 
-                <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs text-cyan-300">
-                  Safe
+                <span
+                  className={`rounded-full px-3 py-1 text-xs ${
+                    item.toxicity_label ===
+                    "Toxic"
+                      ? "bg-red-500/10 text-red-400"
+                      : "bg-cyan-500/10 text-cyan-300"
+                  }`}
+                >
+
+                  {
+                    item.toxicity_label
+                  }
+
                 </span>
 
               </div>
-            ))}
-
-          </div>
+            )
+          )}
 
         </div>
 
@@ -341,11 +646,15 @@ export default function DashboardPage() {
           <Database className="mb-4 h-8 w-8 text-cyan-400" />
 
           <h3 className="mb-2 text-xl font-bold text-white">
+
             Dataset Size
+
           </h3>
 
           <p className="text-3xl font-black text-cyan-300">
+
             2.4M+
+
           </p>
 
         </div>
@@ -355,11 +664,15 @@ export default function DashboardPage() {
           <ShieldCheck className="mb-4 h-8 w-8 text-cyan-400" />
 
           <h3 className="mb-2 text-xl font-bold text-white">
+
             AI Confidence
+
           </h3>
 
           <p className="text-3xl font-black text-cyan-300">
+
             98.1%
+
           </p>
 
         </div>
@@ -369,11 +682,15 @@ export default function DashboardPage() {
           <Activity className="mb-4 h-8 w-8 text-cyan-400" />
 
           <h3 className="mb-2 text-xl font-bold text-white">
+
             System Status
+
           </h3>
 
           <p className="text-3xl font-black text-green-400">
+
             Stable
+
           </p>
 
         </div>

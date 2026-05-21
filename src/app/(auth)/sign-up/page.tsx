@@ -232,7 +232,7 @@ export default function SignUpPage() {
             </h1>
 
             <p className="text-base text-white/40">
-              Join the Titan waitlist
+              Join the NanoToxi AI waitlist
             </p>
 
           </div>
@@ -251,7 +251,7 @@ export default function SignUpPage() {
 
               <p className="text-white/45">
                 Thanks for your
-                interest in Titan.
+                interest in NanoToxi AI.
               </p>
 
             </div>

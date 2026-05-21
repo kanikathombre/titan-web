@@ -1,5 +1,7 @@
 "use client";
 
+import AdminRoute from "@/components/auth/admin-route";
+
 import type {
   ReactNode,
 } from "react";
@@ -68,6 +70,8 @@ export default function AdminLayout({
 
   return (
 
+    <AdminRoute>
+
     <ThemeProvider>
 
       <DashboardLayout>
@@ -77,5 +81,7 @@ export default function AdminLayout({
       </DashboardLayout>
 
     </ThemeProvider>
+
+    </AdminRoute>
   );
 }

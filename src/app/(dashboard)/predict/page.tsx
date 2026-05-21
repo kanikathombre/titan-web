@@ -1,6 +1,8 @@
 
 "use client";
 
+import { api } from "@/lib/api";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useState } from "react";
@@ -39,6 +41,7 @@ import { useHistoryStore } from "@/lib/history-store";
 
 const predictSchema = z.object({
   nanoparticle: z.string().min(1),
+  npType: z.string().min(1),
   size: z.coerce.number().min(1),
   shape: z.string().min(1),
   dosage: z.coerce.number().min(1),
@@ -57,13 +60,27 @@ type PredictForm = z.infer<
 export default function PredictPage() {
 
   const [result, setResult] =
-    useState<null | {
-      verdict: string;
-      score: number;
-    }>(null);
+  useState<null | {
+
+    verdict: string;
+
+    score: number;
+
+    risk?: string;
+
+    explanation?: string;
+
+  }>(null);
 
   const [offline] =
     useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [errorMessage,
+    setErrorMessage] =
+      useState("");
 
   const addHistory =
     useHistoryStore(
@@ -81,26 +98,125 @@ export default function PredictPage() {
     ),
   });
 
-  const onSubmit = (
-    data: PredictForm
-  ) => {
+  const onSubmit = async (
+  data: PredictForm
+): Promise<void> => {
 
-    const toxic =
-      data.dosage > 50;
+  try {
+
+    setLoading(true);
+
+    setErrorMessage("");
+
+    const payload = {
+
+      nanoparticle_name:
+        data.nanoparticle,
+
+      np_type:
+        data.npType,
+
+      primary_size_nm:
+        Number(data.size),
+
+      hydrodynamic_size_nm:
+        Number(data.size),
+
+      zeta_potential_mv:
+        Number(data.surfaceCharge),
+
+      morphology:
+        data.shape,
+
+      cell_type:
+        data.cellLine,
+
+      dose_max_ugml:
+        Number(data.dosage),
+
+      dose_min_ugml:
+        Math.max(
+          Number(data.dosage) / 10,
+          1
+        ),
+
+      exposure_time_h:
+        Number(data.exposure),
+
+      ph:
+        Number(data.ph),
+
+      temperature_c: 37,
+
+      is_coated:
+        !!data.coating,
+
+      is_therapeutic:
+        false,
+
+      include_shap:
+        true,
+
+      include_rag:
+        false,
+    };
+
+    console.log(
+      "Prediction Payload:",
+      payload
+    );
+
+    const response =
+      await api.predict(
+        payload
+      );
+
+    console.log(
+      "Prediction Response:",
+      response
+    );
 
     const prediction = {
-      verdict: toxic
-        ? "Toxic"
-        : "Safe",
 
-      score: toxic
-        ? 89
-        : 12,
+      verdict:
+        response.toxicity_label,
+
+      score:
+        Math.round(
+          response.confidence * 100
+        ),
+
+      risk:
+        response.risk_level ||
+
+        (
+          response.confidence > 0.8
+            ? "High"
+            : response.confidence > 0.5
+              ? "Moderate"
+              : "Low"
+        ),
+
+      explanation:
+
+        typeof response.shap_explanation ===
+        "object"
+
+          ? JSON.stringify(
+              response.shap_explanation,
+              null,
+              2
+            )
+
+          : response.shap_explanation ||
+
+            "AI analysis completed successfully.",
     };
 
     setResult(prediction);
 
     addHistory({
+
       verdict:
         prediction.verdict,
 
@@ -110,8 +226,26 @@ export default function PredictPage() {
       nanoparticle:
         data.nanoparticle,
     });
-  };
 
+  } catch (error: any) {
+
+    console.error(
+      "Prediction Error:",
+      error.response?.data || error
+    );
+
+    setErrorMessage(
+
+      error.response?.data?.detail ||
+
+      "Prediction failed. Please try again."
+    );
+
+  } finally {
+
+    setLoading(false);
+  }
+};
   function loadPresetSafe() {
 
     setValue(
@@ -119,11 +253,16 @@ export default function PredictPage() {
       "Gold"
     );
 
+    setValue(
+      "npType",
+      "Inorganic"
+    );
+
     setValue("size", 20);
 
     setValue(
       "shape",
-      "Sphere"
+      "Spherical"
     );
 
     setValue(
@@ -138,7 +277,7 @@ export default function PredictPage() {
 
     setValue(
       "cellLine",
-      "HEK293"
+      "HepG2"
     );
 
     setValue(
@@ -161,11 +300,16 @@ export default function PredictPage() {
       "Silver"
     );
 
+    setValue(
+      "npType",
+      "Inorganic"
+    );
+
     setValue("size", 90);
 
     setValue(
       "shape",
-      "Rod"
+      "Nanorod"
     );
 
     setValue(
@@ -325,9 +469,73 @@ export default function PredictPage() {
 
             {/* FORM */}
             <form
+
+              
+
               onSubmit={handleSubmit(onSubmit)}
               className="grid grid-cols-1 gap-4 md:grid-cols-2"
             >
+
+              {/* ERROR CARD */}
+              {errorMessage && (
+
+                <div
+                  className="
+                    md:col-span-2
+                    mb-1
+                    rounded-2xl
+                    border
+                    border-red-500/20
+                    bg-red-500/10
+                    p-4
+                    backdrop-blur-xl
+                  "
+                >
+
+                  <div className="flex items-start justify-between gap-4">
+
+                    <div>
+
+                      <h3 className="text-sm font-semibold text-red-400">
+
+                        Prediction Failed
+
+                      </h3>
+
+                      <p className="mt-1 text-sm text-red-200">
+
+                        {errorMessage}
+
+                      </p>
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setErrorMessage("")
+                      }
+                      className="
+                        rounded-lg
+                        border
+                        border-red-500/20
+                        px-3
+                        py-1
+                        text-xs
+                        text-red-300
+                        transition
+                        hover:bg-red-500/10
+                      "
+                    >
+
+                      Dismiss
+
+                    </button>
+
+                  </div>
+
+                </div>
+              )}
 
               <Select
                 onValueChange={(value) =>
@@ -337,6 +545,38 @@ export default function PredictPage() {
                   )
                 }
               >
+                <Select
+                    onValueChange={(value) =>
+                      setValue(
+                        "npType",
+                        value
+                      )
+                    }
+                  >
+
+                    <SelectTrigger className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white">
+
+                      <SelectValue placeholder="Nanoparticle Type" />
+
+                    </SelectTrigger>
+
+                    <SelectContent>
+
+                      <SelectItem value="Inorganic">
+                        Inorganic
+                      </SelectItem>
+
+                      <SelectItem value="Organic">
+                        Organic
+                      </SelectItem>
+
+                      <SelectItem value="Hybrid">
+                        Hybrid
+                      </SelectItem>
+
+                    </SelectContent>
+
+                  </Select>
 
                 <SelectTrigger className="h-11 rounded-2xl border border-cyan-500/10 bg-[#081325]/80 text-white">
 
@@ -386,16 +626,52 @@ export default function PredictPage() {
 
                 <SelectContent>
 
-                  <SelectItem value="Sphere">
-                    Sphere
+                  <SelectItem value="Spherical">
+                    Spherical
                   </SelectItem>
 
-                  <SelectItem value="Rod">
-                    Rod
+                  <SelectItem value="Nanorod">
+                    Nanorod
                   </SelectItem>
 
-                  <SelectItem value="Cube">
-                    Cube
+                  <SelectItem value="Cubic">
+                    Cubic
+                  </SelectItem>
+
+                  <SelectItem value="Core-Shell">
+                    Core-Shell
+                  </SelectItem>
+
+                  <SelectItem value="Dendrimer">
+                    Dendrimer
+                  </SelectItem>
+
+                  <SelectItem value="Fibrous">
+                    Fibrous
+                  </SelectItem>
+
+                  <SelectItem value="Hexagonal">
+                    Hexagonal
+                  </SelectItem>
+
+                  <SelectItem value="Nanotube">
+                    Nanotube
+                  </SelectItem>
+
+                  <SelectItem value="Nanowire">
+                    Nanowire
+                  </SelectItem>
+
+                  <SelectItem value="2D Sheet">
+                    2D Sheet
+                  </SelectItem>
+
+                  <SelectItem value="Porous">
+                    Porous
+                  </SelectItem>
+
+                  <SelectItem value="Other">
+                    Other
                   </SelectItem>
 
                 </SelectContent>
@@ -433,16 +709,48 @@ export default function PredictPage() {
 
                 <SelectContent>
 
-                  <SelectItem value="HEK293">
-                    HEK293
-                  </SelectItem>
-
                   <SelectItem value="A549">
                     A549
                   </SelectItem>
 
-                  <SelectItem value="MCF7">
-                    MCF7
+                  <SelectItem value="BEAS-2B">
+                    BEAS-2B
+                  </SelectItem>
+
+                  <SelectItem value="Caco-2">
+                    Caco-2
+                  </SelectItem>
+
+                  <SelectItem value="HT-29">
+                    HT-29
+                  </SelectItem>
+
+                  <SelectItem value="HeLa">
+                    HeLa
+                  </SelectItem>
+
+                  <SelectItem value="HepG2">
+                    HepG2
+                  </SelectItem>
+
+                  <SelectItem value="L929">
+                    L929
+                  </SelectItem>
+
+                  <SelectItem value="MCF-7">
+                    MCF-7
+                  </SelectItem>
+
+                  <SelectItem value="MDA-MB-231">
+                    MDA-MB-231
+                  </SelectItem>
+
+                  <SelectItem value="RAW264.7">
+                    RAW264.7
+                  </SelectItem>
+
+                  <SelectItem value="Other">
+                    Other
                   </SelectItem>
 
                 </SelectContent>
@@ -480,11 +788,17 @@ export default function PredictPage() {
 
                 <Button
                   type="submit"
-                  disabled={offline}
+                  disabled={
+                    offline || loading
+                  }
                   className="h-11 w-full rounded-2xl bg-cyan-400 text-lg font-bold text-black shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:bg-cyan-300"
                 >
 
-                  Run Prediction
+                  {loading
+                    ? "Analyzing..."
+                    : errorMessage
+                      ? "Retry Prediction"
+                      : "Run Prediction"}
 
                 </Button>
 
@@ -586,56 +900,199 @@ export default function PredictPage() {
       {/* RESULT */}
       {result && (
 
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 30,
-          }}
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 30,
+            }}
 
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-        >
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+          >
 
-          <Card className="rounded-[30px] border border-cyan-500/10 bg-[#071120]/70 backdrop-blur-xl">
+            <Card className="overflow-hidden rounded-[32px] border border-cyan-500/10 bg-[#071120]/80 backdrop-blur-2xl">
 
-            <CardContent className="space-y-4 p-6">
+              <CardContent className="space-y-8 p-8">
 
-              <h2 className="text-4xl font-black text-white">
+                {/* HEADER */}
+                <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
-                Prediction Result
+                  <div>
 
-              </h2>
+                    <p className="mb-3 text-sm font-semibold uppercase tracking-[0.35em] text-cyan-400">
 
-              <div
-                className={`inline-flex rounded-full px-6 py-3 text-xl font-black ${
-                  result.verdict ===
-                  "Toxic"
-                    ? "bg-red-500/20 text-red-400"
-                    : "bg-green-500/20 text-green-400"
-                }`}
-              >
+                      AI Inference Complete
 
-                {result.verdict}
+                    </p>
 
-              </div>
+                    <h2 className="text-4xl font-black text-white">
 
-              <p className="text-2xl font-bold text-white">
+                      Prediction Result
 
-                Toxicity Score:
-                {" "}
-                {result.score}
-                %
+                    </h2>
 
-              </p>
+                  </div>
 
-            </CardContent>
+                  <div
+                    className={`inline-flex items-center rounded-full px-6 py-3 text-lg font-black shadow-lg ${
+                      result.verdict ===
+                      "Toxic"
+                        ? "bg-red-500/20 text-red-400 shadow-red-500/10"
+                        : "bg-green-500/20 text-green-400 shadow-green-500/10"
+                    }`}
+                  >
 
-          </Card>
+                    {result.verdict}
 
-        </motion.div>
-      )}
+                  </div>
+
+                </div>
+
+                {/* METRICS */}
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+
+                  {/* CONFIDENCE */}
+                  <div className="rounded-3xl border border-cyan-500/10 bg-[#081325]/80 p-5">
+
+                    <p className="text-sm uppercase tracking-[0.25em] text-white/40">
+
+                      Confidence
+
+                    </p>
+
+                    <h3 className="mt-3 text-5xl font-black text-cyan-400">
+
+                      {result.score}%
+
+                    </h3>
+
+                  </div>
+
+                  {/* RISK */}
+                  <div className="rounded-3xl border border-cyan-500/10 bg-[#081325]/80 p-5">
+
+                    <p className="text-sm uppercase tracking-[0.25em] text-white/40">
+
+                      Risk Level
+
+                    </p>
+
+                    <h3
+                      className={`mt-3 text-4xl font-black ${
+                        result.risk === "High"
+                          ? "text-red-400"
+                          : result.risk === "Moderate"
+                            ? "text-yellow-400"
+                            : "text-green-400"
+                      }`}
+                    >
+
+                      {result.risk}
+
+                    </h3>
+
+                  </div>
+
+                  {/* MODEL */}
+                  <div className="rounded-3xl border border-cyan-500/10 bg-[#081325]/80 p-5">
+
+                    <p className="text-sm uppercase tracking-[0.25em] text-white/40">
+
+                      Model Version
+
+                    </p>
+
+                    <h3 className="mt-3 text-4xl font-black text-white">
+
+                      RF v2
+
+                    </h3>
+
+                  </div>
+
+                </div>
+
+                {/* AI EXPLANATION */}
+                <div className="rounded-3xl border border-cyan-500/10 bg-[#081325]/80 p-6">
+
+                  <div className="flex items-center justify-between">
+
+                    <div>
+
+                      <p className="text-sm uppercase tracking-[0.25em] text-cyan-400">
+
+                        SHAP AI Explanation
+
+                      </p>
+
+                      <h3 className="mt-2 text-2xl font-black text-white">
+
+                        Feature Analysis
+
+                      </h3>
+
+                    </div>
+
+                    <div className="rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-300">
+
+                      Explainable AI
+
+                    </div>
+
+                  </div>
+
+                  <p className="mt-5 leading-relaxed text-white/70">
+
+                    {result.explanation}
+
+                  </p>
+
+                </div>
+
+                {/* RECOMMENDATION */}
+                <div
+                  className={`rounded-3xl border p-6 ${
+                    result.verdict === "Toxic"
+                      ? "border-red-500/20 bg-red-500/10"
+                      : "border-green-500/20 bg-green-500/10"
+                  }`}
+                >
+
+                  <h3
+                    className={`text-xl font-black ${
+                      result.verdict === "Toxic"
+                        ? "text-red-400"
+                        : "text-green-400"
+                    }`}
+                  >
+
+                    {result.verdict === "Toxic"
+                      ? "Safety Recommendation"
+                      : "Biocompatibility Assessment"}
+
+                  </h3>
+
+                  <p className="mt-3 leading-relaxed text-white/70">
+
+                    {result.verdict === "Toxic"
+
+                      ? "The nanoparticle demonstrates elevated toxicity indicators. Further wet-lab validation and dosage optimization are strongly recommended before biomedical deployment."
+
+                      : "The nanoparticle demonstrates acceptable toxicity thresholds under current experimental conditions and shows promising biocompatibility characteristics."
+                    }
+
+                  </p>
+
+                </div>
+
+              </CardContent>
+
+            </Card>
+
+          </motion.div>
+        )}
 
     </div>
   );

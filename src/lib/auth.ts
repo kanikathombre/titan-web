@@ -1,51 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import { api } from "@/lib/api";
 
 interface User {
   id: number;
   email: string;
-  name: string;
-}
-
-interface AuthResponse {
-  user: User | null;
-  isExpired: boolean;
+  name?: string;
+  role?: string;
+  has_access?: boolean;
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isExpired, setIsExpired] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  const [user, setUser] =
+    useState<User | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
+
     async function checkAuth() {
+
       try {
-        const response = await fetch("/api/auth/me");
 
-        const data: AuthResponse = await response.json();
+        const data =
+          await api.me();
 
-        setUser(data.user);
-        setIsExpired(data.isExpired);
+        setUser(data);
+
       } catch {
+
         setUser(null);
-        setIsExpired(true);
-      } finally {
+      }
+
+      finally {
+
         setLoading(false);
       }
     }
 
     checkAuth();
+
   }, []);
 
-  const isLoggedIn = !!user && !isExpired;
-  const hasAccess = isLoggedIn;
+  const isLoggedIn =
+    !!user;
+
+  const hasAccess =
+    user?.has_access ??
+    false;
 
   return {
+
     user,
-    isExpired,
-    isLoggedIn,
-    hasAccess,
+
     loading,
+
+    isLoggedIn,
+
+    hasAccess,
   };
 }

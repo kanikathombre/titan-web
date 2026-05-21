@@ -6,7 +6,10 @@ import {
 
 import { toast } from "sonner";
 
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import Papa from "papaparse";
 
@@ -17,7 +20,6 @@ import {
 import {
   Download,
   Upload,
-  ArrowUpDown,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,34 +36,53 @@ type CsvRow = {
   dosage: string;
 };
 
-type ResultRow = CsvRow & {
-  toxicity?: number;
-  verdict?: string;
-  error?: string;
-};
-
 export default function BatchPage() {
 
   const [rows, setRows] =
     useState<CsvRow[]>([]);
 
-  const [results, setResults] =
-    useState<ResultRow[]>([]);
-
-  const [sortKey, setSortKey] =
-    useState<
-      "nanoparticle" |
-      "toxicity" |
-      "verdict"
-    >("toxicity");
-
-  const [sortDirection, setSortDirection] =
-    useState<
-      "asc" | "desc"
-    >("desc");
-
   const [loading, setLoading] =
     useState(false);
+
+  const [jobId, setJobId] =
+    useState<string | null>(null);
+
+  const [jobStatus, setJobStatus] =
+    useState<
+      "idle" |
+      "pending" |
+      "processing" |
+      "done" |
+      "failed"
+    >("idle");
+
+  const [progress, setProgress] =
+    useState(0);
+
+  const [selectedFile, setSelectedFile] =
+    useState<File | null>(null);
+
+  const [downloadUrl, setDownloadUrl] =
+    useState<string | null>(null);
+
+  const [jobs, setJobs] =
+    useState<any[]>([]);
+
+  useEffect(() => {
+
+    loadJobs();
+
+    const interval =
+      setInterval(() => {
+
+        loadJobs();
+
+      }, 5000);
+
+    return () =>
+      clearInterval(interval);
+
+  }, []);
 
   function handleFileUpload(
     event: React.ChangeEvent<HTMLInputElement>
@@ -69,6 +90,10 @@ export default function BatchPage() {
 
     const file =
       event.target.files?.[0];
+
+    setSelectedFile(
+      file || null
+    );
 
     if (!file) {
 
@@ -109,10 +134,10 @@ export default function BatchPage() {
 
   async function runBatchPredictions() {
 
-    if (rows.length === 0) {
+    if (!selectedFile) {
 
       toast.error(
-        "Upload a CSV file first"
+        "Upload a CSV/XLSX file first"
       );
 
       return;
@@ -120,142 +145,334 @@ export default function BatchPage() {
 
     setLoading(true);
 
+    setJobStatus(
+      "pending"
+    );
+
     try {
 
-      const batchResults =
-        await Promise.all(
+      const formData =
+        new FormData();
 
-          rows.map(
-            async (row) => {
+      formData.append(
+        "file",
+        selectedFile
+      );
 
-              try {
-
-                await new Promise(
-                  (resolve) =>
-                    setTimeout(
-                      resolve,
-                      300
-                    )
-                );
-
-                if (
-                  Math.random() < 0.1
-                ) {
-
-                  throw new Error(
-                    "Prediction failed"
-                  );
-                }
-
-                const toxicity =
-                  Math.floor(
-                    Math.random() * 100
-                  );
-
-                return {
-                  ...row,
-
-                  toxicity,
-
-                  verdict:
-                    toxicity > 50
-                      ? "Toxic"
-                      : "Safe",
-                };
-
-              } catch {
-
-                return {
-                  ...row,
-
-                  error:
-                    "Failed",
-                };
-              }
-            }
-          )
+      const token =
+        localStorage.getItem(
+          "nanotoxi_token"
         );
 
-      setResults(
-        batchResults
+      console.log(
+        "BATCH TOKEN:",
+        token
+      );
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/predict/bulk/`,
+        {
+          method: "POST",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+
+        const errorData =
+          await response.json();
+
+        console.log(
+          "UPLOAD ERROR:",
+          errorData
+        );
+
+        throw new Error(
+          JSON.stringify(
+            errorData
+          )
+        );
+      }
+
+      const data =
+        await response.json();
+
+      console.log(
+        "UPLOAD RESPONSE:",
+        data
+      );
+
+      const id =
+        data.job_id;
+
+      setJobId(id);
+
+      toast.success(
+        "Batch job started"
+      );
+
+      pollJobStatus(id);
+
+    } catch (error) {
+
+      console.error(error);
+
+      setJobStatus(
+        "failed"
+      );
+
+      setLoading(false);
+
+      toast.error(
+        "Batch upload failed"
+      );
+    }
+  }
+
+  async function pollJobStatus(
+    id: string
+  ) {
+
+    const token =
+      localStorage.getItem(
+        "nanotoxi_token"
+      );
+
+    const interval =
+      setInterval(
+        async () => {
+
+          try {
+
+            const response =
+              await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/v1/predict/bulk/${id}`,
+                {
+                  headers: {
+                    Authorization:
+                      `Bearer ${token}`,
+                  },
+                }
+              );
+
+            const data =
+              await response.json();
+
+            console.log(
+              "JOB STATUS:",
+              data
+            );
+
+            setJobStatus(
+              data.status
+            );
+
+            if (
+              data.total_rows &&
+              data.processed_rows
+            ) {
+
+              const percent =
+                Math.round(
+                  (
+                    data.processed_rows /
+                    data.total_rows
+                  ) * 100
+                );
+
+              setProgress(
+                percent
+              );
+            }
+
+            if (
+              data.status ===
+              "done"
+            ) {
+
+              clearInterval(
+                interval
+              );
+
+              setLoading(false);
+
+              setProgress(
+                100
+              );
+
+              setDownloadUrl(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/v1/predict/bulk/${id}/download`
+              );
+
+              loadJobs();
+
+              toast.success(
+                "Batch processing completed"
+              );
+            }
+
+            if (
+              data.status ===
+              "failed"
+            ) {
+
+              clearInterval(
+                interval
+              );
+
+              setLoading(false);
+
+              toast.error(
+                "Batch job failed"
+              );
+            }
+
+          } catch (error) {
+
+            console.error(
+              error
+            );
+
+            clearInterval(
+              interval
+            );
+
+            setLoading(false);
+
+            toast.error(
+              "Polling failed"
+            );
+          }
+
+        },
+        2500
+      );
+  }
+
+  async function loadJobs() {
+
+    try {
+
+      const token =
+        localStorage.getItem(
+          "nanotoxi_token"
+        );
+
+      const response =
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/predict/bulk/`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const data =
+        await response.json();
+
+      console.log(
+        "BATCH JOBS:",
+        data
+      );
+
+      setJobs(
+        data.jobs ||
+        data ||
+        []
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast.error(
+        "Failed to load batch jobs"
+      );
+    }
+  }
+
+  async function downloadResults(
+    jobId: string
+  ) {
+
+    try {
+
+      const token =
+        localStorage.getItem(
+          "nanotoxi_token"
+        );
+
+      const response =
+        await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/predict/bulk/${jobId}/download`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Download failed"
+        );
+      }
+
+      const blob =
+        await response.blob();
+
+      const url =
+        window.URL.createObjectURL(
+          blob
+        );
+
+      const a =
+        document.createElement("a");
+
+      a.href = url;
+
+      a.download =
+        `batch_results_${jobId}.xlsx`;
+
+      document.body.appendChild(a);
+
+      a.click();
+
+      a.remove();
+
+      window.URL.revokeObjectURL(
+        url
       );
 
       toast.success(
-        "Batch predictions completed"
+        "Download started"
       );
 
-    } catch {
+    } catch (error) {
+
+      console.error(error);
 
       toast.error(
-        "Batch prediction failed"
+        "Failed to download results"
       );
-
-    } finally {
-
-      setLoading(false);
     }
   }
-
-  function handleSort(
-    key:
-      | "nanoparticle"
-      | "toxicity"
-      | "verdict"
-  ) {
-
-    if (sortKey === key) {
-
-      setSortDirection(
-        sortDirection === "asc"
-          ? "desc"
-          : "asc"
-      );
-
-    } else {
-
-      setSortKey(key);
-
-      setSortDirection("asc");
-
-    }
-  }
-
-  const sortedResults =
-    [...results].sort(
-      (a, b) => {
-
-        const direction =
-          sortDirection === "asc"
-            ? 1
-            : -1;
-
-        if (sortKey === "toxicity") {
-
-          return (
-            ((a.toxicity ?? 0) -
-              (b.toxicity ?? 0)) *
-            direction
-          );
-        }
-
-        return (
-          String(
-            a[sortKey] ?? ""
-          ).localeCompare(
-            String(
-              b[sortKey] ?? ""
-            )
-          ) * direction
-        );
-      }
-    );
 
   function downloadTemplate() {
 
     try {
 
       const csv =
-        "nanoparticle,size,shape,dosage\nGold,20,Sphere,10\nSilver,90,Rod,100";
+        "nanoparticle_name,primary_size_nm,hydrodynamic_size_nm,dose_max_ugml,dose_min_ugml,exposure_time_h,zeta_potential_mv,morphology,cell_type,np_type,is_coated,is_therapeutic,quality_score,ph,temperature_c\nGold,20,25,10,1,24,-5,Spherical,HepG2,Inorganic,false,false,90,7,37";
 
       const blob =
         new Blob(
@@ -279,7 +496,7 @@ export default function BatchPage() {
       a.href = url;
 
       a.download =
-        "batch-template.csv";
+        "nanotoxi_batch_template.csv";
 
       a.click();
 
@@ -295,54 +512,8 @@ export default function BatchPage() {
     }
   }
 
-  function downloadResults() {
-
-    try {
-
-      const csv =
-        Papa.unparse(
-          results
-        );
-
-      const blob =
-        new Blob(
-          [csv],
-          {
-            type:
-              "text/csv",
-          }
-        );
-
-      const url =
-        URL.createObjectURL(
-          blob
-        );
-
-      const a =
-        document.createElement(
-          "a"
-        );
-
-      a.href = url;
-
-      a.download =
-        "batch-results.csv";
-
-      a.click();
-
-      toast.success(
-        "Results downloaded"
-      );
-
-    } catch {
-
-      toast.error(
-        "Failed to download results"
-      );
-    }
-  }
-
   return (
+
     <div className="mx-auto max-w-7xl space-y-8">
 
       {/* HEADER */}
@@ -356,7 +527,7 @@ export default function BatchPage() {
 
         <p className="mt-4 text-lg text-white/45">
 
-          Upload CSV files and run AI toxicity
+          Upload CSV/XLSX files and run AI toxicity
           predictions across multiple nanoparticles.
 
         </p>
@@ -368,7 +539,6 @@ export default function BatchPage() {
 
         <CardContent className="space-y-8 p-8">
 
-          {/* ACTION BUTTONS */}
           <div className="flex flex-wrap gap-4">
 
             <Button
@@ -384,18 +554,15 @@ export default function BatchPage() {
 
             </Button>
 
-            
-
           </div>
 
-          {/* DROPZONE */}
           <label className="flex cursor-pointer flex-col items-center justify-center rounded-[28px] border border-dashed border-cyan-500/10 bg-[#081325]/50 p-16 transition-all duration-300 hover:border-cyan-400/20 hover:bg-cyan-500/5">
 
             <Upload className="h-12 w-12 text-cyan-400" />
 
             <p className="mt-5 text-xl font-semibold text-white">
 
-              Upload CSV File
+              Upload CSV/XLSX File
 
             </p>
 
@@ -407,7 +574,7 @@ export default function BatchPage() {
 
             <input
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx"
               className="hidden"
               onChange={
                 handleFileUpload
@@ -420,11 +587,310 @@ export default function BatchPage() {
 
       </Card>
 
+      {/* JOB HISTORY */}
+      {jobs.length > 0 && (
+
+        <Card className="rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
+
+          <CardContent className="space-y-6 overflow-auto p-8">
+
+            <div>
+
+              <h2 className="text-3xl font-black text-white">
+
+                Batch Job History
+
+              </h2>
+
+              <p className="mt-2 text-white/45">
+
+                Recent bulk prediction jobs
+
+              </p>
+
+            </div>
+
+            <table className="w-full border-collapse">
+
+              <thead>
+
+                <tr className="border-b border-cyan-500/10 text-white/55">
+
+                  <th className="p-4 text-left">
+
+                    Job ID
+
+                  </th>
+
+                  <th className="p-4 text-left">
+
+                    Status
+
+                  </th>
+
+                  <th className="p-4 text-left">
+
+                    Progress
+
+                  </th>
+
+                  <th className="p-4 text-left">
+
+                    Created
+
+                  </th>
+
+                  <th className="p-4 text-left">
+
+                    Action
+
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {jobs.map(
+                  (
+                    job,
+                    index
+                  ) => {
+
+                    const percent =
+                      job.total_rows
+                        ? Math.round(
+                            (
+                              job.processed_rows /
+                              job.total_rows
+                            ) * 100
+                          )
+                        : 0;
+
+                    return (
+
+                      <tr
+                        key={index}
+                        className="border-b border-cyan-500/5 text-white/80"
+                      >
+
+                        <td className="p-4">
+
+                          {job.job_id}
+
+                        </td>
+
+                        <td className="p-4">
+
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs ${
+                              job.status ===
+                              "done"
+                                ? "bg-green-500/20 text-green-400"
+                                : job.status ===
+                                  "failed"
+                                ? "bg-red-500/20 text-red-400"
+                                : "bg-cyan-500/20 text-cyan-300"
+                            }`}
+                          >
+
+                            {job.status}
+
+                          </span>
+
+                        </td>
+
+                        <td className="p-4 text-white/60">
+
+                          {job.created_at
+                            ? new Date(
+                                job.created_at + "Z"
+                              ).toLocaleString(
+                                "en-IN",
+                                {
+                                  timeZone:
+                                    "Asia/Kolkata",
+                                }
+                              )
+                            : "-"}
+
+                        </td>
+
+                        <td className="p-4 min-w-[180px]">
+
+                          <div className="space-y-2">
+
+                            <div className="flex items-center justify-between text-xs text-white/45">
+
+                              <span>
+
+                                {percent}%
+
+                              </span>
+
+                              <span>
+
+                                {job.processed_rows || 0}
+                                /
+                                {job.total_rows || 0}
+
+                              </span>
+
+                            </div>
+
+                            <div className="h-2 overflow-hidden rounded-full bg-white/5">
+
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-cyan-300 transition-all duration-700"
+                                style={{
+                                  width: `${percent}%`,
+                                }}
+                              />
+
+                            </div>
+
+                          </div>
+
+                        </td>
+
+                        <td className="p-4">
+
+                          {job.status ===
+                            "done" && (
+
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                downloadResults(
+                                  job.job_id
+                                )
+                              }
+                              className="rounded-xl bg-cyan-400 text-black hover:bg-cyan-300"
+                            >
+
+                              Download
+
+                            </Button>
+
+                          )}
+
+                        </td>
+
+                      </tr>
+                    );
+                  }
+                )}
+
+              </tbody>
+
+            </table>
+
+          </CardContent>
+
+        </Card>
+
+      )}
+
+      {/* PROGRESS */}
+      {jobStatus !== "idle" && (
+
+        <Card className="rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
+
+          <CardContent className="space-y-6 p-8">
+
+            <div className="flex items-center justify-between">
+
+              <div>
+
+                <h2 className="text-3xl font-black text-white">
+
+                  Batch Processing
+
+                </h2>
+
+                <p className="mt-2 text-white/45">
+
+                  Live backend processing status
+
+                </p>
+
+              </div>
+
+              <div
+                className={`rounded-full px-5 py-2 text-sm font-semibold ${
+                  jobStatus === "done"
+                    ? "bg-green-500/20 text-green-400"
+                    : jobStatus === "failed"
+                    ? "bg-red-500/20 text-red-400"
+                    : "bg-cyan-500/20 text-cyan-300"
+                }`}
+              >
+
+                {jobStatus.toUpperCase()}
+
+              </div>
+
+            </div>
+
+            <div className="h-4 overflow-hidden rounded-full bg-white/5">
+
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-cyan-300 transition-all duration-700"
+                style={{
+                  width: `${progress}%`,
+                }}
+              />
+
+            </div>
+
+            <div className="flex items-center justify-between text-sm text-white/45">
+
+              <span>
+
+                Progress
+
+              </span>
+
+              <span>
+
+                {progress}%
+
+              </span>
+
+            </div>
+
+            {downloadUrl &&
+              jobId && (
+
+              <Button
+                onClick={() =>
+                  downloadResults(
+                    jobId
+                  )
+                }
+                className="rounded-2xl bg-cyan-400 text-black hover:bg-cyan-300"
+              >
+
+                <Download className="mr-2 h-4 w-4" />
+
+                Download Excel Results
+
+              </Button>
+
+            )}
+
+          </CardContent>
+
+        </Card>
+
+      )}
+
       {/* EMPTY STATE */}
       {rows.length === 0 && (
 
         <EmptyState
-          title="Upload a CSV File"
+          title="Upload a CSV/XLSX File"
           description="Upload nanoparticle datasets to begin batch prediction."
         />
 
@@ -477,7 +943,7 @@ export default function BatchPage() {
                 >
 
                   {loading
-                    ? "Running..."
+                    ? "Processing..."
                     : "Run Predictions"}
 
                 </Button>
@@ -527,9 +993,7 @@ export default function BatchPage() {
                     ) => (
 
                       <tr
-                        key={
-                          index
-                        }
+                        key={index}
                         className="border-b border-cyan-500/5 text-white/80"
                       >
 
@@ -558,215 +1022,6 @@ export default function BatchPage() {
                           {
                             row.dosage
                           }
-
-                        </td>
-
-                      </tr>
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </CardContent>
-
-          </Card>
-
-        </motion.div>
-      )}
-
-      {/* RESULTS */}
-      {results.length > 0 && (
-
-        <motion.div
-          initial={{
-            opacity: 0,
-            y: 20,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-        >
-
-          <Card className="overflow-hidden rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
-
-            <CardContent className="overflow-auto p-8">
-
-              <div className="mb-8 flex items-start justify-between">
-
-  <div>
-
-    <h2 className="text-3xl font-black text-white">
-
-      Prediction Results
-
-    </h2>
-
-    <p className="mt-2 text-white/45">
-
-      AI-generated nanoparticle toxicity outcomes
-
-    </p>
-
-  </div>
-
-  <div className="flex flex-col items-end gap-4">
-
-    <div className="rounded-full border border-cyan-500/10 bg-cyan-500/10 px-5 py-2 text-cyan-300">
-
-      Live Analytics
-
-    </div>
-
-    <Button
-      onClick={
-        downloadResults
-      }
-      className="rounded-2xl border border-cyan-500/10 bg-[#081325] px-5 text-cyan-300 transition-all duration-300 hover:bg-cyan-500/10 hover:text-cyan-200"
-    >
-
-      <Download className="mr-2 h-4 w-4" />
-
-      Download Results
-
-    </Button>
-
-  </div>
-
-</div>
-
-              <table className="w-full border-collapse">
-
-                <thead>
-
-                  <tr className="border-b border-cyan-500/10 text-white/55">
-
-                    <th
-                      onClick={() =>
-                        handleSort(
-                          "nanoparticle"
-                        )
-                      }
-                      className="cursor-pointer p-4 text-left hover:text-cyan-300"
-                    >
-
-                      <div className="flex items-center gap-2">
-
-                        Nanoparticle
-
-                        <ArrowUpDown className="h-4 w-4" />
-
-                      </div>
-
-                    </th>
-
-                    <th
-                      onClick={() =>
-                        handleSort(
-                          "toxicity"
-                        )
-                      }
-                      className="cursor-pointer p-4 text-left hover:text-cyan-300"
-                    >
-
-                      <div className="flex items-center gap-2">
-
-                        Toxicity
-
-                        <ArrowUpDown className="h-4 w-4" />
-
-                      </div>
-
-                    </th>
-
-                    <th
-                      onClick={() =>
-                        handleSort(
-                          "verdict"
-                        )
-                      }
-                      className="cursor-pointer p-4 text-left hover:text-cyan-300"
-                    >
-
-                      <div className="flex items-center gap-2">
-
-                        Verdict
-
-                        <ArrowUpDown className="h-4 w-4" />
-
-                      </div>
-
-                    </th>
-
-                    <th className="p-4 text-left">
-
-                      Status
-
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {sortedResults.map(
-                    (
-                      row,
-                      index
-                    ) => (
-
-                      <tr
-                        key={
-                          index
-                        }
-                        className="border-b border-cyan-500/5 text-white/80"
-                      >
-
-                        <td className="p-4">
-
-                          {
-                            row.nanoparticle
-                          }
-
-                        </td>
-
-                        <td className="p-4">
-
-                          {
-                            row.toxicity ??
-                            "-"
-                          }
-
-                        </td>
-
-                        <td className="p-4">
-
-                          <span
-                            className={`rounded-full px-3 py-1 text-sm font-medium ${
-                              row.verdict ===
-                              "Toxic"
-                                ? "bg-red-500/20 text-red-400"
-                                : "bg-green-500/20 text-green-400"
-                            }`}
-                          >
-
-                            {
-                              row.verdict ??
-                              "Error"
-                            }
-
-                          </span>
-
-                        </td>
-
-                        <td className="p-4">
-
-                          {row.error
-                            ? "❌ Failed"
-                            : "✅ Success"}
 
                         </td>
 

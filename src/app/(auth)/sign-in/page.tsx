@@ -9,6 +9,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,80 +96,62 @@ export default function SignInPage() {
 
   try {
 
-    // ================= ADMIN LOGIN =================
-    if (
-      data.email === "admin" &&
-      data.password === "admin123"
-    ) {
+    /* LOGIN */
+    await api.login({
+      email: data.email,
+      password: data.password,
+    });
 
-      await fetch("/api/auth/login", {
-        method: "POST",
+    /* FETCH USER */
+    const me =
+      await api.me();
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+    /* ACCESS CHECK */
+    if (!me.has_access) {
 
-        body: JSON.stringify({
-          email: data.email,
-        }),
-      });
-
-      toast.success(
-        "Admin signed in successfully"
+      toast.error(
+        "Access not enabled"
       );
 
-      router.push("/admin");
+      router.push(
+        "/pricing"
+      );
 
       return;
     }
 
-    // ================= USER LOGIN =================
+    toast.success(
+      "Signed in successfully"
+    );
+
+    /* ADMIN */
     if (
-      data.email === "demo" &&
-      data.password ===
-        "password123"
+      me.role === "admin"
     ) {
 
-      await fetch("/api/auth/login", {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          email: data.email,
-        }),
-      });
-
-      toast.success(
-        "Signed in successfully"
+      router.push(
+        "/admin/overview"
       );
-
-      router.push("/dashboard");
 
       return;
     }
 
-    // ================= INVALID =================
-    toast.error(
-      "Invalid email or password"
+    /* NORMAL USER */
+    router.push(
+      "/dashboard"
     );
+
+  } catch (error: any) {
+
+    const message =
+      error?.response?.data
+        ?.detail ||
+      "Invalid email or password";
+
+    toast.error(message);
 
     setServerError(
-      "Invalid email or password"
-    );
-
-  } catch {
-
-    toast.error(
-      "Something went wrong"
-    );
-
-    setServerError(
-      "Something went wrong"
+      message
     );
   }
 }
@@ -353,7 +336,15 @@ export default function SignInPage() {
               </Label>
 
             </div>
+            {serverError && (
 
+              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+
+                {serverError}
+
+              </div>
+
+            )}
             {/* BUTTON */}
             <Button
               type="submit"

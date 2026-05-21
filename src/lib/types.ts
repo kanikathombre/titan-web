@@ -41,36 +41,48 @@ export interface SignupResponse {
 /* TEMPORARY until senior gives actual predict schema */
 export interface PredictionInput {
 
-  nanoparticle: string;
+  nanoparticle_name: string;
 
-  shape: string;
+  np_type: string;
 
-  size_nm: number;
+  primary_size_nm: number;
 
-  dosage: number;
+  hydrodynamic_size_nm: number;
 
-  exposure_time: number;
+  zeta_potential_mv: number;
 
-  surface_charge: number;
+  morphology: string;
 
-  cell_viability: number;
+  cell_type: string;
 
-  cell_line: string;
+  dose_max_ugml: number;
+
+  dose_min_ugml: number;
+
+  exposure_time_h: number;
 
   ph: number;
 
-  coating?: string;
+  temperature_c: number;
+
+  is_coated: boolean;
+
+  is_therapeutic: boolean;
+
+  include_shap: boolean;
+
+  include_rag: boolean;
 }
 
 export interface PredictionResponse {
 
-  prediction: "Toxic" | "Safe";
+  toxicity_label: string;
 
   confidence: number;
 
   risk_level?: string;
 
-  recommendations?: string[];
+  shap_explanation?: string;
 }
 
 /* HEALTH */

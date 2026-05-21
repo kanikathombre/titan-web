@@ -2,6 +2,10 @@
 
 import "./globals.css";
 
+import {
+  AuthProvider,
+} from "@/context/auth-context";
+
 import SmoothScroll from "@/components/smooth-scroll";
 
 import { usePathname } from "next/navigation";
@@ -44,6 +48,7 @@ export default function RootLayout({
     >
 
       <body>
+        <AuthProvider>
         <SmoothScroll />
         <ThemeProvider>
 
@@ -56,6 +61,7 @@ export default function RootLayout({
           <Toaster richColors />
 
         </ThemeProvider>
+        </AuthProvider>
 
       </body>
 

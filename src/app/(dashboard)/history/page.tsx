@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/lib/api";
+
 import {
   EmptyState,
 } from "@/components/ui/empty-state";
@@ -52,15 +54,13 @@ import {
 } from "@/components/ui/select";
 
 type Prediction = {
-  id: number;
-  timestamp: string;
-  cellLine: string;
-  dose: number;
-  time: number;
-  size: number;
-  verdict: string;
-  prob: number;
+  prediction_id: string;
+  created_at: string;
+  nanoparticle_name: string;
+  toxicity_label: string;
   confidence: number;
+  risk_level: string;
+  model_version: string;
 };
 
 export default function HistoryPage() {
@@ -68,63 +68,8 @@ export default function HistoryPage() {
   const [mounted, setMounted] =
     useState(false);
 
-  useEffect(() => {
-
-    setMounted(true);
-
-  }, []);
-
-  const mockData: Prediction[] =
-    mounted
-      ? Array.from(
-          { length: 500 },
-          (_, i) => ({
-            id: i + 1,
-
-            timestamp:
-              new Date(
-                Date.now() -
-                  i * 10000000
-              ).toISOString(),
-
-            cellLine: [
-              "HEK293",
-              "A549",
-              "MCF7",
-            ][i % 3],
-
-            dose:
-              Math.floor(
-                Math.random() * 100
-              ),
-
-            time:
-              Math.floor(
-                Math.random() * 48
-              ),
-
-            size:
-              Math.floor(
-                Math.random() * 100
-              ),
-
-            verdict:
-              Math.random() > 0.5
-                ? "Toxic"
-                : "Safe",
-
-            prob:
-              Math.floor(
-                Math.random() * 100
-              ),
-
-            confidence:
-              Math.floor(
-                Math.random() * 100
-              ),
-          })
-        )
-      : [];
+  const [loading, setLoading] =
+    useState(true);
 
   const [data, setData] =
     useState<
@@ -133,12 +78,49 @@ export default function HistoryPage() {
 
   useEffect(() => {
 
+    setMounted(true);
+
+  }, []);
+
+  useEffect(() => {
+
+    async function loadHistory() {
+
+      try {
+
+        setLoading(true);
+
+        const response =
+          await api.history();
+
+        console.log(
+          "History Response:",
+          response
+        );
+
+        setData(
+          Array.isArray(response)
+            ? response
+            : response.predictions || []
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast.error(
+          "Failed to load prediction history"
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    }
+
     if (mounted) {
 
-      setData(
-        mockData
-      );
-
+      loadHistory();
     }
 
   }, [mounted]);
@@ -146,45 +128,11 @@ export default function HistoryPage() {
   const [verdictFilter, setVerdictFilter] =
     useState("all");
 
-  const [cellLineFilter, setCellLineFilter] =
-    useState("all");
-
   const [searchDate, setSearchDate] =
     useState("");
 
   const [searchQuery, setSearchQuery] =
     useState("");
-
-  const [sortKey, setSortKey] =
-    useState<
-      keyof Prediction
-    >("timestamp");
-
-  const [sortDirection, setSortDirection] =
-    useState<
-      "asc" | "desc"
-    >("desc");
-
-  function handleSort(
-    key: keyof Prediction
-  ) {
-
-    if (sortKey === key) {
-
-      setSortDirection(
-        sortDirection === "asc"
-          ? "desc"
-          : "asc"
-      );
-
-    } else {
-
-      setSortKey(key);
-
-      setSortDirection("asc");
-
-    }
-  }
 
   const filteredData =
     useMemo(() => {
@@ -200,21 +148,8 @@ export default function HistoryPage() {
         filtered =
           filtered.filter(
             (item) =>
-              item.verdict ===
+              item.toxicity_label ===
               verdictFilter
-          );
-      }
-
-      if (
-        cellLineFilter !==
-        "all"
-      ) {
-
-        filtered =
-          filtered.filter(
-            (item) =>
-              item.cellLine ===
-              cellLineFilter
           );
       }
 
@@ -223,7 +158,7 @@ export default function HistoryPage() {
         filtered =
           filtered.filter(
             (item) =>
-              item.timestamp.startsWith(
+              item.created_at.startsWith(
                 searchDate
               )
           );
@@ -234,76 +169,31 @@ export default function HistoryPage() {
         filtered =
           filtered.filter(
             (item) =>
-              item.cellLine
+              item.nanoparticle_name
                 .toLowerCase()
                 .includes(
                   searchQuery.toLowerCase()
                 ) ||
 
-              item.verdict
+              item.toxicity_label
                 .toLowerCase()
                 .includes(
                   searchQuery.toLowerCase()
                 ) ||
 
-              String(item.id).includes(
+              item.prediction_id.includes(
                 searchQuery
               )
           );
       }
-
-      filtered.sort(
-        (a, b) => {
-
-          const direction =
-            sortDirection ===
-            "asc"
-              ? 1
-              : -1;
-
-          if (
-            typeof a[
-              sortKey
-            ] === "number"
-          ) {
-
-            return (
-              ((a[
-                sortKey
-              ] as number) -
-                (b[
-                  sortKey
-                ] as number)) *
-              direction
-            );
-          }
-
-          return (
-            String(
-              a[
-                sortKey
-              ]
-            ).localeCompare(
-              String(
-                b[
-                  sortKey
-                ]
-              )
-            ) * direction
-          );
-        }
-      );
 
       return filtered;
 
     }, [
       data,
       verdictFilter,
-      cellLineFilter,
       searchDate,
       searchQuery,
-      sortKey,
-      sortDirection,
     ]);
 
   function exportCSV() {
@@ -388,7 +278,7 @@ export default function HistoryPage() {
     );
   }
 
-  if (!mounted) {
+  if (!mounted || loading) {
 
     return (
 
@@ -402,6 +292,7 @@ export default function HistoryPage() {
   }
 
   return (
+
     <div className="mx-auto max-w-7xl space-y-8">
 
       {/* HEADER */}
@@ -479,8 +370,9 @@ export default function HistoryPage() {
             value:
               data.filter(
                 (d) =>
-                  d.verdict ===
-                  "Safe"
+                  d.toxicity_label
+                    .toLowerCase()
+                    .includes("non")
               ).length,
 
             icon:
@@ -494,7 +386,7 @@ export default function HistoryPage() {
             value:
               data.filter(
                 (d) =>
-                  d.verdict ===
+                  d.toxicity_label ===
                   "Toxic"
               ).length,
 
@@ -507,12 +399,16 @@ export default function HistoryPage() {
               "Avg Confidence",
 
             value: `${Math.round(
-              data.reduce(
-                (a, b) =>
-                  a +
-                  b.confidence,
-                0
-              ) / data.length
+
+              (
+                data.reduce(
+                  (a, b) =>
+                    a +
+                    b.confidence,
+                  0
+                ) / data.length
+              ) * 100
+
             )}%`,
 
             icon:
@@ -524,6 +420,7 @@ export default function HistoryPage() {
             item.icon;
 
           return (
+
             <Card
               key={
                 item.label
@@ -569,7 +466,7 @@ export default function HistoryPage() {
       {/* FILTERS */}
       <Card className="border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-xl">
 
-        <CardContent className="grid gap-4 p-6 md:grid-cols-4">
+        <CardContent className="grid gap-4 p-6 md:grid-cols-3">
 
           <Input
             placeholder="Search predictions..."
@@ -618,48 +515,6 @@ export default function HistoryPage() {
 
           </Select>
 
-          <Select
-            onValueChange={
-              setCellLineFilter
-            }
-          >
-
-            <SelectTrigger className="border-cyan-500/10 bg-[#020817] text-white">
-
-              <SelectValue placeholder="Filter by cell line" />
-
-            </SelectTrigger>
-
-            <SelectContent>
-
-              <SelectItem value="all">
-
-                All
-
-              </SelectItem>
-
-              <SelectItem value="HEK293">
-
-                HEK293
-
-              </SelectItem>
-
-              <SelectItem value="A549">
-
-                A549
-
-              </SelectItem>
-
-              <SelectItem value="MCF7">
-
-                MCF7
-
-              </SelectItem>
-
-            </SelectContent>
-
-          </Select>
-
           <Input
             type="date"
             value={searchDate}
@@ -700,25 +555,18 @@ export default function HistoryPage() {
                 <tr className="border-b border-cyan-500/10">
 
                   {[
-                    "timestamp",
-                    "cellLine",
-                    "dose",
-                    "time",
-                    "size",
+                    "created_at",
+                    "nanoparticle",
                     "verdict",
-                    "prob",
                     "confidence",
+                    "risk",
+                    "model",
                   ].map(
                     (key) => (
 
                       <th
                         key={key}
-                        onClick={() =>
-                          handleSort(
-                            key as keyof Prediction
-                          )
-                        }
-                        className="cursor-pointer p-4 text-left capitalize text-white/60 transition-colors hover:text-cyan-300"
+                        className="p-4 text-left capitalize text-white/60"
                       >
 
                         {key}
@@ -745,17 +593,24 @@ export default function HistoryPage() {
                   ) => (
 
                     <tr
-                      key={item.id}
+                      key={item.prediction_id}
                       className="border-b border-cyan-500/10 transition-colors hover:bg-cyan-500/[0.03]"
                     >
 
                       <td className="p-4 text-white/80">
 
-                        {format(
-                          new Date(
-                            item.timestamp
-                          ),
-                          "PPpp"
+                        {new Date(
+                          item.created_at + "Z"
+                        ).toLocaleString(
+                          "en-IN",
+                          {
+                            timeZone:
+                              "Asia/Kolkata",
+                            dateStyle:
+                              "medium",
+                            timeStyle:
+                              "medium",
+                          }
                         )}
 
                       </td>
@@ -763,26 +618,8 @@ export default function HistoryPage() {
                       <td className="p-4 text-white">
 
                         {
-                          item.cellLine
+                          item.nanoparticle_name
                         }
-
-                      </td>
-
-                      <td className="p-4 text-white/80">
-
-                        {item.dose}
-
-                      </td>
-
-                      <td className="p-4 text-white/80">
-
-                        {item.time}
-
-                      </td>
-
-                      <td className="p-4 text-white/80">
-
-                        {item.size}
 
                       </td>
 
@@ -790,7 +627,7 @@ export default function HistoryPage() {
 
                         <span
                           className={`rounded-full border px-3 py-1 text-sm font-medium ${
-                            item.verdict ===
+                            item.toxicity_label ===
                             "Toxic"
                               ? "border-red-500/20 bg-red-500/10 text-red-400"
                               : "border-cyan-500/20 bg-cyan-500/10 text-cyan-300"
@@ -798,7 +635,7 @@ export default function HistoryPage() {
                         >
 
                           {
-                            item.verdict
+                            item.toxicity_label
                           }
 
                         </span>
@@ -807,16 +644,26 @@ export default function HistoryPage() {
 
                       <td className="p-4 text-white/80">
 
-                        {item.prob}%
+                        {Math.round(
+                          item.confidence * 100
+                        )}
+                        %
 
                       </td>
 
                       <td className="p-4 text-white/80">
 
                         {
-                          item.confidence
+                          item.risk_level
                         }
-                        %
+
+                      </td>
+
+                      <td className="p-4 text-white/80">
+
+                        {
+                          item.model_version
+                        }
 
                       </td>
 
@@ -826,7 +673,9 @@ export default function HistoryPage() {
                           size="sm"
                           onClick={() =>
                             rerunPrediction(
-                              item.id
+                              Number(
+                                item.prediction_id
+                              )
                             )
                           }
                           className="border border-cyan-500/10 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20"
