@@ -147,7 +147,7 @@ export function SiteFooter() {
 
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-cyan-400 text-2xl font-black text-white shadow-[0_0_40px_rgba(124,58,237,0.4)]">
 
-                T
+                N
 
               </div>
 
