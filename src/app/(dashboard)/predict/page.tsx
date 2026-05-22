@@ -347,7 +347,7 @@ export default function PredictPage() {
       <div className="relative z-10">
 
         <h1
-            className="text-5xl font-black text-transparent"
+            className="text-4xl font-black text-transparent"
             style={{
                 background:
                 "linear-gradient(to right, #ffffff 35%, #67e8f9 75%, #22d3ee 100%)",
@@ -791,7 +791,7 @@ export default function PredictPage() {
                   disabled={
                     offline || loading
                   }
-                  className="h-11 w-full rounded-2xl bg-cyan-400 text-lg font-bold text-black shadow-[0_0_30px_rgba(34,211,238,0.25)] hover:bg-cyan-300"
+                  className="h-11 w-full rounded-2xl bg-cyan-400 text-lg font-bold text-black shadow-[0_0_30px_rgba(34,211,238,0.25)] transition-all duration-300 hover:scale-[1.02] hover:bg-cyan-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                 >
 
                   {loading
@@ -951,7 +951,7 @@ export default function PredictPage() {
                 </div>
 
                 {/* METRICS */}
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-1 sm:grid-cols-3">
 
                   {/* CONFIDENCE */}
                   <div className="rounded-3xl border border-cyan-500/10 bg-[#081325]/80 p-5">

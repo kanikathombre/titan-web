@@ -300,7 +300,7 @@ export default function HistoryPage() {
 
         <div>
 
-          <h1 className="bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-5xl font-black text-transparent">
+          <h1 className="text-white to-cyan-300 bg-clip-text text-4xl font-black text-transparent">
 
             Prediction History
 

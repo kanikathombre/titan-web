@@ -94,8 +94,8 @@ export default function DashboardLayout({
       <div
         className={`relative z-10 flex flex-1 flex-col border-l border-cyan-500/10 transition-all duration-300 ${
           sidebarCollapsed
-            ? "ml-[100px]"
-            : "ml-[270px]"
+            ? "lg:ml-[100px]"
+            : "lg:ml-[270px]"
         }`}
       >
 
@@ -103,7 +103,7 @@ export default function DashboardLayout({
         <DashboardHeader title="Dashboard" />
 
         {/* CONTENT */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 md:p-6 xl:p-8">
 
           {children}
 

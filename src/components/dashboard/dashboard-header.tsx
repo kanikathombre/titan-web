@@ -133,7 +133,7 @@ export function DashboardHeader({
 
         <div>
 
-          <h1 className="text-5xl font-black">
+          <h1 className="text-4xl font-black">
 
             {title}
 

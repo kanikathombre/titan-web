@@ -190,7 +190,7 @@ export default function DashboardPage() {
 
             </div>
 
-            <h1 className="mb-3 text-5xl font-black text-white">
+            <h1 className="mb-3 text-4xl font-black text-white">
 
               NanoToxi AI Dashboard
 

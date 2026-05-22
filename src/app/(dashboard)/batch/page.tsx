@@ -519,7 +519,7 @@ export default function BatchPage() {
       {/* HEADER */}
       <div>
 
-        <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-6xl font-black text-transparent">
+        <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-4xl font-black text-transparent">
 
           Batch Prediction
 

@@ -104,7 +104,7 @@ export default function AccountPage() {
 
               </div>
 
-              <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-6xl font-black text-transparent">
+              <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-4xl font-black text-transparent">
 
                 Account Settings
 
@@ -168,7 +168,7 @@ export default function AccountPage() {
 
                 <div>
 
-                  <h2 className="text-3xl font-black text-white">
+                  <h2 className="text-2xl font-black text-white">
 
                     Profile Information
 
@@ -295,7 +295,7 @@ export default function AccountPage() {
 
                 <div>
 
-                  <h2 className="text-3xl font-black text-white">
+                  <h2 className="text-2xl font-black text-white">
 
                     Security
 

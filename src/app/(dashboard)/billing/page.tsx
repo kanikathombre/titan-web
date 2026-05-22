@@ -81,7 +81,7 @@ export default function BillingPage() {
 
               </div>
 
-              <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-6xl font-black text-transparent">
+              <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-3xl font-black text-transparent">
 
                 NanoToxi Billing
 
@@ -192,7 +192,7 @@ export default function BillingPage() {
 
                     </p>
 
-                    <h3 className="mt-2 text-4xl font-black text-white">
+                    <h3 className="mt-2 text-2xl font-black text-white">
 
                       {item.value}
 
@@ -233,7 +233,7 @@ export default function BillingPage() {
 
                 <div>
 
-                  <h2 className="text-3xl font-black text-white">
+                  <h2 className="text-2xl font-black text-white">
 
                     Current Subscription
 
@@ -261,13 +261,13 @@ export default function BillingPage() {
 
                   <div>
 
-                    <h3 className="text-5xl font-black text-white">
+                    <h3 className="text-3xl font-black text-white">
 
                       Pro Research
 
                     </h3>
 
-                    <p className="mt-3 max-w-xl text-white/45">
+                    <p className="mt-3 max-w-xl text-white/40">
 
                       Unlimited nanoparticle predictions,
                       AI analytics, dataset management,
@@ -285,7 +285,7 @@ export default function BillingPage() {
 
                     </p>
 
-                    <h4 className="mt-2 text-5xl font-black text-cyan-400">
+                    <h4 className="mt-2 text-3xl font-black text-cyan-400">
 
                       $49
 
@@ -364,7 +364,7 @@ export default function BillingPage() {
 
                 <div>
 
-                  <h2 className="text-3xl font-black text-white">
+                  <h2 className="text-2xl font-black text-white">
 
                     Usage Analytics
 
