@@ -1,6 +1,13 @@
 "use client";
 
 import {
+  getBilling,
+  createCheckout,
+  cancelPlan,
+  resumePlan,
+} from "@/lib/billing-api";
+
+import {
   CreditCard,
   TrendingUp,
   Receipt,
@@ -9,6 +16,11 @@ import {
   Activity,
   Wallet,
 } from "lucide-react";
+
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import {
   motion,
@@ -25,34 +37,167 @@ import {
   Button,
 } from "@/components/ui/button";
 
-const invoices = [
-  {
-    id: "INV-2026-001",
-    date: "May 12, 2026",
-    amount: "$49.00",
-    status: "Paid",
-  },
-
-  {
-    id: "INV-2026-002",
-    date: "Apr 12, 2026",
-    amount: "$49.00",
-    status: "Paid",
-  },
-
-  {
-    id: "INV-2026-003",
-    date: "Mar 12, 2026",
-    amount: "$49.00",
-    status: "Paid",
-  },
-];
-
 export default function BillingPage() {
+
+  const [billing, setBilling] =
+    useState<any>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  useEffect(() => {
+
+    fetchBilling();
+
+  }, []);
+
+  async function fetchBilling() {
+
+    try {
+
+      setLoading(true);
+
+      setError("");
+
+      const data =
+        await getBilling();
+
+      console.log(
+        "BILLING:",
+        data
+      );
+
+      setBilling(data);
+
+    } catch (err) {
+
+      console.error(err);
+
+      setError(
+        "Failed to load billing information"
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
+  }
+
+  async function handleCheckout() {
+
+    try {
+
+      const res =
+        await createCheckout(
+          "pro_individual"
+        );
+
+      window.location.href =
+        res.checkout_url;
+
+    } catch (err) {
+
+      console.error(err);
+
+      toast.error(
+        "Checkout failed"
+      );
+    }
+  }
+
+  async function handleCancel() {
+
+    try {
+
+      await cancelPlan();
+
+      toast.success(
+        "Subscription cancellation scheduled"
+      );
+
+      fetchBilling();
+
+    } catch (err) {
+
+      console.error(err);
+
+      toast.error(
+        "Failed to cancel subscription"
+      );
+    }
+  }
+
+  async function handleResume() {
+
+    try {
+
+      await resumePlan();
+
+      toast.success(
+        "Subscription resumed"
+      );
+
+      fetchBilling();
+
+    } catch (err) {
+
+      console.error(err);
+
+      toast.error(
+        "Failed to resume subscription"
+      );
+    }
+  }
+
+  if (loading) {
+
+    return (
+
+      <div className="flex min-h-[400px] items-center justify-center">
+
+        <div className="text-lg text-cyan-300">
+
+          Loading billing...
+
+        </div>
+
+      </div>
+    );
+  }
+
+  if (error) {
+
+    return (
+
+      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+
+        <p className="text-red-400">
+
+          {error}
+
+        </p>
+
+        <Button
+          onClick={
+            fetchBilling
+          }
+          className="h-11 rounded-2xl bg-cyan-400 text-black hover:bg-cyan-300"
+        >
+
+          Retry
+
+        </Button>
+
+      </div>
+    );
+  }
 
   return (
 
-    <div className="mx-auto max-w-7xl space-y-8">
+    <div className="mx-auto max-w-7xl space-y-6 overflow-x-hidden">
 
       {/* HERO */}
       <motion.div
@@ -68,7 +213,7 @@ export default function BillingPage() {
 
         <Card className="overflow-hidden rounded-[36px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
-          <CardContent className="relative flex flex-col justify-between gap-10 overflow-hidden p-10 lg:flex-row lg:items-center">
+          <CardContent className="relative flex flex-col justify-between gap-10 overflow-hidden p-4 md:p-6 xl:flex-row xl:items-center xl:p-10">
 
             {/* LEFT */}
             <div className="relative z-10">
@@ -81,13 +226,13 @@ export default function BillingPage() {
 
               </div>
 
-              <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-3xl font-black text-transparent">
+              <h1 className="bg-gradient-to-r from-white via-white to-cyan-300 bg-clip-text text-3xl font-black text-transparent md:text-4xl">
 
                 NanoToxi Billing
 
               </h1>
 
-              <p className="mt-5 max-w-3xl text-xl leading-relaxed text-white/45">
+              <p className="mt-5 max-w-3xl text-base leading-relaxed text-white/45 md:text-lg">
 
                 Manage subscriptions, invoices,
                 usage analytics, and AI platform access.
@@ -101,9 +246,9 @@ export default function BillingPage() {
 
               <div className="absolute h-[220px] w-[220px] rounded-full bg-cyan-500/10 blur-3xl" />
 
-              <div className="relative flex h-[170px] w-[170px] items-center justify-center rounded-full border border-cyan-500/10 bg-cyan-500/10">
+              <div className="relative flex h-[140px] w-[140px] items-center justify-center rounded-full border border-cyan-500/10 bg-cyan-500/10 md:h-[170px] md:w-[170px]">
 
-                <Wallet className="h-20 w-20 text-cyan-400" />
+                <Wallet className="h-16 w-16 text-cyan-400 md:h-20 md:w-20" />
 
               </div>
 
@@ -116,30 +261,38 @@ export default function BillingPage() {
       </motion.div>
 
       {/* TOP STATS */}
-      <div className="grid gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
 
         {[
           {
             title: "Current Plan",
-            value: "Pro Research",
+            value:
+              billing?.plan ||
+              "Free",
             icon: Crown,
           },
 
           {
             title: "Monthly Spend",
-            value: "$49",
+            value:
+              billing?.amount ||
+              "$0",
             icon: CreditCard,
           },
 
           {
-            title: "Predictions",
-            value: "2,140",
+            title: "Subscription",
+            value:
+              billing?.status ||
+              "inactive",
             icon: Activity,
           },
 
           {
-            title: "API Requests",
-            value: "12.8K",
+            title: "Invoices",
+            value:
+              billing?.invoices?.length ||
+              0,
             icon: TrendingUp,
           },
         ].map((item, i) => {
@@ -166,13 +319,13 @@ export default function BillingPage() {
 
               <Card className="rounded-[30px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
-                <CardContent className="space-y-6 p-7">
+                <CardContent className="space-y-6 p-5 md:p-7">
 
                   <div className="flex items-center justify-between">
 
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10">
 
-                      <Icon className="h-8 w-8 text-cyan-400" />
+                      <Icon className="h-7 w-7 text-cyan-400" />
 
                     </div>
 
@@ -186,13 +339,13 @@ export default function BillingPage() {
 
                   <div>
 
-                    <p className="text-white/40">
+                    <p className="text-sm text-white/40 md:text-base">
 
                       {item.title}
 
                     </p>
 
-                    <h3 className="mt-2 text-2xl font-black text-white">
+                    <h3 className="mt-2 break-words text-2xl font-black text-white md:text-2xl">
 
                       {item.value}
 
@@ -211,7 +364,7 @@ export default function BillingPage() {
       </div>
 
       {/* PLAN + USAGE */}
-      <div className="grid gap-8 xl:grid-cols-[1.1fr_1fr]">
+      <div className="grid gap-6 2xl:grid-cols-[1.1fr_1fr]">
 
         {/* CURRENT PLAN */}
         <motion.div
@@ -225,11 +378,11 @@ export default function BillingPage() {
           }}
         >
 
-          <Card className="rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
+          <Card className="h-full rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
-            <CardContent className="space-y-8 p-8">
+            <CardContent className="space-y-8 p-4 md:p-6 xl:p-8">
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
                 <div>
 
@@ -249,21 +402,21 @@ export default function BillingPage() {
 
                 <div className="rounded-full bg-emerald-500/10 px-5 py-2 text-sm font-semibold text-emerald-400">
 
-                  ACTIVE
+                  {billing?.status || "inactive"}
 
                 </div>
 
               </div>
 
-              <div className="rounded-[28px] border border-cyan-500/10 bg-[#020817]/80 p-8">
+              <div className="rounded-[28px] border border-cyan-500/10 bg-[#020817]/80 p-4 md:p-6 xl:p-8">
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
 
                   <div>
 
-                    <h3 className="text-3xl font-black text-white">
+                    <h3 className="text-2xl font-black text-white md:text-2xl">
 
-                      Pro Research
+                      {billing?.plan || "Free"}
 
                     </h3>
 
@@ -277,7 +430,7 @@ export default function BillingPage() {
 
                   </div>
 
-                  <div className="text-right">
+                  <div className="text-left xl:text-right">
 
                     <p className="text-white/45">
 
@@ -287,7 +440,7 @@ export default function BillingPage() {
 
                     <h4 className="mt-2 text-3xl font-black text-cyan-400">
 
-                      $49
+                      {billing?.amount || "$0"}
 
                     </h4>
 
@@ -306,12 +459,10 @@ export default function BillingPage() {
               <div className="flex flex-wrap gap-4">
 
                 <Button
-                  onClick={() =>
-                    toast.success(
-                      "Plan upgrade flow coming soon"
-                    )
+                  onClick={
+                    handleCheckout
                   }
-                  className="h-12 rounded-2xl bg-cyan-400 px-6 text-base font-semibold text-black hover:bg-cyan-300"
+                  className="h-11 rounded-2xl bg-cyan-400 px-6 text-base font-semibold text-black hover:bg-cyan-300"
                 >
 
                   Upgrade Plan
@@ -319,13 +470,31 @@ export default function BillingPage() {
                 </Button>
 
                 <Button
+                  onClick={
+                    handleCancel
+                  }
                   variant="outline"
-                  className="h-12 rounded-2xl border-cyan-500/10 bg-[#020817] text-white hover:bg-cyan-500/10"
+                  className="h-11 rounded-2xl border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20"
                 >
 
-                  Billing History
+                  Cancel Plan
 
                 </Button>
+
+                {billing?.cancel_at_period_end && (
+
+                  <Button
+                    onClick={
+                      handleResume
+                    }
+                    variant="outline"
+                    className="h-11 rounded-2xl border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                  >
+
+                    Resume Plan
+
+                  </Button>
+                )}
 
               </div>
 
@@ -350,9 +519,9 @@ export default function BillingPage() {
           }}
         >
 
-          <Card className="rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
+          <Card className="h-full rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
-            <CardContent className="space-y-8 p-8">
+            <CardContent className="space-y-8 p-4 md:p-6 xl:p-8">
 
               <div className="flex items-center gap-4">
 
@@ -380,86 +549,60 @@ export default function BillingPage() {
 
               </div>
 
-              {/* PREDICTIONS */}
-              <div className="space-y-4">
+              {[
+                {
+                  label: "Predictions Used",
+                  value: "2,140 / 5,000",
+                  width: "43%",
+                },
 
-                <div className="flex items-center justify-between">
+                {
+                  label: "API Requests",
+                  value: "12,842 / 25,000",
+                  width: "52%",
+                },
 
-                  <span className="text-white/60">
+                {
+                  label: "Dataset Storage",
+                  value: "78GB / 150GB",
+                  width: "65%",
+                },
+              ].map((item) => (
 
-                    Predictions Used
+                <div
+                  key={item.label}
+                  className="space-y-4"
+                >
 
-                  </span>
+                  <div className="flex items-center justify-between gap-4">
 
-                  <span className="font-bold text-white">
+                    <span className="text-white/60">
 
-                    2,140 / 5,000
+                      {item.label}
 
-                  </span>
+                    </span>
 
-                </div>
+                    <span className="text-right font-bold text-white">
 
-                <div className="h-4 overflow-hidden rounded-full bg-white/5">
+                      {item.value}
 
-                  <div className="h-full w-[43%] rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300" />
+                    </span>
 
-                </div>
+                  </div>
 
-              </div>
+                  <div className="h-4 overflow-hidden rounded-full bg-white/5">
 
-              {/* API */}
-              <div className="space-y-4">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300"
+                      style={{
+                        width: item.width,
+                      }}
+                    />
 
-                <div className="flex items-center justify-between">
-
-                  <span className="text-white/60">
-
-                    API Requests
-
-                  </span>
-
-                  <span className="font-bold text-white">
-
-                    12,842 / 25,000
-
-                  </span>
-
-                </div>
-
-                <div className="h-4 overflow-hidden rounded-full bg-white/5">
-
-                  <div className="h-full w-[52%] rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300" />
-
-                </div>
-
-              </div>
-
-              {/* STORAGE */}
-              <div className="space-y-4">
-
-                <div className="flex items-center justify-between">
-
-                  <span className="text-white/60">
-
-                    Dataset Storage
-
-                  </span>
-
-                  <span className="font-bold text-white">
-
-                    78GB / 150GB
-
-                  </span>
+                  </div>
 
                 </div>
-
-                <div className="h-4 overflow-hidden rounded-full bg-white/5">
-
-                  <div className="h-full w-[65%] rounded-full bg-gradient-to-r from-cyan-400 to-cyan-300" />
-
-                </div>
-
-              </div>
+              ))}
 
             </CardContent>
 
@@ -486,9 +629,9 @@ export default function BillingPage() {
 
         <Card className="rounded-[32px] border border-cyan-500/10 bg-[#081325]/70 backdrop-blur-2xl">
 
-          <CardContent className="space-y-8 p-8">
+          <CardContent className="space-y-8 p-4 md:p-6 xl:p-8">
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
               <div className="flex items-center gap-4">
 
@@ -500,7 +643,7 @@ export default function BillingPage() {
 
                 <div>
 
-                  <h2 className="text-3xl font-black text-white">
+                  <h2 className="text-2xl font-black text-white md:text-3xl">
 
                     Recent Invoices
 
@@ -524,9 +667,9 @@ export default function BillingPage() {
 
             </div>
 
-            <div className="overflow-hidden rounded-[28px] border border-cyan-500/10">
+            <div className="overflow-x-auto rounded-[28px] border border-cyan-500/10">
 
-              <table className="w-full border-collapse">
+              <table className="w-full min-w-[800px] border-collapse">
 
                 <thead className="bg-white/[0.03]">
 
@@ -556,14 +699,22 @@ export default function BillingPage() {
 
                     </th>
 
+                    <th className="p-5 text-white/50">
+
+                      PDF
+
+                    </th>
+
                   </tr>
 
                 </thead>
 
                 <tbody>
 
-                  {invoices.map(
-                    (invoice) => (
+                  {billing?.invoices?.map(
+                    (
+                      invoice: any
+                    ) => (
 
                       <tr
                         key={
@@ -580,7 +731,13 @@ export default function BillingPage() {
 
                         <td className="p-5 text-white/60">
 
-                          {invoice.date}
+                          {invoice.date
+                            ? new Date(
+                                invoice.date * 1000
+                              ).toLocaleDateString(
+                                "en-IN"
+                              )
+                            : "-"}
 
                         </td>
 
@@ -597,6 +754,22 @@ export default function BillingPage() {
                             {invoice.status}
 
                           </span>
+
+                        </td>
+
+                        <td className="p-5">
+
+                          <a
+                            href={
+                              invoice.pdf_url
+                            }
+                            target="_blank"
+                            className="text-cyan-300 underline"
+                          >
+
+                            Download
+
+                          </a>
 
                         </td>
 
