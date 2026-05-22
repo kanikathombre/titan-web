@@ -75,93 +75,112 @@ export default function HomePage() {
         <ParticlesBackground />
 
       {/* ================= HERO SECTION ================= */}
-      <section className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col items-center justify-center px-6 pt-24 text-center">
-        <div className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[140px]" />
-        <div className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center px-6 pt-24 text-center">
+      <section className="relative z-10 flex min-h-screen items-center justify-center overflow-hidden px-4 pt-28 sm:px-6 lg:px-8">
 
-          {/* ================= LEFT CONTENT ================= */}
-          <div className="space-y-10 text-center lg:text-center">
+  {/* Background Glow */}
+       <div className="absolute left-1/2 top-1/2 -z-10 h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[120px] sm:h-[500px] sm:w-[500px] lg:h-[700px] lg:w-[700px]" />
 
-            {/* Badge */}
-            <div className="mx-auto mb-8 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-6 py-2 text-xs font-semibold tracking-[0.2em] text-cyan-400">
+      <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center text-center">
 
-              AI-POWERED SAFETY ASSESSMENT
+    {/* Badge */}
+    <div className="mb-6 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-[10px] font-semibold tracking-[0.25em] text-cyan-400 sm:px-6 sm:text-xs">
 
-            </div>
+      AI-POWERED SAFETY ASSESSMENT
 
-            {/* Headline */}
-            <div className="max-w-[700px] space-y-8">
+    </div>
 
-              <h1
-                className={`
-                  ${orbitron.className}
-                  text-[72px]
-                  md:text-[110px]
-                  leading-[0.9]
-                  tracking-[-0.05em]
-                  font-extrabold
-                  text-center
-                  text-white
-                `}
-              >
-                Predict
-                <br />
-                Nanoparticle
-                <br />
-                <span
-                  className="
-                    bg-gradient-to-r
-                    from-cyan-400
-                    via-sky-400
-                    to-blue-500
-                    bg-clip-text
-                    text-transparent
-                  "
-                >
-                  Toxicity
-                </span>{" "}
-                with AI
-              </h1>
+    {/* Headline */}
+    <div className="max-w-7xl">
 
-              <p className="mt-8 max-w-3xl text-center text-[20px] leading-[1.8] text-white/55">
-                Accelerate nanomedicine research with AI-driven toxicity
-                prediction, real-time analytics, and intelligent risk
-                assessment for safer and faster scientific breakthroughs.
-              </p>
+      <h1
+        className={`
+          ${orbitron.className}
+          text-4xl
+          font-extrabold
+          leading-[0.95]
+          tracking-[-0.05em]
+          text-white
+          sm:text-5xl
+          md:text-7xl
+          lg:text-8xl
+          xl:text-[110px]
+        `}
+      >
+        Predict
+        <br />
+        Nanoparticle
+        <br />
 
-            </div>
+        <span
+          className="
+            bg-gradient-to-r
+            from-cyan-400
+            via-sky-400
+            to-blue-500
+            bg-clip-text
+            text-transparent
+          "
+        >
+          Toxicity
+        </span>{" "}
+        with AI
 
-            {/* CTA Buttons */}
-            <div className="mt-14 flex items-center justify-center gap-6">
+      </h1>
 
-              <Link href="/sign-up">
+      {/* Description */}
+      <p className="mx-auto mt-6 max-w-3xl px-2 text-sm leading-7 text-white/65 sm:text-base sm:leading-8 md:text-lg lg:text-xl">
 
-                <button className="rounded-2xl bg-primary px-8 py-4 text-lg font-semibold text-white shadow-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(124,58,237,0.5)] hover:opacity-90">
+        Accelerate nanomedicine research with AI-driven toxicity
+        prediction, real-time analytics, and intelligent risk
+        assessment for safer and faster scientific breakthroughs.
 
-                  Request Access
+      </p>
 
-                </button>
+    </div>
 
-              </Link>
+    {/* CTA Buttons */}
+    <div className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row sm:gap-6">
 
-              <Link href="/features">
+      <Link href="/sign-up">
 
-                <button className="rounded-2xl bg-primary px-8 py-4 text-lg font-semibold text-white shadow-2xl transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(124,58,237,0.5)] hover:opacity-90">
+        <button className="min-h-[48px] w-full rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-2xl transition-all duration-300 hover:scale-[1.03] hover:opacity-90 sm:w-auto sm:px-8 sm:text-base">
 
-                  Explore Features
+          Request Access
 
-                </button>
+        </button>
 
-              </Link>
-              
-            </div>
+      </Link>
 
-          </div>
+      <Link href="/features">
 
-        </div>
-        <StatsSlider />
-        <HowItWorks />
-      </section>
+        <button className="min-h-[48px] w-full rounded-2xl border border-cyan-500/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:scale-[1.03] hover:bg-white/10 sm:w-auto sm:px-8 sm:text-base">
+
+          Explore Features
+
+        </button>
+
+      </Link>
+
+    </div>
+
+    {/* Extra spacing before next section */}
+    <div className="mt-20 w-full">
+
+      <StatsSlider />
+
+    </div>
+
+    <div className="mt-10 w-full">
+
+      <HowItWorks />
+
+    </div>
+
+  </div>
+
+</section>
+
+      
 
       
             

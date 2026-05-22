@@ -19,30 +19,23 @@ import {
 const pricingPlans = [
   {
     name: "Starter",
-
     price: "$29",
-
     description:
       "Perfect for individual researchers and academic projects.",
-
     features: [
       "100 toxicity predictions",
       "Basic AI analytics",
       "Community support",
       "CSV export",
     ],
-
     popular: false,
   },
 
   {
     name: "Professional",
-
     price: "$99",
-
     description:
       "Advanced AI workflows for biotech teams and startups.",
-
     features: [
       "Unlimited predictions",
       "Advanced analytics",
@@ -50,18 +43,14 @@ const pricingPlans = [
       "API access",
       "Model benchmarking",
     ],
-
     popular: true,
   },
 
   {
     name: "Enterprise",
-
     price: "Custom",
-
     description:
       "Enterprise-scale nanotoxicity intelligence platform.",
-
     features: [
       "Custom AI models",
       "Dedicated infrastructure",
@@ -69,61 +58,48 @@ const pricingPlans = [
       "Private deployment",
       "Advanced compliance",
     ],
-
     popular: false,
   },
 ];
 
 const comparisonFeatures = [
   {
-    feature:
-      "Toxicity Predictions",
-
+    feature: "Toxicity Predictions",
     starter: true,
     pro: true,
     enterprise: true,
   },
 
   {
-    feature:
-      "AI Analytics",
-
+    feature: "AI Analytics",
     starter: true,
     pro: true,
     enterprise: true,
   },
 
   {
-    feature:
-      "API Access",
-
+    feature: "API Access",
     starter: false,
     pro: true,
     enterprise: true,
   },
 
   {
-    feature:
-      "Custom AI Models",
-
+    feature: "Custom AI Models",
     starter: false,
     pro: false,
     enterprise: true,
   },
 
   {
-    feature:
-      "Private Deployment",
-
+    feature: "Private Deployment",
     starter: false,
     pro: false,
     enterprise: true,
   },
 
   {
-    feature:
-      "Priority Support",
-
+    feature: "Priority Support",
     starter: false,
     pro: true,
     enterprise: true,
@@ -136,58 +112,45 @@ export default function PricingPage() {
     usePathname();
 
   const particles = Array.from(
-  { length: 70 },
-  (_, i) => ({
-    id: i,
+    { length: 70 },
+    (_, i) => ({
+      id: i,
+      size: (i % 5) + 2,
+      top: (i * 13) % 100,
+      left: (i * 17) % 100,
+      duration: 18 + (i % 10),
+      delay: (i % 6),
+    })
+  );
 
-    size:
-      (i % 5) + 2,
-
-    top:
-      (i * 13) % 100,
-
-    left:
-      (i * 17) % 100,
-
-    duration:
-      18 + (i % 10),
-
-    delay:
-      (i % 6),
-  })
-);
   return (
 
     <main className="relative min-h-screen overflow-hidden bg-[#020617] text-white">
-     <SiteHeader />
+
+      <SiteHeader />
 
       {/* PARTICLES */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
 
         {particles.map(
-          (
-            particle,
-            i
-          ) => (
+          (particle) => (
 
             <div
               key={particle.id}
               className="absolute rounded-full bg-cyan-400"
-
               style={{
                 width: `${particle.size}px`,
                 height: `${particle.size}px`,
                 top: `${particle.top}%`,
                 left: `${particle.left}%`,
                 opacity: 0.8,
-
                 boxShadow:
                   "0 0 25px #22d3ee",
-
                 animation: `floatParticle ${particle.duration}s ease-in-out infinite`,
                 animationDelay: `${particle.delay}s`,
               }}
             />
+
           )
         )}
 
@@ -201,11 +164,8 @@ export default function PricingPage() {
 
       <div className="absolute bottom-[-200px] right-[-200px] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[160px]" />
 
-     
-        
-
       {/* HERO */}
-      <section className="relative z-10 mx-auto flex max-w-7xl flex-col items-center px-6 pb-24 pt-36 text-center">
+      <section className="relative z-10 mx-auto flex min-h-[90vh] max-w-6xl flex-col items-center justify-center px-6 md:px-10 lg:px-8 pb-20 pt-20 md:pt-24 lg:pt-28 text-center">
 
         <motion.div
           initial={{
@@ -222,7 +182,7 @@ export default function PricingPage() {
             duration: 0.6,
           }}
 
-          className="mb-8 flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-8 py-3 text-sm font-semibold tracking-[0.25em] text-cyan-300 backdrop-blur-xl"
+          className="mb-6 flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-5 py-2 text-[10px] font-semibold tracking-[0.25em] text-cyan-300 backdrop-blur-xl sm:px-8 sm:py-3 sm:text-sm"
         >
 
           <Sparkles className="h-4 w-4" />
@@ -246,7 +206,18 @@ export default function PricingPage() {
             duration: 0.8,
           }}
 
-          className="max-w-6xl text-6xl font-black uppercase leading-[0.9] tracking-tight md:text-[120px]"
+          className="
+            max-w-6xl
+            text-5xl
+            font-black
+            uppercase
+            leading-[0.9]
+            tracking-tight
+            sm:text-6xl
+            md:text-6xl
+            lg:text-8xl
+            xl:text-[110px]
+          "
           style={{
             fontFamily:
               "Orbitron, sans-serif",
@@ -280,7 +251,7 @@ export default function PricingPage() {
             duration: 0.8,
           }}
 
-          className="mt-10 max-w-4xl text-2xl leading-10 text-slate-400"
+          className="mt-8 max-w-2xl text-base leading-8 text-slate-400 sm:text-lg md:text-xl lg:max-w-3xl lg:text-2xl lg:leading-10"
         >
 
           Scale nanotoxicity prediction workflows
@@ -294,7 +265,7 @@ export default function PricingPage() {
       </section>
 
       {/* PRICING CARDS */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-24">
+      <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-24">
 
         <div className="grid gap-8 lg:grid-cols-3">
 
@@ -327,7 +298,7 @@ export default function PricingPage() {
                   once: true,
                 }}
 
-                className={`group relative overflow-hidden rounded-[2rem] border p-10 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 ${
+                className={`group relative overflow-hidden rounded-[2rem] border p-8 lg:p-10 backdrop-blur-2xl transition-all duration-500 hover:-translate-y-3 ${
                   plan.popular
                     ? "border-cyan-400/40 bg-cyan-500/10 shadow-[0_0_80px_rgba(34,211,238,0.20)]"
                     : "border-white/10 bg-[#04112a]/80 hover:border-cyan-400/20"
@@ -336,7 +307,7 @@ export default function PricingPage() {
 
                 {plan.popular && (
 
-                  <div className="absolute right-6 top-6 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-1 text-xs font-bold text-black">
+                  <div className="absolute right-4 top-4 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-1 text-[10px] font-bold text-black sm:text-xs">
 
                     MOST POPULAR
 
@@ -346,7 +317,7 @@ export default function PricingPage() {
                 <div className="relative z-10 flex h-full flex-col">
 
                   <h2
-                    className="text-4xl font-black uppercase"
+                    className="text-3xl font-black uppercase lg:text-4xl"
                     style={{
                       fontFamily:
                         "Orbitron, sans-serif",
@@ -359,7 +330,7 @@ export default function PricingPage() {
 
                   <div className="mt-6 flex items-end gap-2">
 
-                    <span className="text-6xl font-black">
+                    <span className="text-5xl font-black lg:text-6xl">
 
                       {plan.price}
 
@@ -416,7 +387,7 @@ export default function PricingPage() {
                     <Link href="/sign-up">
 
                       <button
-                        className={`w-full rounded-2xl px-6 py-4 font-semibold transition-all duration-300 ${
+                        className={`min-h-[48px] w-full rounded-2xl px-6 py-3 font-semibold transition-all duration-300 ${
                           plan.popular
                             ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-black shadow-[0_0_35px_rgba(34,211,238,0.3)] hover:scale-[1.02]"
                             : "border border-white/10 bg-white/5 text-white hover:border-cyan-400 hover:bg-cyan-500/10"
@@ -442,14 +413,14 @@ export default function PricingPage() {
       </section>
 
       {/* COMPARISON */}
-      <section className="relative z-10 mx-auto max-w-6xl px-6 pb-32">
+      <section className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-32">
 
         <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-[#04112a]/80 backdrop-blur-2xl">
 
-          <div className="border-b border-white/10 p-8">
+          <div className="border-b border-white/10 p-6 lg:p-8">
 
             <h2
-              className="text-4xl font-black uppercase"
+              className="text-3xl font-black uppercase lg:text-4xl"
               style={{
                 fontFamily:
                   "Orbitron, sans-serif",
@@ -476,7 +447,7 @@ export default function PricingPage() {
                       className="border-b border-white/5"
                     >
 
-                      <td className="px-8 py-5 font-medium">
+                      <td className="px-4 py-5 font-medium lg:px-8">
 
                         {item.feature}
 
@@ -493,7 +464,7 @@ export default function PricingPage() {
 
                           <td
                             key={idx}
-                            className="px-8 py-5"
+                            className="px-4 py-5 lg:px-8"
                           >
 
                             <div className="flex justify-center">
