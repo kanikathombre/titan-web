@@ -453,176 +453,269 @@ export default function NanoDashboard({
 
 if (step === "04") {
 
-  const cells =
-    Array.from(
-      { length: 32 },
-      (_, i) => ({
+  const arcDots = Array.from(
+    { length: 34 },
+    (_, i) => {
+
+      const angle =
+        Math.PI * (i / 33);
+
+      const radius = 360;
+
+      return {
         x:
-          80 +
-          (i % 8) * 78,
+          380 +
+          Math.cos(angle) *
+            radius,
 
         y:
-          80 +
-          Math.floor(
-            i / 8
-          ) *
-            78,
+          420 -
+          Math.sin(angle) *
+            radius,
+      };
+    }
+  );
 
-        toxic:
-          i % 7 === 0 ||
-          i % 11 === 0,
-      })
-    );
+  const dangerZones = [
+    {
+      x: 120,
+      y: 330,
+      size: 65,
+    },
+
+    {
+      x: 210,
+      y: 290,
+      size: 55,
+    },
+
+    {
+      x: 330,
+      y: 120,
+      size: 40,
+    },
+
+    {
+      x: 420,
+      y: 150,
+      size: 48,
+    },
+  ];
 
   return (
-    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#071226] via-[#030712] to-[#07192f]">
+
+    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#050816] via-[#020617] to-[#07192f]">
 
       <DashboardOverlay />
 
-      {/* TITLE */}
-      <div className="absolute left-8 top-8">
-
-        <p className="text-xs tracking-[0.35em] text-cyan-300/60">
-
-          CYTOTOXICITY ANALYSIS
-
-        </p>
-
-      </div>
-
       {/* CENTER GLOW */}
-      <div className="absolute left-1/2 top-1/2 h-[240px] w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/10 blur-[90px]" />
+      <div className="absolute left-1/2 bottom-[-80px] h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-blue-500/10 blur-[120px]" />
 
-      {/* CELL GRID */}
-      <div className="absolute inset-0 flex items-center justify-center pt-6">
+      {/* RADIAL ARC */}
+      <svg
+        className="absolute inset-0"
+        width="760"
+        height="460"
+      >
 
-        <div className="grid grid-cols-8 gap-4">
+        {/* ARC DOTS */}
+        {arcDots.map(
+          (dot, i) => {
 
-          {cells.map(
-            (
-              cell,
-              i
-            ) => (
+            const innerX =
+              dot.x -
+              (dot.x - 380) *
+                0.08;
 
-              <motion.div
-                key={`cell-${i}`}
+            const innerY =
+              dot.y -
+              (dot.y - 420) *
+                0.08;
 
-                animate={{
-                  scale:
-                    cell.toxic
-                      ? [1, 1.18, 1]
-                      : [1, 1.04, 1],
+            return (
 
-                  opacity:
-                    cell.toxic
-                      ? [0.6, 1, 0.6]
-                      : [0.7, 1, 0.7],
-                }}
+              <g key={i}>
 
-                transition={{
-                  duration:
-                    cell.toxic
-                      ? 1.4
-                      : 3.5,
+                {/* CONNECTOR */}
+                <line
+                  x1={innerX}
+                  y1={innerY}
+                  x2={dot.x}
+                  y2={dot.y}
+                  stroke="rgba(34,211,238,0.55)"
+                  strokeWidth="2"
+                />
 
-                  repeat:
-                    Infinity,
+                {/* GLOW DOT */}
+                <motion.circle
+                  cx={dot.x}
+                  cy={dot.y}
+                  r="5"
+                  fill="#06B6D4"
 
-                  ease: "easeInOut",
-                }}
-
-                className={`
-                  relative
-                  h-12
-                  w-12
-                  rounded-2xl
-                  border
-                  ${
-                    cell.toxic
-                      ? "border-red-500/30 bg-red-500/10"
-                      : "border-cyan-400/20 bg-cyan-500/5"
-                  }
-                  backdrop-blur-xl
-                `}
-              >
-
-                {/* INNER CORE */}
-                <motion.div
                   animate={{
-                    scale:
-                      cell.toxic
-                        ? [1, 1.4, 1]
-                        : [1, 1.15, 1],
+                    opacity: [0.4, 1, 0.4],
+
+                    scale: [1, 1.3, 1],
+
+                    cy: [
+                      dot.y,
+                      dot.y - 10,
+                      dot.y,
+                      dot.y + 6,
+                      dot.y,
+                    ],
                   }}
 
                   transition={{
                     duration:
-                      cell.toxic
-                        ? 1.2
-                        : 3,
+                      2 + (i % 5),
 
-                    repeat:
-                      Infinity,
+                    repeat: Infinity,
+
+                    ease: "easeInOut",
                   }}
 
-                  className={`
-                    absolute
-                    left-1/2
-                    top-1/2
-                    h-4
-                    w-4
-                    -translate-x-1/2
-                    -translate-y-1/2
-                    rounded-full
-                    ${
-                      cell.toxic
-                        ? "bg-red-400 shadow-[0_0_18px_rgba(248,113,113,0.9)]"
-                        : "bg-cyan-400 shadow-[0_0_18px_rgba(34,211,238,0.8)]"
-                    }
-                  `}
+                  style={{
+                    filter:
+                      "drop-shadow(0 0 12px #22d3ee)",
+                  }}
                 />
 
-              </motion.div>
-            )
-          )}
+              </g>
+            );
+          }
+        )}
 
-        </div>
+      </svg>
 
-      </div>
+      {/* DANGER ZONES */}
+      {dangerZones.map(
+        (zone, i) => (
 
-      {/* ANALYSIS PANEL */}
-      <div className="absolute bottom-2 left-2 rounded-xl border border-cyan-400/10 bg-cyan-500/[0.03] p-1.5 backdrop-blur-xl">
+          <motion.div
+            key={i}
 
-        <p className="text-xs tracking-[0.25em] text-white/40">
+            initial={{
+              x: 0,
+              y: 0,
+            }}
 
-          CELL DAMAGE
+            animate={{
 
-        </p>
+              scale: [1, 1.12, 1],
 
-        <p className="mt-3 text-3xl font-black text-red-400">
+              opacity: [0.4, 1, 0.4],
 
-          14.8%
+              x: [0, 12, -10, 0],
 
-        </p>
+              y: [0, -14, 8, 0],
+            }}
 
-      </div>
+            transition={{
+              duration: 5 + i,
 
-      {/* LIVE STATUS */}
-      <div className="absolute bottom-8 right-8 rounded-2xl border border-cyan-400/10 bg-cyan-500/[0.03] px-5 py-4 backdrop-blur-xl">
+              repeat: Infinity,
 
-        <div className="flex items-center gap-3">
+              ease: "easeInOut",
+            }}
 
-          <div className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+            className="absolute rounded-full bg-red-500/20 backdrop-blur-xl"
 
-          <span className="text-sm text-cyan-300">
+            style={{
+              left: zone.x,
+              top: zone.y,
+              width: zone.size,
+              height: zone.size,
+            }}
+          >
 
-            Cellular response stable
+            {/* INNER RED CORE */}
+            <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500 shadow-[0_0_25px_rgba(239,68,68,0.9)]" />
 
-          </span>
+          </motion.div>
+        )
+      )}
 
-        </div>
+      {/* FLOATING CYAN PARTICLES */}
+      {[...Array(12)].map(
+        (_, i) => (
 
-      </div>
+          <motion.div
+            key={i}
+
+            animate={{
+              y: [0, -20, 0],
+
+              x: [0, 10, -8, 0],
+
+              opacity: [0.2, 0.8, 0.2],
+            }}
+
+            transition={{
+              duration: 4 + i,
+
+              repeat: Infinity,
+
+              ease: "easeInOut",
+            }}
+
+            className="absolute h-1 w-1 rounded-full bg-cyan-400"
+
+            style={{
+              left: `${8 + i * 7}%`,
+              top: `${20 + (i % 5) * 12}%`,
+
+              boxShadow:
+                "0 0 12px #22d3ee",
+            }}
+          />
+        )
+      )}
+
+      {/* FLOATING RED TOXIC PARTICLES */}
+      {[...Array(8)].map(
+        (_, i) => (
+
+          <motion.div
+            key={`toxic-${i}`}
+
+            animate={{
+              y: [0, -20, 0],
+
+              x: [0, 12, -10, 0],
+
+              opacity: [0.2, 0.8, 0.2],
+
+              scale: [1, 1.4, 1],
+            }}
+
+            transition={{
+              duration: 4 + i,
+
+              repeat: Infinity,
+
+              ease: "easeInOut",
+            }}
+
+            className="absolute rounded-full bg-red-500"
+
+            style={{
+              width: `${4 + (i % 3) * 2}px`,
+              height: `${4 + (i % 3) * 2}px`,
+
+              left: `${10 + i * 10}%`,
+              top: `${30 + (i % 4) * 10}%`,
+
+              filter:
+                "drop-shadow(0 0 12px rgba(239,68,68,0.9))",
+            }}
+          />
+        )
+      )}
+
+      {/* LABEL */}
+     
 
     </div>
   );
@@ -632,382 +725,349 @@ if (step === "04") {
 
 if (step === "05") {
 
-  const metrics = [
-    {
-      label: "ROS",
-      value: 92,
-      color: "from-red-400 to-red-600",
-      position:
-        "left-12 top-[145px]",
-    },
-
-    {
-      label: "Size",
-      value: 74,
-      color:
-        "from-cyan-400 to-blue-500",
-      position:
-        "right-12 top-[145px]",
-    },
-
-    {
-      label: "Surface",
-      value: 88,
-      color:
-        "from-cyan-400 to-indigo-500",
-      position:
-        "left-12 bottom-[85px]",
-    },
-
-    {
-      label: "Charge",
-      value: 63,
-      color:
-        "from-blue-400 to-cyan-500",
-      position:
-        "right-12 bottom-[85px]",
-    },
+  const radarDots = [
+    { top: "26%", left: "33%", danger: false },
+    { top: "34%", left: "57%", danger: false },
+    { top: "45%", left: "78%", danger: true },
+    { top: "58%", left: "62%", danger: false },
+    { top: "73%", left: "69%", danger: false },
+    { top: "82%", left: "53%", danger: false },
+    { top: "66%", left: "36%", danger: false },
+    { top: "48%", left: "24%", danger: true },
+    { top: "60%", left: "18%", danger: true },
+    { top: "72%", left: "28%", danger: true },
   ];
 
   return (
 
-    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#071226] via-[#030712] to-[#07192f]">
+    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#050816] via-[#020617] to-[#07192f]">
 
       <DashboardOverlay />
 
-      {/* TITLE */}
-      <div className="absolute left-8 top-8">
-
-        <p className="text-xs tracking-[0.35em] text-cyan-300/60">
-
-          RISK FACTOR ANALYSIS
-
-        </p>
-
-      </div>
-
-      {/* CENTER GLOW */}
-      <div className="absolute left-1/2 top-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/10 blur-[120px]" />
-
-      {/* ROTATING RINGS */}
-      <motion.div
-        animate={{
-          rotate: 360,
+      {/* BACKGROUND GRID */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #22d3ee 1px, transparent 1px),
+            linear-gradient(to bottom, #22d3ee 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
         }}
+      />
 
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
+      {/* RADAR CONTAINER */}
+      <div className="absolute inset-0 flex items-center justify-center">
 
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          h-[260px]
-          w-[260px]
-          -translate-x-1/2
-          -translate-y-1/2
-          rounded-full
-          border
-          border-cyan-400/10
-        "
-      >
+        <div className="relative h-[470px] w-[470px]">
 
-        <div className="absolute inset-6 rounded-full border border-cyan-400/10" />
+          {/* OUTER GLOW */}
+          <div className="absolute inset-0 rounded-full bg-cyan-500/[0.03] blur-[120px]" />
 
-        <div className="absolute inset-12 rounded-full border border-cyan-400/10" />
+          {/* RADAR RINGS */}
+          {[1, 2, 3, 4].map((ring) => (
 
-      </motion.div>
+            <div
+              key={ring}
+              className="absolute rounded-full border border-cyan-500/10"
 
-      {/* CORE */}
-      <motion.div
-        animate={{
-          scale: [1, 1.04, 1],
-        }}
+              style={{
+                width: `${ring * 110}px`,
+                height: `${ring * 110}px`,
+                left: "50%",
+                top: "50%",
+                transform:
+                  "translate(-50%, -50%)",
+              }}
+            />
+          ))}
 
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-        }}
+          {/* CROSS AXIS */}
+          <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-cyan-500/10" />
 
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          flex
-          h-[150px]
-          w-[150px]
-          -translate-x-1/2
-          -translate-y-1/2
-          flex-col
-          items-center
-          justify-center
-          rounded-full
-          border
-          border-cyan-400/20
-          bg-cyan-500/5
-          backdrop-blur-xl
-        "
-      >
+          <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-cyan-500/10" />
 
-        <p className="text-xs tracking-[0.3em] text-white/40">
-
-          RISK SCORE
-
-        </p>
-
-        <h3 className="mt-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-6xl font-black text-transparent">
-
-          82
-
-        </h3>
-
-        <p className="mt-1 text-sm text-cyan-300">
-
-          HIGH RISK
-
-        </p>
-
-      </motion.div>
-
-      {/* METRIC CARDS */}
-      {metrics.map(
-        (
-          metric,
-          i
-        ) => (
-
+          {/* SWEEP CONE */}
           <motion.div
-            key={metric.label}
-
             animate={{
-              y: [0, -5, 0],
+              rotate: [0, 360],
             }}
 
             transition={{
-              duration: 4 + i,
+              duration: 8,
               repeat: Infinity,
+              ease: "linear",
             }}
 
-            className={`
+            className="
               absolute
-              ${metric.position}
-              w-[170px]
-              rounded-2xl
-              border
-              border-cyan-400/10
-              bg-cyan-500/[0.03]
-              p-4
-              backdrop-blur-xl
-            `}
+              left-1/2
+              top-1/2
+              h-[220px]
+              w-[220px]
+              origin-top-left
+            "
           >
 
-            <div className="flex items-center justify-between">
-
-              <p className="text-xs tracking-[0.25em] text-white/50">
-
-                {metric.label}
-
-              </p>
-
-              <p className="text-2xl font-black text-white">
-
-                {metric.value}%
-
-              </p>
-
-            </div>
-
-            <div className="mt-4 h-3 overflow-hidden rounded-full bg-white/5">
-
-              <motion.div
-                initial={{
-                  width: 0,
-                }}
-
-                animate={{
-                  width:
-                    `${metric.value}%`,
-                }}
-
-                transition={{
-                  duration: 2,
-                  delay:
-                    i * 0.2,
-                }}
-
-                className={`h-full rounded-full bg-gradient-to-r ${metric.color}`}
-              />
-
-            </div>
+            <div
+              className="
+                absolute
+                left-0
+                top-0
+                h-full
+                w-full
+                rounded-br-full
+                bg-gradient-to-br
+                from-cyan-400/30
+                via-cyan-400/10
+                to-transparent
+                blur-[2px]
+              "
+              style={{
+                clipPath:
+                  "polygon(0 0, 100% 0, 0 100%)",
+              }}
+            />
 
           </motion.div>
-        )
-      )}
 
-      {/* DATA FLOW */}
-      {[0, 1, 2, 3].map(
-        (i) => (
+          {/* MAIN RADAR LINE */}
+          <motion.div
+            animate={{
+              rotate: [0, 360],
+            }}
+
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+
+            className="
+              absolute
+              left-1/2
+              top-1/2
+              h-[2px]
+              w-[220px]
+              origin-left
+              bg-cyan-400
+              shadow-[0_0_20px_#22d3ee]
+            "
+          />
+
+          {/* CENTER DOT */}
+          <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400 shadow-[0_0_25px_#22d3ee]" />
+
+          {/* RADAR POINTS */}
+          {radarDots.map((dot, index) => (
+
+            <motion.div
+              key={index}
+
+              animate={{
+                opacity: [0.4, 1, 0.4],
+                scale: [1, 1.3, 1],
+              }}
+
+              transition={{
+                duration: 2 + index * 0.2,
+                repeat: Infinity,
+              }}
+
+              className={`absolute rounded-full ${
+                dot.danger
+                  ? "bg-red-500 shadow-[0_0_30px_rgba(239,68,68,0.9)]"
+                  : "bg-cyan-400 shadow-[0_0_30px_#22d3ee]"
+              }`}
+
+              style={{
+                top: dot.top,
+                left: dot.left,
+                width: dot.danger ? "14px" : "12px",
+                height: dot.danger ? "14px" : "12px",
+              }}
+            />
+          ))}
+
+        </div>
+
+      </div>
+
+      {/* BOTTOM LABEL */}
+      
+
+    </div>
+  );
+} 
+
+  /* ================= STEP 6 ================= */
+if (step === "06") {
+
+  const columns = Array.from(
+    { length: 18 },
+    (_, i) => i
+  );
+
+  const reportWords = [
+    "TOXIC",
+    "SAFE",
+    "ROS",
+    "HIGH",
+    "LOW",
+    "CdSe",
+    "TiO₂",
+    "ZnO",
+    "Ag",
+    "0.952",
+    "0.88",
+    "pH",
+    "LD₅₀",
+    "AU",
+    "NP",
+    "NON-TOXIC",
+  ];
+
+  return (
+
+    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#050816] via-[#020617] to-[#07192f]">
+
+      <DashboardOverlay />
+
+      {/* BACKGROUND GRID */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #22d3ee 1px, transparent 1px),
+            linear-gradient(to bottom, #22d3ee 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
+        }}
+      />
+
+      {/* CENTER GLOW */}
+      <div className="absolute left-1/2 top-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/5 blur-[120px]" />
+
+      {/* DATA STREAM COLUMNS */}
+      {columns.map((column, colIndex) => (
+
+        <motion.div
+          key={colIndex}
+
+          animate={{
+            y: [-120, 0],
+          }}
+
+          transition={{
+            duration: 10 + colIndex,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+
+          className="absolute top-0 flex flex-col gap-1"
+
+          style={{
+            left: `${colIndex * 5.5}%`,
+          }}
+        >
+
+          {Array.from({ length: 42 }).map(
+            (_, rowIndex) => {
+
+              const word =
+                reportWords[
+                  Math.floor(
+                    Math.random() *
+                      reportWords.length
+                  )
+                ];
+
+              const bright =
+                Math.random() > 0.82;
+
+              return (
+
+                <motion.div
+                  key={rowIndex}
+
+                  animate={{
+                    opacity: bright
+                      ? [0.3, 1, 0.3]
+                      : [0.08, 0.25, 0.08],
+                  }}
+
+                  transition={{
+                    duration:
+                      2 +
+                      (rowIndex % 5),
+
+                    repeat: Infinity,
+                  }}
+
+                  className={`
+                    whitespace-nowrap
+                    text-[11px]
+                    font-semibold
+                    tracking-[0.08em]
+                    ${
+                      bright
+                        ? "text-cyan-400"
+                        : "text-cyan-900/40"
+                    }
+                  `}
+                >
+
+                  {word}
+
+                </motion.div>
+              );
+            }
+          )}
+
+        </motion.div>
+      ))}
+
+      {/* FLOATING PARTICLES */}
+      {[...Array(20)].map(
+        (_, i) => (
 
           <motion.div
             key={i}
 
-            className="absolute h-2 w-2 rounded-full bg-cyan-400"
-
             animate={{
-              opacity: [0, 1, 0],
-              scale: [0.5, 1.3, 0.5],
+              y: [0, -20, 0],
+
+              opacity: [0.2, 0.8, 0.2],
             }}
 
             transition={{
-              duration: 2,
+              duration: 4 + i,
+
               repeat: Infinity,
-              delay: i * 0.5,
+
+              ease: "easeInOut",
             }}
 
-            style={{
-              left: [
-                "230px",
-                "530px",
-                "230px",
-                "530px",
-              ][i],
+            className="absolute h-[2px] w-[2px] rounded-full bg-cyan-400"
 
-              top: [
-                "180px",
-                "180px",
-                "320px",
-                "320px",
-              ][i],
+            style={{
+              left: `${5 + i * 5}%`,
+              top: `${10 + (i % 6) * 12}%`,
+
+              boxShadow:
+                "0 0 12px #22d3ee",
             }}
           />
         )
       )}
 
+      {/* LABEL */}
+      
+
     </div>
   );
 }
 
-  /* ================= STEP 6 ================= */
-
-  if (step === "06") {
-
-    return (
-      <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#071226] via-[#030712] to-[#07192f]">
-
-        <DashboardOverlay />
-
-        <div className="absolute left-8 top-8">
-
-          <p className="font-mono text-sm text-cyan-300">
-
-            REPORT_GENERATION.exe
-
-          </p>
-
-        </div>
-
-        {[...Array(24)].map(
-          (_, i) => (
-
-            <motion.div
-              key={`matrix-${i}`}
-
-              className="absolute top-0 font-mono text-[13px] leading-[16px] text-cyan-400/50"
-
-              style={{
-                left: `${
-                  i * 4.2
-                }%`,
-              }}
-
-              animate={{
-                y: [
-                  -400,
-                  520,
-                ],
-              }}
-
-              transition={{
-                duration:
-                  8 +
-                  (i % 5),
-
-                repeat:
-                  Infinity,
-
-                ease: "linear",
-
-                delay:
-                  i * 0.2,
-              }}
-            >
-
-              {Array.from({
-                length: 28,
-              }).map(
-                (_, j) => (
-
-                  <div
-                    key={`text-${i}-${j}`}
-                  >
-                    {
-                      [
-                        "TOXIC",
-                        "SAFE",
-                        "NON-TOXIC",
-                        "ROS",
-                        "0.952",
-                        "TiO₂",
-                        "ZnO",
-                        "LOW",
-                        "HIGH",
-                      ][
-                        (i +
-                          j) %
-                          9
-                      ]
-                    }
-                  </div>
-                )
-              )}
-
-            </motion.div>
-          )
-        )}
-
-        <div className="absolute bottom-8 left-8 right-8">
-
-          <div className="h-2 overflow-hidden rounded-full bg-white/5">
-
-            <motion.div
-              initial={{
-                width: 0,
-              }}
-
-              animate={{
-                width:
-                  "92%",
-              }}
-
-              transition={{
-                duration: 4,
-                repeat:
-                  Infinity,
-              }}
-
-              className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
-            />
-
-          </div>
-
-        </div>
-
-      </div>
-    );
-  }
 
   /* ================= STEP 7 ================= */
 
@@ -1015,253 +1075,319 @@ if (step === "05") {
 
 if (step === "07") {
 
-  const experts = [
-    {
-      name: "AI Validation",
-      score: "98.7%",
-      color: "cyan",
-    },
-
-    {
-      name: "Human Expert",
-      score: "97.9%",
-      color: "blue",
-    },
-
-    {
-      name: "Consensus",
-      score: "98.3%",
-      color: "green",
-    },
-  ];
-
   return (
-    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#071226] via-[#030712] to-[#07192f]">
+
+    <div className="relative h-[460px] w-[760px] overflow-hidden rounded-[40px] bg-gradient-to-br from-[#050816] via-[#020617] to-[#07192f]">
 
       <DashboardOverlay />
 
-      {/* TITLE */}
-      <div className="absolute left-8 top-8">
+      {/* BACKGROUND GRID */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #22d3ee 1px, transparent 1px),
+            linear-gradient(to bottom, #22d3ee 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-        <p className="text-xs tracking-[0.35em] text-cyan-300/60">
+      {/* CENTER GLOW */}
+      <div className="absolute left-1/2 top-1/2 h-[280px] w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/5 blur-[120px]" />
 
-          EXPERT VALIDATION
+      {/* LIVE ANALYSIS */}
+      <div className="absolute right-10 top-8 flex items-center gap-3">
 
-        </p>
+        <motion.div
+          animate={{
+            opacity: [0.4, 1, 0.4],
+          }}
+
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+          }}
+
+          className="h-3 w-3 rounded-full bg-green-400"
+        />
+
+        
 
       </div>
 
-      {/* CENTRAL CORE */}
-      <div className="absolute left-1/2 top-1/2 h-[220px] w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/10 blur-[100px]" />
+      {/* MAIN FLOW */}
+      <div className="absolute inset-0 flex items-center justify-center">
 
-      {/* CENTRAL AI */}
-      <motion.div
-        animate={{
-          scale: [1, 1.04, 1],
-        }}
+        <div className="relative flex items-center justify-center gap-6">
 
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-        }}
+          {/* ================= LEFT CARD ================= */}
+          <motion.div
+            animate={{
+              y: [0, -4, 0],
+            }}
 
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          flex
-          h-40
-          w-40
-          -translate-x-1/2
-          -translate-y-1/2
-          items-center
-          justify-center
-          rounded-full
-          border
-          border-cyan-400/20
-          bg-cyan-500/5
-          backdrop-blur-xl
-        "
-      >
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
 
-        <div className="text-center">
+            className="
+              relative
+              flex
+              h-[100px]
+              w-[130px]
+              flex-col
+              items-center
+              justify-center
+              rounded-[20px]
+              border
+              border-cyan-400/20
+              bg-cyan-500/5
+              backdrop-blur-xl
+            "
+          >
 
-          <p className="text-xs tracking-[0.25em] text-white/40">
+            <p className="text-xs text-cyan-200/60">
 
-            VALIDATED
+              AI Result
 
-          </p>
+            </p>
 
-          <h3 className="mt-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-5xl font-black text-transparent">
+            <h3 className="mt-3 text-[26px] font-bold text-cyan-400">
 
-            98%
+              95.2%
 
-          </h3>
+            </h3>
 
-        </div>
+          </motion.div>
 
-      </motion.div>
+          {/* ================= FLOW LINE 1 ================= */}
+          <div className="relative flex items-center">
 
-      {/* CONNECTIONS */}
-      {experts.map(
-        (
-          expert,
-          i
-        ) => {
-
-          const positions = [
-            {
-              left: "12%",
-              top: "22%",
-            },
-
-            {
-              left: "72%",
-              top: "22%",
-            },
-
-            {
-              left: "42%",
-              top: "74%",
-            },
-          ];
-
-          return (
+            <div className="h-px w-[80px] bg-gradient-to-r from-cyan-400/70 to-cyan-400/10" />
 
             <motion.div
-              key={expert.name}
-
               animate={{
-                y: [0, -8, 0],
+                x: [-25, 25, -25],
+                opacity: [0.3, 1, 0.3],
               }}
 
               transition={{
-                duration: 4 + i,
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+
+              className="absolute left-1/2 h-5 w-5 -translate-x-1/2 rounded-full bg-cyan-400 shadow-[0_0_30px_#22d3ee]"
+            />
+
+            <div className="absolute right-[-4px] text-2xl text-cyan-400/70">
+
+              →
+
+            </div>
+
+          </div>
+
+          {/* ================= CENTER REVIEW ================= */}
+          <div className="relative flex flex-col items-center">
+
+            {/* HUMAN ICON */}
+            <motion.div
+              animate={{
+                y: [0, -4, 0],
+              }}
+
+              transition={{
+                duration: 3,
                 repeat: Infinity,
               }}
 
-              className="
-                absolute
-                flex
-                w-[170px]
-                flex-col
-                rounded-3xl
-                border
-                border-cyan-400/10
-                bg-cyan-500/[0.03]
-                p-5
-                backdrop-blur-xl
-              "
-
-              style={{
-                left:
-                  positions[i].left,
-                top:
-                  positions[i].top,
-              }}
+              className="mb-5"
             >
 
-              <p className="text-xs tracking-[0.25em] text-white/40">
-
-                {expert.name}
-
-              </p>
-
-              <p
-                className={`
-                  mt-3
-                  text-3xl
-                  font-black
-                  ${
-                    expert.color ===
-                    "green"
-                      ? "text-green-400"
-                      : "bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent"
-                  }
-                `}
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="text-cyan-400"
               >
 
-                {expert.score}
+                <circle
+                  cx="12"
+                  cy="8"
+                  r="3.5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+
+                <path
+                  d="M5 19C6.5 15.5 17.5 15.5 19 19"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+
+              </svg>
+
+            </motion.div>
+
+            {/* REVIEW BOX */}
+            <motion.div
+              animate={{
+                y: [0, -4, 0],
+              }}
+
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+
+              className="
+                flex
+                h-[120px]
+                w-[170px]
+                flex-col
+                items-center
+                justify-center
+                rounded-[24px]
+                border
+                border-blue-500/20
+                bg-blue-500/5
+                backdrop-blur-xl
+              "
+            >
+
+              <p className="text-sm text-cyan-200/60">
+
+                Expert Review
 
               </p>
 
+              <h3 className="mt-4 text-[18px] font-medium text-cyan-400">
+
+                Nanotox. Sci.
+
+              </h3>
+
             </motion.div>
-          );
-        }
-      )}
 
-      {/* FLOW LINES */}
-      <svg
-        className="absolute inset-0"
-        width="760"
-        height="460"
-      >
+          </div>
 
-        <motion.path
-          d="M160 130 Q380 230 380 230"
+          {/* ================= FLOW LINE 2 ================= */}
+          <div className="relative flex items-center">
 
-          stroke="rgba(34,211,238,0.18)"
+            <div className="h-px w-[80px] bg-gradient-to-r from-cyan-400/70 to-cyan-400/10" />
 
-          strokeWidth="2"
+            <motion.div
+              animate={{
+                x: [-25, 25, -25],
+                opacity: [0.3, 1, 0.3],
+              }}
 
-          fill="transparent"
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+
+              className="absolute left-1/2 h-5 w-5 -translate-x-1/2 rounded-full bg-cyan-400 shadow-[0_0_30px_#22d3ee]"
+            />
+
+            <div className="absolute right-[-4px] text-2xl text-cyan-400/70">
+
+              →
+
+            </div>
+
+          </div>
+
+          {/* ================= FINAL CARD ================= */}
+          <motion.div
+            animate={{
+              y: [0, -4, 0],
+            }}
+
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+
+            className="
+              relative
+              flex
+              h-[100px]
+              w-[130px]
+              flex-col
+              items-center
+              justify-center
+              rounded-[20px]
+              border
+              border-cyan-400/20
+              bg-cyan-500/5
+              backdrop-blur-xl
+            "
+          >
+
+            <p className="text-xs text-cyan-200/60">
+
+              Validated
+
+            </p>
+
+            <h3 className="mt-3 text-[22px] font-bold text-cyan-400">
+
+              Certified ✓
+
+            </h3>
+
+          </motion.div>
+
+        </div>
+
+      </div>
+
+      {/* FLOATING PARTICLES */}
+      {[...Array(10)].map((_, i) => (
+
+        <motion.div
+          key={i}
 
           animate={{
-            opacity: [0.2, 1, 0.2],
+            y: [0, -20, 0],
+
+            opacity: [0.2, 0.8, 0.2],
           }}
 
           transition={{
-            duration: 2,
+            duration: 4 + i,
             repeat: Infinity,
+            ease: "easeInOut",
+          }}
+
+          className="absolute h-[2px] w-[2px] rounded-full bg-cyan-400"
+
+          style={{
+            left: `${8 + i * 8}%`,
+            top: `${20 + (i % 5) * 12}%`,
+
+            boxShadow:
+              "0 0 12px #22d3ee",
           }}
         />
+      ))}
 
-        <motion.path
-          d="M600 130 Q380 230 380 230"
-
-          stroke="rgba(34,211,238,0.18)"
-
-          strokeWidth="2"
-
-          fill="transparent"
-
-          animate={{
-            opacity: [0.2, 1, 0.2],
-          }}
-
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: 0.5,
-          }}
-        />
-
-        <motion.path
-          d="M380 350 Q380 230 380 230"
-
-          stroke="rgba(34,211,238,0.18)"
-
-          strokeWidth="2"
-
-          fill="transparent"
-
-          animate={{
-            opacity: [0.2, 1, 0.2],
-          }}
-
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            delay: 1,
-          }}
-        />
-
-      </svg>
+      {/* LABEL */}
+     
 
     </div>
   );
 }
-
   /* ================= STEP 1 ================= */
 
   return (
