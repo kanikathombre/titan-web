@@ -1,19 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   ShieldCheck,
   Bell,
   Activity,
-  Save,
   Globe,
   Lock,
+  Loader2,
 } from "lucide-react";
 
 import {
   useTheme,
 } from "@/context/theme-context";
+
+import {
+  getAdminSettings,
+} from "@/lib/admin-api";
 
 export default function AdminSettingsPage() {
 
@@ -23,6 +27,9 @@ export default function AdminSettingsPage() {
 
   const dark =
     theme === "dark";
+
+  const [loading, setLoading] =
+    useState(true);
 
   const [signupsEnabled, setSignupsEnabled] =
     useState(true);
@@ -36,29 +43,73 @@ export default function AdminSettingsPage() {
   const [webhookUrl, setWebhookUrl] =
     useState("");
 
-  const [saved, setSaved] =
-    useState(false);
+  useEffect(() => {
 
-  const handleSave = async () => {
+    fetchSettings();
 
-    const config = {
-      signupsEnabled,
-      jwtExpiry,
-      rateLimit,
-      webhookUrl,
+  }, []);
+
+  const fetchSettings =
+    async () => {
+
+      try {
+
+        const data =
+          await getAdminSettings();
+
+        console.log(
+          "SETTINGS:",
+          data
+        );
+
+        const settings =
+          data?.settings || data;
+
+        setSignupsEnabled(
+          settings?.signups_enabled ??
+          true
+        );
+
+        setJwtExpiry(
+          settings?.jwt_expiry ??
+          60
+        );
+
+        setRateLimit(
+          settings?.rate_limit ??
+          100
+        );
+
+        setWebhookUrl(
+          settings?.webhook_url ??
+          ""
+        );
+
+      } catch (error) {
+
+        console.error(
+          "SETTINGS ERROR:",
+          error
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
     };
 
-    console.log(
-      "Sending config to /admin/config",
-      config
+  if (loading) {
+
+    return (
+
+      <div className="flex h-[70vh] items-center justify-center">
+
+        <Loader2 className="h-10 w-10 animate-spin text-cyan-500" />
+
+      </div>
     );
-
-    setSaved(true);
-
-    setTimeout(() => {
-      setSaved(false);
-    }, 3000);
-  };
+  }
 
   return (
 
@@ -176,7 +227,11 @@ export default function AdminSettingsPage() {
         <StatsCard
           dark={dark}
           title="Global Access"
-          value="Enabled"
+          value={
+            signupsEnabled
+              ? "Enabled"
+              : "Disabled"
+          }
           icon={
             <Globe className="h-6 w-6 text-yellow-500" />
           }
@@ -312,50 +367,22 @@ export default function AdminSettingsPage() {
 
               </h3>
 
-              <p
-                className={`mt-2 ${
-                  dark
-                    ? "text-slate-400"
-                    : "text-slate-500"
-                }`}
-              >
-
-                Defines how long authentication tokens remain valid.
-
-              </p>
-
             </div>
 
-            <div className="relative">
-
-              <input
-                type="number"
-                value={jwtExpiry}
-                onChange={(e) =>
-                  setJwtExpiry(
-                    Number(e.target.value)
-                  )
-                }
-                className={`w-full rounded-2xl border px-5 py-4 text-lg font-semibold outline-none transition focus:border-cyan-400 ${
-                  dark
-                    ? "border-white/10 bg-[#0F172A] text-white"
-                    : "border-slate-200 bg-slate-50 text-slate-900"
-                }`}
-              />
-
-              <span
-                className={`absolute right-5 top-1/2 -translate-y-1/2 text-sm font-medium ${
-                  dark
-                    ? "text-slate-500"
-                    : "text-slate-400"
-                }`}
-              >
-
-                Minutes
-
-              </span>
-
-            </div>
+            <input
+              type="number"
+              value={jwtExpiry}
+              onChange={(e) =>
+                setJwtExpiry(
+                  Number(e.target.value)
+                )
+              }
+              className={`w-full rounded-2xl border px-5 py-4 text-lg font-semibold outline-none transition focus:border-cyan-400 ${
+                dark
+                  ? "border-white/10 bg-[#0F172A] text-white"
+                  : "border-slate-200 bg-slate-50 text-slate-900"
+              }`}
+            />
 
           </div>
 
@@ -382,50 +409,22 @@ export default function AdminSettingsPage() {
 
               </h3>
 
-              <p
-                className={`mt-2 ${
-                  dark
-                    ? "text-slate-400"
-                    : "text-slate-500"
-                }`}
-              >
-
-                Maximum API requests allowed per user account.
-
-              </p>
-
             </div>
 
-            <div className="relative">
-
-              <input
-                type="number"
-                value={rateLimit}
-                onChange={(e) =>
-                  setRateLimit(
-                    Number(e.target.value)
-                  )
-                }
-                className={`w-full rounded-2xl border px-5 py-4 text-lg font-semibold outline-none transition focus:border-cyan-400 ${
-                  dark
-                    ? "border-white/10 bg-[#0F172A] text-white"
-                    : "border-slate-200 bg-slate-50 text-slate-900"
-                }`}
-              />
-
-              <span
-                className={`absolute right-5 top-1/2 -translate-y-1/2 text-sm font-medium ${
-                  dark
-                    ? "text-slate-500"
-                    : "text-slate-400"
-                }`}
-              >
-
-                Requests
-
-              </span>
-
-            </div>
+            <input
+              type="number"
+              value={rateLimit}
+              onChange={(e) =>
+                setRateLimit(
+                  Number(e.target.value)
+                )
+              }
+              className={`w-full rounded-2xl border px-5 py-4 text-lg font-semibold outline-none transition focus:border-cyan-400 ${
+                dark
+                  ? "border-white/10 bg-[#0F172A] text-white"
+                  : "border-slate-200 bg-slate-50 text-slate-900"
+              }`}
+            />
 
           </div>
 
@@ -452,20 +451,6 @@ export default function AdminSettingsPage() {
 
               </h3>
 
-              <p
-                className={`mt-2 ${
-                  dark
-                    ? "text-slate-400"
-                    : "text-slate-500"
-                }`}
-              >
-
-                Receive alerts,
-                monitoring events,
-                and platform notifications externally.
-
-              </p>
-
             </div>
 
             <textarea
@@ -482,36 +467,6 @@ export default function AdminSettingsPage() {
                   : "border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400"
               }`}
             />
-
-          </div>
-
-          {/* SAVE */}
-          <div className="flex flex-col gap-4 pt-2 lg:flex-row lg:items-center">
-
-            <button
-              onClick={handleSave}
-              className={`flex items-center justify-center gap-3 rounded-2xl px-7 py-4 font-semibold text-white transition ${
-                dark
-                  ? "bg-cyan-500 hover:bg-cyan-400"
-                  : "bg-slate-900 hover:bg-cyan-500"
-              }`}
-            >
-
-              <Save className="h-5 w-5" />
-
-              Save Settings
-
-            </button>
-
-            {saved && (
-
-              <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-600">
-
-                Settings saved successfully
-
-              </div>
-
-            )}
 
           </div>
 

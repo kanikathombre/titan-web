@@ -97,17 +97,52 @@ export default function SignInPage() {
   try {
 
     /* LOGIN */
-    await api.login({
-      email: data.email,
-      password: data.password,
-    });
+    const loginResponse =
+      await api.login({
+        email: data.email,
+        password: data.password,
+      });
+
+    console.log(
+      "LOGIN RESPONSE:",
+      loginResponse
+    );
+
+    /* ACCESS TOKEN */
+    const accessToken =
+  loginResponse?.access_token;
+
+    const refreshToken =
+  loginResponse?.refresh_token;
+
+    /* STORE TOKENS */
+    if (accessToken) {
+
+      localStorage.setItem(
+        "nanotoxi_token",
+        accessToken
+      );
+    }
+
+    if (refreshToken) {
+
+      localStorage.setItem(
+        "nanotoxi_refresh",
+        refreshToken
+      );
+    }
 
     /* FETCH USER */
     const me =
       await api.me();
 
+    console.log(
+      "ME RESPONSE:",
+      me
+    );
+
     /* ACCESS CHECK */
-    if (!me.has_access) {
+    if (!me?.has_access) {
 
       toast.error(
         "Access not enabled"
@@ -124,14 +159,25 @@ export default function SignInPage() {
       "Signed in successfully"
     );
 
+    /* SMALL DELAY */
+    await new Promise(
+      (resolve) =>
+        setTimeout(
+          resolve,
+          300
+        )
+    );
+
     /* ADMIN */
     if (
-      me.role === "admin"
+      me?.role === "admin"
     ) {
 
       router.push(
         "/admin/overview"
       );
+
+      router.refresh();
 
       return;
     }
@@ -141,14 +187,23 @@ export default function SignInPage() {
       "/dashboard"
     );
 
+    router.refresh();
+
   } catch (error: any) {
+
+    console.error(
+      "LOGIN ERROR:",
+      error
+    );
 
     const message =
       error?.response?.data
         ?.detail ||
       "Invalid email or password";
 
-    toast.error(message);
+    toast.error(
+      message
+    );
 
     setServerError(
       message

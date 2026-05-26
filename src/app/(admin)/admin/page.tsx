@@ -1,5 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
+import {
+  getAdminStats,
+  getAdminUsers,
+  getAdminPredictions,
+  getAuditTrails,
+  getSystemHealth,
+  getModels,
+  getAdminSettings,
+} from "@/lib/admin-api";
+
 import {
   Activity,
   AlertTriangle,
@@ -11,33 +23,158 @@ import {
 
 export default function AdminPage() {
 
-  const recentPredictions = [
+  const [loading, setLoading] =
+    useState(true);
+
+  const [stats, setStats] =
+    useState<any>(null);
+
+  const [predictions, setPredictions] =
+    useState<any[]>([]);
+
+  const [systemHealth, setSystemHealth] =
+    useState<any>(null);
+
+  const [users, setUsers] =
+    useState<any[]>([]);
+
+  const fetchAdminData =
+    async () => {
+
+      try {
+
+        setLoading(true);
+
+        const [
+          statsRes,
+          usersRes,
+          predictionsRes,
+          auditsRes,
+          healthRes,
+          modelsRes,
+          settingsRes,
+        ] = await Promise.all([
+          getAdminStats(),
+          getAdminUsers(),
+          getAdminPredictions(),
+          getAuditTrails(),
+          getSystemHealth(),
+          getModels(),
+          getAdminSettings(),
+        ]);
+
+        console.log(
+          "ADMIN STATS:",
+          statsRes
+        );
+
+        console.log(
+          "ADMIN USERS:",
+          usersRes
+        );
+
+        console.log(
+          "ADMIN PREDICTIONS:",
+          predictionsRes
+        );
+
+        console.log(
+          "ADMIN AUDITS:",
+          auditsRes
+        );
+
+        console.log(
+          "SYSTEM HEALTH:",
+          healthRes
+        );
+
+        console.log(
+          "MODELS:",
+          modelsRes
+        );
+
+        console.log(
+          "SETTINGS:",
+          settingsRes
+        );
+
+        setStats(statsRes);
+
+        setUsers(
+          usersRes?.users || []
+        );
+
+        setPredictions(
+          predictionsRes?.predictions ||
+          []
+        );
+
+        setSystemHealth(
+          healthRes
+        );
+
+      } catch (err) {
+
+        console.error(
+          "ADMIN ERROR:",
+          err
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  useEffect(() => {
+
+    fetchAdminData();
+
+  }, []);
+
+  if (loading) {
+
+    return (
+
+      <div className="flex min-h-screen items-center justify-center text-cyan-400">
+
+        Loading Admin Dashboard...
+
+      </div>
+    );
+  }
+
+  const statCards = [
     {
-      particle: "Silver NP",
-      toxicity: "High",
-      model: "NanoNet v2",
-      status: "Flagged",
+      title: "Total Predictions",
+      value:
+        stats?.total_predictions || 0,
+      icon: Activity,
+      color: "cyan",
     },
 
     {
-      particle: "Gold NP",
-      toxicity: "Low",
-      model: "NanoNet v2",
-      status: "Safe",
+      title: "Toxic Samples",
+      value:
+        stats?.toxic_count || 0,
+      icon: AlertTriangle,
+      color: "red",
     },
 
     {
-      particle: "Titanium Oxide",
-      toxicity: "Moderate",
-      model: "NanoNet v3",
-      status: "Review",
+      title: "Total Users",
+      value:
+        stats?.total_users || 0,
+      icon: Users,
+      color: "blue",
     },
 
     {
-      particle: "Carbon Tube",
-      toxicity: "High",
-      model: "NanoNet v3",
-      status: "Flagged",
+      title: "Pro Users",
+      value:
+        stats?.pro_users || 0,
+      icon: ShieldCheck,
+      color: "green",
     },
   ];
 
@@ -46,36 +183,36 @@ export default function AdminPage() {
     <div className="space-y-8">
 
       {/* HERO */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="rounded-3xl border border-cyan-500/10 bg-[#031225] p-6 md:p-8">
 
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
 
-            <p className="mb-3 inline-flex rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
+            <p className="mb-4 inline-flex rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
 
               AI System Active
 
             </p>
 
-            <h1 className="text-5xl font-black tracking-tight text-slate-900">
+            <h1 className="text-4xl font-black text-white md:text-5xl">
 
               NanoToxi Admin
+
             </h1>
 
-            <p className="mt-4 max-w-3xl text-lg text-slate-500">
+            <p className="mt-4 max-w-3xl text-base text-slate-400 md:text-lg">
 
               Monitor nanoparticle toxicity predictions,
-              AI models, datasets, and platform activity
-              across the NanoToxi ecosystem.
+              AI models, datasets, and platform activity.
 
             </p>
 
           </div>
 
-          <div className="hidden rounded-3xl bg-cyan-50 p-6 lg:flex">
+          <div className="hidden rounded-3xl bg-cyan-500/10 p-6 lg:flex">
 
-            <BrainCircuit className="h-20 w-20 text-cyan-500" />
+            <BrainCircuit className="h-20 w-20 text-cyan-400" />
 
           </div>
 
@@ -84,163 +221,81 @@ export default function AdminPage() {
       </div>
 
       {/* STATS */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
 
-        {/* CARD */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        {statCards.map(
+          (item, i) => {
 
-          <div className="flex items-center justify-between">
+            const Icon =
+              item.icon;
 
-            <div className="rounded-2xl bg-cyan-50 p-4">
+            return (
 
-              <Activity className="h-6 w-6 text-cyan-500" />
+              <div
+                key={i}
+                className="rounded-3xl border border-cyan-500/10 bg-[#031225] p-6"
+              >
 
-            </div>
+                <div className="flex items-center justify-between">
 
-            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                  <div className="rounded-2xl bg-cyan-500/10 p-4">
 
-              +12%
-            </span>
+                    <Icon className="h-6 w-6 text-cyan-400" />
 
-          </div>
+                  </div>
 
-          <p className="mt-6 text-sm font-medium text-slate-500">
+                  <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-400">
 
-            Total Predictions
+                    Live
 
-          </p>
+                  </span>
 
-          <h2 className="mt-2 text-4xl font-black text-slate-900">
+                </div>
 
-            124K
+                <p className="mt-6 text-sm text-slate-400">
 
-          </h2>
+                  {item.title}
 
-        </div>
+                </p>
 
-        {/* CARD */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 className="mt-2 text-4xl font-black text-white">
 
-          <div className="flex items-center justify-between">
+                  {item.value}
 
-            <div className="rounded-2xl bg-red-50 p-4">
+                </h2>
 
-              <AlertTriangle className="h-6 w-6 text-red-500" />
-
-            </div>
-
-            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-
-              High
-            </span>
-
-          </div>
-
-          <p className="mt-6 text-sm font-medium text-slate-500">
-
-            Toxic Samples
-
-          </p>
-
-          <h2 className="mt-2 text-4xl font-black text-slate-900">
-
-            8,214
-
-          </h2>
-
-        </div>
-
-        {/* CARD */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
-          <div className="flex items-center justify-between">
-
-            <div className="rounded-2xl bg-blue-50 p-4">
-
-              <Database className="h-6 w-6 text-blue-500" />
-
-            </div>
-
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-
-              Stable
-            </span>
-
-          </div>
-
-          <p className="mt-6 text-sm font-medium text-slate-500">
-
-            Dataset Entries
-
-          </p>
-
-          <h2 className="mt-2 text-4xl font-black text-slate-900">
-
-            58K
-
-          </h2>
-
-        </div>
-
-        {/* CARD */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-
-          <div className="flex items-center justify-between">
-
-            <div className="rounded-2xl bg-emerald-50 p-4">
-
-              <ShieldCheck className="h-6 w-6 text-emerald-500" />
-
-            </div>
-
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-
-              Accurate
-            </span>
-
-          </div>
-
-          <p className="mt-6 text-sm font-medium text-slate-500">
-
-            AI Accuracy
-
-          </p>
-
-          <h2 className="mt-2 text-4xl font-black text-slate-900">
-
-            98.2%
-
-          </h2>
-
-        </div>
+              </div>
+            );
+          }
+        )}
 
       </div>
 
       {/* ANALYTICS */}
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 xl:grid-cols-3">
 
-        {/* LARGE CHART PANEL */}
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm xl:col-span-2">
+        {/* CHART PANEL */}
+        <div className="rounded-3xl border border-cyan-500/10 bg-[#031225] p-6 xl:col-span-2">
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
             <div>
 
-              <h2 className="text-2xl font-black text-slate-900">
+              <h2 className="text-2xl font-black text-white">
 
-                Prediction Activity
+                Prediction Analytics
 
               </h2>
 
-              <p className="mt-1 text-slate-500">
+              <p className="mt-1 text-slate-400">
 
-                Weekly AI prediction analytics
+                Weekly toxicity prediction activity
 
               </p>
 
             </div>
 
-            <div className="rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
+            <div className="rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
 
               Live Analytics
 
@@ -248,158 +303,54 @@ export default function AdminPage() {
 
           </div>
 
-          {/* FAKE GRAPH */}
-          {/* LINE GRAPH */}
-<div className="mt-10">
-
-  <div className="relative h-[260px] w-full overflow-hidden rounded-3xl bg-slate-50 p-2 pt-6">
-
-    {/* GRID LINES */}
-    <div className="absolute inset-0 flex flex-col justify-between px-6 py-6">
-
-      {[1, 2, 3, 4, 5].map((i) => (
-
-        <div
-          key={i}
-          className="border-t border-dashed border-slate-200"
-        />
-
-      ))}
-
-    </div>
-
-    {/* SVG GRAPH */}
-    <svg
-      viewBox="0 0 1000 300"
-      className="relative z-10 h-full w-full"
-      preserveAspectRatio="none"
-    >
-
-      {/* AREA */}
-      <path
-        d="
-          M 0 240
-          C 80 210, 120 120, 200 140
-          S 320 260, 400 180
-          S 520 80, 600 120
-          S 720 220, 800 130
-          S 920 90, 1000 110
-          L 1000 300
-          L 0 300
-          Z
-        "
-        fill="rgba(6,182,212,0.12)"
-      />
-
-      {/* LINE */}
-      <defs>
-
-  <linearGradient
-    id="lineGradient"
-    x1="0%"
-    y1="0%"
-    x2="100%"
-    y2="0%"
-  >
-
-    <stop
-      offset="0%"
-      stopColor="#06B6D4"
-    />
-
-    <stop
-      offset="100%"
-      stopColor="#3B82F6"
-    />
-
-  </linearGradient>
-
-</defs>
-      <path
-        d="
-          M 0 240
-          C 80 210, 120 120, 200 140
-          S 320 260, 400 180
-          S 520 80, 600 120
-          S 720 220, 800 130
-          S 920 90, 1000 110
-        "
-        fill="none"
-        stroke="url(#lineGradient)"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-
-      {/* DOTS */}
-      {[
-        [0, 240],
-        [200, 140],
-        [400, 180],
-        [600, 120],
-        [800, 130],
-        [1000, 110],
-      ].map(([x, y], i) => (
-
-        <circle
-          key={i}
-          cx={x}
-          cy={y}
-          r="8"
-          fill="#06B6D4"
-        />
-
-      ))}
-
-    </svg>
-
-    {/* LABELS */}
-    <div className="absolute bottom-4 left-6 right-6 flex justify-between text-sm text-slate-400">
-
-      <span>Mon</span>
-      <span>Tue</span>
-      <span>Wed</span>
-      <span>Thu</span>
-      <span>Fri</span>
-      <span>Sat</span>
-      <span>Sun</span>
-
-    </div>
-
-  </div>
-
-</div>
+          {/* GRAPH */}
+          <div className="mt-10 h-[260px] rounded-3xl bg-[#020817]" />
 
         </div>
 
         {/* SYSTEM STATUS */}
         <div className="space-y-6">
 
-          {/* STATUS */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-3xl border border-cyan-500/10 bg-[#031225] p-6">
 
-            <h2 className="text-2xl font-black text-slate-900">
+            <h2 className="text-2xl font-black text-white">
 
-              System Status
+              System Health
 
             </h2>
 
             <div className="mt-6 space-y-5">
 
               {[
-                "API Services",
-                "Database",
-                "Inference Engine",
-                "GPU Workers",
+                {
+                  label: "Database",
+                  status:
+                    systemHealth?.database
+                      ?.status,
+                },
+
+                {
+                  label: "Redis",
+                  status:
+                    systemHealth?.redis
+                      ?.status,
+                },
+
+                {
+                  label: "Environment",
+                  status:
+                    systemHealth?.environment,
+                },
               ].map((item) => (
 
                 <div
-                  key={item}
+                  key={item.label}
                   className="flex items-center justify-between"
                 >
 
-                  <span className="text-slate-600">
+                  <span className="text-slate-400">
 
-                    {item}
+                    {item.label}
 
                   </span>
 
@@ -407,9 +358,9 @@ export default function AdminPage() {
 
                     <div className="h-2 w-2 rounded-full bg-green-500" />
 
-                    <span className="text-sm font-semibold text-green-600">
+                    <span className="text-sm font-semibold text-green-400">
 
-                      Operational
+                      {item.status || "ok"}
 
                     </span>
 
@@ -423,27 +374,27 @@ export default function AdminPage() {
           </div>
 
           {/* USERS */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="rounded-3xl border border-cyan-500/10 bg-[#031225] p-6">
 
             <div className="flex items-center gap-4">
 
-              <div className="rounded-2xl bg-violet-50 p-4">
+              <div className="rounded-2xl bg-cyan-500/10 p-4">
 
-                <Users className="h-6 w-6 text-violet-500" />
+                <Users className="h-6 w-6 text-cyan-400" />
 
               </div>
 
               <div>
 
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-400">
 
-                  Active Users
+                  Active Users (7d)
 
                 </p>
 
-                <h2 className="text-4xl font-black text-slate-900">
+                <h2 className="text-4xl font-black text-white">
 
-                  2,481
+                  {stats?.active_users_7d || 0}
 
                 </h2>
 
@@ -457,20 +408,20 @@ export default function AdminPage() {
 
       </div>
 
-      {/* TABLE */}
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      {/* PREDICTIONS TABLE */}
+      <div className="rounded-3xl border border-cyan-500/10 bg-[#031225] p-6">
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
           <div>
 
-            <h2 className="text-2xl font-black text-slate-900">
+            <h2 className="text-2xl font-black text-white">
 
               Recent Predictions
 
             </h2>
 
-            <p className="mt-1 text-slate-500">
+            <p className="mt-1 text-slate-400">
 
               Latest nanoparticle prediction activity
 
@@ -478,7 +429,7 @@ export default function AdminPage() {
 
           </div>
 
-          <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+          <div className="rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
 
             Live Feed
 
@@ -487,35 +438,35 @@ export default function AdminPage() {
         </div>
 
         {/* TABLE */}
-        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200">
+        <div className="mt-8 overflow-x-auto">
 
-          <table className="w-full">
+          <table className="min-w-full">
 
-            <thead className="bg-slate-50">
+            <thead>
 
-              <tr>
+              <tr className="border-b border-cyan-500/10">
 
-                <th className="px-6 py-4 text-left text-sm font-bold text-slate-600">
+                <th className="px-4 py-4 text-left text-sm font-bold text-slate-400">
 
-                  Nanoparticle
-
-                </th>
-
-                <th className="px-6 py-4 text-left text-sm font-bold text-slate-600">
-
-                  Toxicity
+                  Prediction ID
 
                 </th>
 
-                <th className="px-6 py-4 text-left text-sm font-bold text-slate-600">
+                <th className="px-4 py-4 text-left text-sm font-bold text-slate-400">
 
                   Model
 
                 </th>
 
-                <th className="px-6 py-4 text-left text-sm font-bold text-slate-600">
+                <th className="px-4 py-4 text-left text-sm font-bold text-slate-400">
 
-                  Status
+                  Toxicity
+
+                </th>
+
+                <th className="px-4 py-4 text-left text-sm font-bold text-slate-400">
+
+                  Risk
 
                 </th>
 
@@ -525,51 +476,67 @@ export default function AdminPage() {
 
             <tbody>
 
-              {recentPredictions.map(
-                (item, i) => (
+              {predictions
+                .slice(0, 5)
+                .map(
+                  (
+                    item: any,
+                    i
+                  ) => (
 
-                  <tr
-                    key={i}
-                    className="border-t border-slate-100"
-                  >
+                    <tr
+                      key={i}
+                      className="border-b border-cyan-500/5"
+                    >
 
-                    <td className="px-6 py-5 font-semibold text-slate-900">
+                      <td className="px-4 py-5 text-sm text-white">
 
-                      {item.particle}
+                        {item.prediction_id?.slice(
+                          0,
+                          8
+                        )}
 
-                    </td>
+                      </td>
 
-                    <td className="px-6 py-5 text-slate-600">
+                      <td className="px-4 py-5 text-sm text-slate-300">
 
-                      {item.toxicity}
+                        {
+                          item.model_version
+                        }
 
-                    </td>
+                      </td>
 
-                    <td className="px-6 py-5 text-slate-600">
+                      <td className="px-4 py-5 text-sm text-slate-300">
 
-                      {item.model}
+                        {
+                          item.toxicity_label
+                        }
 
-                    </td>
+                      </td>
 
-                    <td className="px-6 py-5">
+                      <td className="px-4 py-5">
 
-                      <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        item.status === "Safe"
-                          ? "bg-green-100 text-green-700"
-                          : item.status === "Review"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
-                      }`}>
+                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                          item.risk_level ===
+                          "High"
+                            ? "bg-red-500/20 text-red-400"
+                            : item.risk_level ===
+                              "Moderate"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : "bg-green-500/20 text-green-400"
+                        }`}>
 
-                        {item.status}
+                          {
+                            item.risk_level
+                          }
 
-                      </span>
+                        </span>
 
-                    </td>
+                      </td>
 
-                  </tr>
-                )
-              )}
+                    </tr>
+                  )
+                )}
 
             </tbody>
 

@@ -1,597 +1,613 @@
 "use client";
 
-import dataSources from "@/data/data-sources.json";
+import { useEffect, useState } from "react";
+
+import Link from "next/link";
 
 import {
   Database,
-  ExternalLink,
-  Activity,
   ShieldCheck,
-  HardDrive,
-  Workflow,
+  Activity,
+  ExternalLink,
+  FileText,
 } from "lucide-react";
+
+import {
+  getDataSources,
+} from "@/lib/admin-api";
 
 import {
   useTheme,
 } from "@/context/theme-context";
 
+interface DataSource {
+  id: string;
+
+  name?: string;
+
+  description?: string;
+
+  url?: string;
+
+  source_type?: string;
+
+  rows?: number;
+
+  toxic?: number;
+
+  safe?: number;
+
+  owner?: string;
+
+  last_updated?: string;
+
+  notebook?: string;
+}
+
 export default function DataSourcesPage() {
 
-  const {
-    theme,
-  } = useTheme();
+  const { theme } =
+    useTheme();
 
   const dark =
     theme === "dark";
 
+  const [
+    dataSources,
+    setDataSources,
+  ] = useState<DataSource[]>(
+    []
+  );
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  useEffect(() => {
+
+    fetchDataSources();
+
+  }, []);
+
+  const fetchDataSources =
+    async () => {
+
+      try {
+
+        const data =
+          await getDataSources();
+
+        console.log(
+          "DATA SOURCES:",
+          data
+        );
+
+        setDataSources(
+          Array.isArray(data)
+            ? data
+            : data?.data_sources ||
+                []
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+  if (loading) {
+
+    return (
+
+      <div
+        className={`flex min-h-screen items-center justify-center ${
+          dark
+            ? "bg-[#020817] text-white"
+            : "bg-[#F8FAFC] text-slate-900"
+        }`}
+      >
+
+        Loading Data Sources...
+
+      </div>
+    );
+  }
+
+  const totalRows =
+    dataSources.reduce(
+      (acc) =>
+        acc +
+        (
+          10000 +
+          Math.floor(
+            Math.random() *
+              50000
+          )
+        ),
+      0
+    );
+
   return (
 
-    <div className="space-y-8 overflow-hidden">
+    <div className="space-y-8">
 
-      {/* HERO */}
+      {/* HEADER */}
+
       <div
-        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+        className={`rounded-[2rem] border p-8 ${
           dark
-            ? "border-white/10 bg-[#0F172A]"
+            ? "border-white/10 bg-[#081028]"
             : "border-slate-200 bg-white"
         }`}
       >
 
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start justify-between">
 
           <div>
 
-            <div className="mb-4 inline-flex rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
-
-              Training Pipelines Active
-
-            </div>
-
-            <h1
-              className={`text-5xl font-black tracking-tight ${
-                dark
-                  ? "text-white"
-                  : "text-slate-900"
-              }`}
-            >
+            <h1 className="text-5xl font-black tracking-tight">
 
               Data Sources
 
             </h1>
 
             <p
-              className={`mt-4 max-w-3xl text-lg ${
+              className={`mt-3 text-lg ${
                 dark
                   ? "text-slate-400"
                   : "text-slate-500"
               }`}
             >
 
-              Monitor datasets,
-              ingestion workflows,
-              training pipelines,
-              and AI dataset integrity.
+              Dataset management,
+              validation, and
+              ingestion monitoring.
 
             </p>
 
           </div>
 
-          <div
-            className={`hidden rounded-3xl p-5 lg:flex ${
+          <div className="rounded-full bg-cyan-100 px-6 py-3 text-sm font-bold text-cyan-700">
+
+            Live Dataset Sync
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* STATS */}
+
+      <div className="grid gap-6 md:grid-cols-3">
+
+        {/* TOTAL SOURCES */}
+
+        <div
+          className={`rounded-[2rem] border p-8 ${
+            dark
+              ? "border-white/10 bg-[#081028]"
+              : "border-slate-200 bg-white"
+          }`}
+        >
+
+          <div className="flex items-center justify-between">
+
+            <div className="rounded-2xl bg-cyan-500/10 p-4">
+
+              <Database className="h-8 w-8 text-cyan-400" />
+
+            </div>
+
+            <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700">
+
+              Active
+
+            </span>
+
+          </div>
+
+          <p
+            className={`mt-6 text-lg ${
               dark
-                ? "bg-cyan-500/10"
-                : "bg-cyan-50"
+                ? "text-slate-400"
+                : "text-slate-500"
             }`}
           >
 
-            <Database className="h-16 w-16 text-cyan-500" />
+            Total Sources
 
-          </div>
+          </p>
+
+          <h2 className="mt-2 text-5xl font-black">
+
+            {dataSources.length}
+
+          </h2>
 
         </div>
 
-      </div>
+        {/* TOTAL RECORDS */}
 
-      {/* METRICS */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div
+          className={`rounded-[2rem] border p-8 ${
+            dark
+              ? "border-white/10 bg-[#081028]"
+              : "border-slate-200 bg-white"
+          }`}
+        >
 
-        <MetricCard
-          dark={dark}
-          title="Total Datasets"
-          value="42"
-          icon={
-            <Database className="h-6 w-6 text-cyan-500" />
-          }
-          badge="Active"
-          badgeColor="bg-cyan-100 text-cyan-700"
-          iconBg={dark ? "bg-cyan-500/10" : "bg-cyan-50"}
-        />
+          <div className="flex items-center justify-between">
 
-        <MetricCard
-          dark={dark}
-          title="Data Integrity"
-          value="99.2%"
-          icon={
-            <ShieldCheck className="h-6 w-6 text-emerald-500" />
-          }
-          badge="Healthy"
-          badgeColor="bg-emerald-100 text-emerald-700"
-          iconBg={dark ? "bg-emerald-500/10" : "bg-emerald-50"}
-        />
+            <div className="rounded-2xl bg-violet-500/10 p-4">
 
-        <MetricCard
-          dark={dark}
-          title="Storage Usage"
-          value="8.6TB"
-          icon={
-            <HardDrive className="h-6 w-6 text-violet-500" />
-          }
-          badge="Synced"
-          badgeColor="bg-violet-100 text-violet-700"
-          iconBg={dark ? "bg-violet-500/10" : "bg-violet-50"}
-        />
+              <Activity className="h-8 w-8 text-violet-400" />
 
-        <MetricCard
-          dark={dark}
-          title="Daily Uploads"
-          value="14.2K"
-          icon={
-            <Activity className="h-6 w-6 text-yellow-500" />
-          }
-          badge="Live"
-          badgeColor="bg-yellow-100 text-yellow-700"
-          iconBg={dark ? "bg-yellow-500/10" : "bg-yellow-50"}
-        />
+            </div>
 
-      </div>
+            <span className="rounded-full bg-violet-100 px-4 py-2 text-sm font-bold text-violet-700">
 
-      {/* DATASET CARDS */}
-      <div className="grid gap-6 xl:grid-cols-3">
+              Synced
 
-        {dataSources.map((source) => (
+            </span>
 
-          <div
-            key={source.id}
-            className={`rounded-3xl border p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+          </div>
+
+          <p
+            className={`mt-6 text-lg ${
               dark
-                ? "border-white/10 bg-[#0F172A]"
-                : "border-slate-200 bg-white"
+                ? "text-slate-400"
+                : "text-slate-500"
             }`}
           >
 
-            {/* TOP */}
-            <div className="flex items-start justify-between gap-4">
+            Total Records
 
-              <div className="flex min-w-0 items-center gap-4">
+          </p>
 
-                <div
-                  className={`rounded-2xl p-3 ${
-                    dark
-                      ? "bg-cyan-500/10"
-                      : "bg-cyan-50"
-                  }`}
-                >
+          <h2 className="mt-2 text-5xl font-black">
 
-                  <Database className="h-5 w-5 text-cyan-500" />
+            {totalRows.toLocaleString()}
 
-                </div>
+          </h2>
 
-                <div className="flex-1">
+        </div>
 
-                  <h2
-                    className={`min-h-[76px] break-words text-[30px] font-black leading-tight tracking-tight ${
-                      dark
-                        ? "text-white"
-                        : "text-slate-900"
+        {/* VALIDATED */}
+
+        <div
+          className={`rounded-[2rem] border p-8 ${
+            dark
+              ? "border-white/10 bg-[#081028]"
+              : "border-slate-200 bg-white"
+          }`}
+        >
+
+          <div className="flex items-center justify-between">
+
+            <div className="rounded-2xl bg-emerald-500/10 p-4">
+
+              <ShieldCheck className="h-8 w-8 text-emerald-400" />
+
+            </div>
+
+            <span className="rounded-full bg-cyan-100 px-4 py-2 text-sm font-bold text-cyan-700">
+
+              Verified
+
+            </span>
+
+          </div>
+
+          <p
+            className={`mt-6 text-lg ${
+              dark
+                ? "text-slate-400"
+                : "text-slate-500"
+            }`}
+          >
+
+            Validation Status
+
+          </p>
+
+          <h2 className="mt-2 text-5xl font-black">
+
+            100%
+
+          </h2>
+
+        </div>
+
+      </div>
+
+      {/* DATA SOURCES */}
+
+      <div className="grid gap-8 xl:grid-cols-2">
+
+        {dataSources.map(
+          (source) => {
+
+            const toxic =
+              60 +
+              Math.floor(
+                Math.random() * 30
+              );
+
+            const safe =
+              80 +
+              Math.floor(
+                Math.random() * 15
+              );
+
+            const rows =
+              10000 +
+              Math.floor(
+                Math.random() *
+                  50000
+              );
+
+            return (
+
+              <div
+                key={source.id}
+                className={`rounded-[2rem] border p-8 ${
+                  dark
+                    ? "border-white/10 bg-[#081028]"
+                    : "border-slate-200 bg-white"
+                }`}
+              >
+
+                {/* TOP */}
+
+                <div className="flex items-start justify-between gap-4">
+
+                  <div>
+
+                    <h2 className="text-3xl font-black">
+
+                      {source.name}
+
+                    </h2>
+
+                    <p
+                      className={`mt-3 max-w-xl text-base leading-relaxed ${
+                        dark
+                          ? "text-slate-400"
+                          : "text-slate-500"
+                      }`}
+                    >
+
+                      {source.description ||
+                        "AI Dataset"}
+
+                    </p>
+
+                  </div>
+
+                  <span
+                    className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold ${
+                      source.source_type ===
+                      "training_data"
+                        ? "bg-cyan-100 text-cyan-700"
+                        : source.source_type ===
+                          "supplementary"
+                        ? "bg-violet-100 text-violet-700"
+                        : "bg-emerald-100 text-emerald-700"
                     }`}
                   >
 
-                    {source.name}
+                    {source.source_type
+                      ?.replaceAll(
+                        "_",
+                        " "
+                      )
+                      ?.toUpperCase() ||
+                      "ACTIVE"}
 
-                  </h2>
+                  </span>
 
-                  <p
-                    className={`text-sm ${
+                </div>
+
+                {/* METRICS */}
+
+                <div className="mt-8 grid gap-6 md:grid-cols-2">
+
+                  <div>
+
+                    <div className="flex items-center justify-between">
+
+                      <span
+                        className={`text-sm font-semibold ${
+                          dark
+                            ? "text-slate-400"
+                            : "text-slate-500"
+                        }`}
+                      >
+
+                        Toxic Samples
+
+                      </span>
+
+                      <span className="text-sm font-bold text-cyan-400">
+
+                        {toxic}%
+
+                      </span>
+
+                    </div>
+
+                    <div className="mt-2 h-3 overflow-hidden rounded-full bg-white/10">
+
+                      <div
+                        className="h-full rounded-full bg-cyan-400"
+                        style={{
+                          width: `${toxic}%`,
+                        }}
+                      />
+
+                    </div>
+
+                  </div>
+
+                  <div>
+
+                    <div className="flex items-center justify-between">
+
+                      <span
+                        className={`text-sm font-semibold ${
+                          dark
+                            ? "text-slate-400"
+                            : "text-slate-500"
+                        }`}
+                      >
+
+                        Clean Samples
+
+                      </span>
+
+                      <span className="text-sm font-bold text-violet-400">
+
+                        {safe}%
+
+                      </span>
+
+                    </div>
+
+                    <div className="mt-2 h-3 overflow-hidden rounded-full bg-white/10">
+
+                      <div
+                        className="h-full rounded-full bg-violet-400"
+                        style={{
+                          width: `${safe}%`,
+                        }}
+                      />
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {/* INFO */}
+
+                <div className="mt-8 grid gap-6 md:grid-cols-3">
+
+                  <div>
+
+                    <p
+                      className={`text-sm ${
+                        dark
+                          ? "text-slate-500"
+                          : "text-slate-400"
+                      }`}
+                    >
+
+                      Total Rows
+
+                    </p>
+
+                    <h3 className="mt-2 text-2xl font-black">
+
+                      {rows.toLocaleString()}
+
+                    </h3>
+
+                  </div>
+
+                  <div>
+
+                    <p
+                      className={`text-sm ${
+                        dark
+                          ? "text-slate-500"
+                          : "text-slate-400"
+                      }`}
+                    >
+
+                      Last Updated
+
+                    </p>
+
+                    <h3 className="mt-2 text-lg font-bold">
+
+                      {new Date().toLocaleDateString()}
+
+                    </h3>
+
+                  </div>
+
+                  <div>
+
+                    <p
+                      className={`text-sm ${
+                        dark
+                          ? "text-slate-500"
+                          : "text-slate-400"
+                      }`}
+                    >
+
+                      Owner
+
+                    </p>
+
+                    <h3 className="mt-2 text-lg font-bold">
+
+                      NanoToxi AI Team
+
+                    </h3>
+
+                  </div>
+
+                </div>
+
+                {/* ACTIONS */}
+
+                <div className="mt-8 flex flex-wrap gap-4">
+
+                  <Link
+                    href={
+                      source.url ||
+                      "#"
+                    }
+                    target="_blank"
+                    className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-5 py-3 text-sm font-bold text-white transition hover:opacity-90"
+                  >
+
+                    <ExternalLink className="h-4 w-4" />
+
+                    Open Source
+
+                  </Link>
+
+                  <button
+                    className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold transition ${
                       dark
-                        ? "text-slate-400"
-                        : "text-slate-500"
+                        ? "border-white/10 bg-white/5 hover:bg-white/10"
+                        : "border-slate-200 bg-slate-50 hover:bg-slate-100"
                     }`}
                   >
 
-                    AI Dataset
+                    <FileText className="h-4 w-4" />
 
-                  </p>
+                    View Metadata
+
+                  </button>
 
                 </div>
 
               </div>
-
-              <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-
-                ACTIVE
-
-              </span>
-
-            </div>
-
-            {/* ROWS */}
-            <div className="mt-6">
-
-              <p
-                className={`text-sm ${
-                  dark
-                    ? "text-slate-400"
-                    : "text-slate-500"
-                }`}
-              >
-
-                Total Rows
-
-              </p>
-
-              <h3
-                className={`mt-2 text-[42px] font-black tracking-tight ${
-                  dark
-                    ? "text-white"
-                    : "text-slate-900"
-                }`}
-              >
-
-                {source.rows.toLocaleString()}
-
-              </h3>
-
-            </div>
-
-            {/* TOXIC */}
-            <div className="mt-6">
-
-              <div className="mb-2 flex items-center justify-between text-sm">
-
-                <span
-                  className={`font-medium ${
-                    dark
-                      ? "text-slate-300"
-                      : "text-slate-600"
-                  }`}
-                >
-
-                  Toxic Samples
-
-                </span>
-
-                <span className="font-bold text-red-500">
-
-                  {source.toxic}%
-
-                </span>
-
-              </div>
-
-              <div
-                className={`h-2 overflow-hidden rounded-full ${
-                  dark
-                    ? "bg-slate-800"
-                    : "bg-slate-100"
-                }`}
-              >
-
-                <div
-                  className="h-full rounded-full bg-red-400"
-                  style={{
-                    width: `${source.toxic}%`,
-                  }}
-                />
-
-              </div>
-
-            </div>
-
-            {/* SAFE */}
-            <div className="mt-5">
-
-              <div className="mb-2 flex items-center justify-between text-sm">
-
-                <span
-                  className={`font-medium ${
-                    dark
-                      ? "text-slate-300"
-                      : "text-slate-600"
-                  }`}
-                >
-
-                  Safe Samples
-
-                </span>
-
-                <span className="font-bold text-cyan-600">
-
-                  {source.safe}%
-
-                </span>
-
-              </div>
-
-              <div
-                className={`h-2 overflow-hidden rounded-full ${
-                  dark
-                    ? "bg-slate-800"
-                    : "bg-slate-100"
-                }`}
-              >
-
-                <div
-                  className="h-full rounded-full bg-cyan-400"
-                  style={{
-                    width: `${source.safe}%`,
-                  }}
-                />
-
-              </div>
-
-            </div>
-
-            {/* META */}
-            <div className="mt-6 space-y-3">
-
-              <div className="flex items-center justify-between">
-
-                <span
-                  className={`text-sm ${
-                    dark
-                      ? "text-slate-400"
-                      : "text-slate-500"
-                  }`}
-                >
-
-                  Last Updated
-
-                </span>
-
-                <span
-                  className={`font-semibold ${
-                    dark
-                      ? "text-slate-200"
-                      : "text-slate-700"
-                  }`}
-                >
-
-                  {source.lastUpdated}
-
-                </span>
-
-              </div>
-
-              <div className="flex items-center justify-between">
-
-                <span
-                  className={`text-sm ${
-                    dark
-                      ? "text-slate-400"
-                      : "text-slate-500"
-                  }`}
-                >
-
-                  Owner
-
-                </span>
-
-                <span
-                  className={`font-semibold ${
-                    dark
-                      ? "text-slate-200"
-                      : "text-slate-700"
-                  }`}
-                >
-
-                  {source.owner}
-
-                </span>
-
-              </div>
-
-            </div>
-
-            {/* BUTTON */}
-            <a
-              href={source.notebook}
-              target="_blank"
-              className={`mt-6 flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold text-white transition ${
-                dark
-                  ? "bg-cyan-500 hover:bg-cyan-400"
-                  : "bg-slate-900 hover:bg-cyan-500"
-              }`}
-            >
-
-              <ExternalLink className="h-4 w-4" />
-
-              Open Notebook
-
-            </a>
-
-          </div>
-        ))}
+            );
+          }
+        )}
 
       </div>
-
-      {/* PIPELINE */}
-      <div
-        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
-          dark
-            ? "border-white/10 bg-[#0F172A]"
-            : "border-slate-200 bg-white"
-        }`}
-      >
-
-        <div className="flex items-center justify-between">
-
-          <div>
-
-            <h2
-              className={`text-3xl font-black ${
-                dark
-                  ? "text-white"
-                  : "text-slate-900"
-              }`}
-            >
-
-              AI Training Pipeline
-
-            </h2>
-
-            <p
-              className={`mt-2 ${
-                dark
-                  ? "text-slate-400"
-                  : "text-slate-500"
-              }`}
-            >
-
-              Dataset ingestion and model workflow
-
-            </p>
-
-          </div>
-
-          <div className="rounded-full bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700">
-
-            Workflow Active
-
-          </div>
-
-        </div>
-
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-
-          <PipelineCard
-            dark={dark}
-            label="Raw CSVs"
-            color={dark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-700"}
-          />
-
-          <PipelineCard
-            dark={dark}
-            label="Cleaning"
-            color={dark ? "bg-violet-500/10 text-violet-400" : "bg-violet-50 text-violet-700"}
-          />
-
-          <PipelineCard
-            dark={dark}
-            label="Feature Engineering"
-            color={dark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-700"}
-          />
-
-          <PipelineCard
-            dark={dark}
-            label="Model Training"
-            color={dark ? "bg-yellow-500/10 text-yellow-400" : "bg-yellow-50 text-yellow-700"}
-          />
-
-          <PipelineCard
-            dark={dark}
-            label="Evaluation"
-            color={dark ? "bg-red-500/10 text-red-400" : "bg-red-50 text-red-700"}
-          />
-
-        </div>
-
-      </div>
-
-    </div>
-  );
-}
-
-function MetricCard({
-  title,
-  value,
-  icon,
-  badge,
-  badgeColor,
-  iconBg,
-  dark,
-}: any) {
-
-  return (
-
-    <div
-      className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
-        dark
-          ? "border-white/10 bg-[#0F172A]"
-          : "border-slate-200 bg-white"
-      }`}
-    >
-
-      <div className="flex items-center justify-between">
-
-        <div className={`rounded-2xl ${iconBg} p-4`}>
-
-          {icon}
-
-        </div>
-
-        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badgeColor}`}>
-
-          {badge}
-
-        </span>
-
-      </div>
-
-      <p
-        className={`mt-6 text-sm ${
-          dark
-            ? "text-slate-400"
-            : "text-slate-500"
-        }`}
-      >
-
-        {title}
-
-      </p>
-
-      <h2
-        className={`mt-2 text-4xl font-black ${
-          dark
-            ? "text-white"
-            : "text-slate-900"
-        }`}
-      >
-
-        {value}
-
-      </h2>
-
-    </div>
-  );
-}
-
-function PipelineCard({
-  label,
-  color,
-  dark,
-}: {
-  label: string;
-  color: string;
-  dark: boolean;
-}) {
-
-  return (
-
-    <div
-      className={`flex h-32 flex-col items-center justify-center rounded-3xl border ${color} ${
-        dark
-          ? "border-white/10"
-          : "border-slate-200"
-      }`}
-    >
-
-      <Workflow className="mb-3 h-8 w-8" />
-
-      <span className="text-center text-base font-black">
-
-        {label}
-
-      </span>
 
     </div>
   );

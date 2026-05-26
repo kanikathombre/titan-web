@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -14,12 +15,9 @@ import Papa from "papaparse";
 
 import {
   Download,
-  ChevronLeft,
-  ChevronRight,
   Activity,
   AlertTriangle,
   ShieldCheck,
-  Zap,
   Search,
 } from "lucide-react";
 
@@ -27,65 +25,15 @@ import {
   useTheme,
 } from "@/context/theme-context";
 
-type Log = {
-  id: number;
-  timestamp: string;
-  user: string;
-  inputs: string;
-  output: string;
-  verdict: string;
-  confidence: number;
-  latency: number;
-};
+import {
+  getAdminPredictions,
+} from "@/lib/admin-api";
 
 const PAGE_SIZE = 10;
 
-const logsData =
-  Array.from(
-    { length: 120 },
-    (_, i) => ({
-      id: i + 1,
-
-      timestamp:
-        `2026-05-${(i % 28) + 1} 14:${(i % 60)
-          .toString()
-          .padStart(2, "0")}`,
-
-      user: [
-        "kanika",
-        "vedant",
-        "alex",
-        "sarah",
-      ][i % 4],
-
-      inputs:
-        `Gold NP / ${
-          10 + (i % 90)
-        }nm`,
-
-      output:
-        i % 2 === 0
-          ? "Toxic"
-          : "Safe",
-
-      verdict:
-        i % 2 === 0
-          ? "Toxic"
-          : "Safe",
-
-      confidence:
-        70 + (i % 30),
-
-      latency:
-        80 + (i % 120),
-    })
-  );
-
 export default function PredictionsPage() {
 
-  const {
-    theme,
-  } = useTheme();
+  const { theme } = useTheme();
 
   const dark =
     theme === "dark";
@@ -96,10 +44,11 @@ export default function PredictionsPage() {
   const searchParams =
     useSearchParams();
 
-  const [selectedLog, setSelectedLog] =
-    useState<Log | null>(
-      null
-    );
+  const [loading, setLoading] =
+    useState(true);
+
+  const [predictions, setPredictions] =
+    useState<any[]>([]);
 
   const search =
     searchParams.get(
@@ -110,6 +59,54 @@ export default function PredictionsPage() {
     searchParams.get(
       "verdict"
     ) || "all";
+
+  useEffect(() => {
+
+    fetchPredictions();
+
+  }, []);
+
+  async function fetchPredictions() {
+
+    try {
+
+      setLoading(true);
+
+      const data =
+        await getAdminPredictions();
+
+      console.log(
+        "PREDICTIONS:",
+        data
+      );
+
+      console.log(
+        "FIRST PREDICTION:",
+        data?.predictions?.[0]
+      );
+
+      setPredictions(
+        Array.isArray(
+          data?.predictions
+        )
+          ? data.predictions
+          : Array.isArray(data)
+          ? data
+          : []
+      );
+
+    } catch (error) {
+
+      console.error(
+        "PREDICTIONS ERROR:",
+        error
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
+  }
 
   function updateQuery(
     key: string,
@@ -144,11 +141,14 @@ export default function PredictionsPage() {
   const filteredData =
     useMemo(() => {
 
-      return logsData.filter(
-        (log) => {
+      return predictions.filter(
+        (log: any) => {
 
           const matchesSearch =
-            log.user
+            (
+              log.nanoparticle_name ||
+              ""
+            )
               .toLowerCase()
               .includes(
                 search.toLowerCase()
@@ -157,8 +157,10 @@ export default function PredictionsPage() {
           const matchesVerdict =
             verdict ===
               "all" ||
-            log.verdict ===
-              verdict;
+            (
+              log.toxicity_label ||
+              ""
+            ) === verdict;
 
           return (
             matchesSearch &&
@@ -168,6 +170,7 @@ export default function PredictionsPage() {
       );
 
     }, [
+      predictions,
       search,
       verdict,
     ]);
@@ -234,28 +237,57 @@ export default function PredictionsPage() {
     a.click();
   }
 
+  const toxicCount =
+    predictions.filter(
+      (p: any) =>
+        p.toxicity_label ===
+        "Toxic"
+    ).length;
+
+  const avgConfidence =
+    predictions.length > 0
+      ? Math.round(
+          (
+            predictions.reduce(
+              (
+                acc: number,
+                curr: any
+              ) =>
+                acc +
+                Number(
+                  curr.confidence ||
+                    0
+                ),
+              0
+            ) /
+            predictions.length
+          ) * 100
+        )
+      : 0;
+
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-x-hidden">
 
       {/* HERO */}
-      <div className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+
+      <div className={`rounded-3xl border p-4 md:p-6 xl:p-8 shadow-sm overflow-hidden ${
         dark
           ? "border-white/10 bg-[#0F172A]"
           : "border-slate-200 bg-white"
       }`}>
 
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
 
-          <div>
+          <div className="min-w-0">
 
-            <div className="mb-4 inline-flex rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
+            <div className="mb-4 inline-flex max-w-full rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
 
               AI Monitoring Active
 
             </div>
 
-            <h1 className={`text-5xl font-black tracking-tight ${
+            <h1 className={`text-3xl md:text-5xl font-black tracking-tight break-words ${
               dark
                 ? "text-white"
                 : "text-slate-900"
@@ -265,7 +297,7 @@ export default function PredictionsPage() {
 
             </h1>
 
-            <p className={`mt-4 max-w-3xl text-lg ${
+            <p className={`mt-4 max-w-3xl text-base md:text-lg leading-relaxed ${
               dark
                 ? "text-slate-400"
                 : "text-slate-500"
@@ -283,10 +315,10 @@ export default function PredictionsPage() {
             onClick={
               exportCSV
             }
-            className="flex items-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 font-semibold text-white transition hover:bg-cyan-600"
+            className="flex w-full sm:w-fit shrink-0 items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 font-semibold text-white hover:bg-cyan-600"
           >
 
-            <Download className="h-5 w-5" />
+            <Download className="h-5 w-5 shrink-0" />
 
             Export CSV
 
@@ -297,16 +329,18 @@ export default function PredictionsPage() {
       </div>
 
       {/* METRICS */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
 
         {[
           {
             icon: Activity,
             title: "Total Predictions",
-            value: "124K",
+            value:
+              predictions.length,
             bg: "bg-cyan-50",
             iconColor: "text-cyan-500",
-            badge: "+18%",
+            badge: "Live",
             badgeBg:
               "bg-green-100 text-green-700",
           },
@@ -314,10 +348,11 @@ export default function PredictionsPage() {
           {
             icon: AlertTriangle,
             title: "Toxic Verdicts",
-            value: "38%",
+            value:
+              toxicCount,
             bg: "bg-red-50",
             iconColor: "text-red-500",
-            badge: "High",
+            badge: "AI",
             badgeBg:
               "bg-red-100 text-red-700",
           },
@@ -325,23 +360,13 @@ export default function PredictionsPage() {
           {
             icon: ShieldCheck,
             title: "Avg Confidence",
-            value: "97.8%",
+            value:
+              `${avgConfidence}%`,
             bg: "bg-emerald-50",
             iconColor: "text-emerald-500",
             badge: "Stable",
             badgeBg:
               "bg-emerald-100 text-emerald-700",
-          },
-
-          {
-            icon: Zap,
-            title: "Avg Latency",
-            value: "124ms",
-            bg: "bg-yellow-50",
-            iconColor: "text-yellow-500",
-            badge: "Fast",
-            badgeBg:
-              "bg-yellow-100 text-yellow-700",
           },
         ].map(
           (
@@ -356,14 +381,14 @@ export default function PredictionsPage() {
 
               <div
                 key={i}
-                className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+                className={`rounded-3xl border p-4 md:p-6 shadow-sm overflow-hidden ${
                   dark
                     ? "border-white/10 bg-[#0F172A]"
                     : "border-slate-200 bg-white"
                 }`}
               >
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-4">
 
                   <div className={`rounded-2xl p-4 ${item.bg}`}>
 
@@ -371,7 +396,7 @@ export default function PredictionsPage() {
 
                   </div>
 
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${item.badgeBg}`}>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${item.badgeBg}`}>
 
                     {item.badge}
 
@@ -389,7 +414,7 @@ export default function PredictionsPage() {
 
                 </p>
 
-                <h2 className={`mt-2 text-4xl font-black ${
+                <h2 className={`mt-2 text-3xl md:text-4xl font-black break-words ${
                   dark
                     ? "text-white"
                     : "text-slate-900"
@@ -407,25 +432,25 @@ export default function PredictionsPage() {
       </div>
 
       {/* FILTERS */}
-      <div className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+
+      <div className={`rounded-3xl border p-4 md:p-6 shadow-sm overflow-hidden ${
         dark
           ? "border-white/10 bg-[#0F172A]"
           : "border-slate-200 bg-white"
       }`}>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-          {/* SEARCH */}
           <div className={`flex items-center gap-3 rounded-2xl border px-4 ${
             dark
               ? "border-white/10 bg-white/5"
               : "border-slate-200 bg-slate-50"
           }`}>
 
-            <Search className="h-5 w-5 text-slate-400" />
+            <Search className="h-5 w-5 shrink-0 text-slate-400" />
 
             <input
-              placeholder="Search by user..."
+              placeholder="Search nanoparticle..."
               value={search}
               onChange={(e) =>
                 updateQuery(
@@ -433,7 +458,7 @@ export default function PredictionsPage() {
                   e.target.value
                 )
               }
-              className={`h-14 w-full bg-transparent outline-none ${
+              className={`h-14 w-full min-w-0 bg-transparent outline-none ${
                 dark
                   ? "text-white placeholder:text-slate-500"
                   : "text-slate-900 placeholder:text-slate-400"
@@ -442,7 +467,6 @@ export default function PredictionsPage() {
 
           </div>
 
-          {/* SELECT */}
           <select
             value={verdict}
             onChange={(e) =>
@@ -451,7 +475,7 @@ export default function PredictionsPage() {
                 e.target.value
               )
             }
-            className={`h-14 rounded-2xl border px-4 outline-none ${
+            className={`h-14 w-full rounded-2xl border px-4 ${
               dark
                 ? "border-white/10 bg-white/5 text-white"
                 : "border-slate-200 bg-slate-50 text-slate-900"
@@ -459,21 +483,15 @@ export default function PredictionsPage() {
           >
 
             <option value="all">
-
               All Verdicts
-
             </option>
 
             <option value="Safe">
-
               Safe
-
             </option>
 
             <option value="Toxic">
-
               Toxic
-
             </option>
 
           </select>
@@ -483,7 +501,8 @@ export default function PredictionsPage() {
       </div>
 
       {/* TABLE */}
-      <div className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+
+      <div className={`rounded-3xl border p-4 md:p-6 shadow-sm overflow-hidden ${
         dark
           ? "border-white/10 bg-[#0F172A]"
           : "border-slate-200 bg-white"
@@ -491,7 +510,7 @@ export default function PredictionsPage() {
 
         <div className="overflow-x-auto">
 
-          <table className="w-full">
+          <table className="w-full min-w-[900px]">
 
             <thead>
 
@@ -503,16 +522,18 @@ export default function PredictionsPage() {
 
                 {[
                   "Timestamp",
-                  "User",
                   "Nanoparticle",
+                  "Cell Type",
                   "Verdict",
                   "Confidence",
-                  "Latency",
+                  "Dose",
+                  "Exposure",
+                  "Risk Level",
                 ].map((header) => (
 
                   <th
                     key={header}
-                    className={`px-4 py-4 text-left text-sm font-bold ${
+                    className={`px-4 py-4 text-left text-sm font-bold whitespace-nowrap ${
                       dark
                         ? "text-slate-400"
                         : "text-slate-500"
@@ -531,84 +552,62 @@ export default function PredictionsPage() {
             <tbody>
 
               {paginatedData.map(
-                (log) => (
+                (
+                  log: any,
+                  i
+                ) => (
 
                   <tr
-                    key={log.id}
-                    onClick={() =>
-                      setSelectedLog(
-                        log
-                      )
+                    key={
+                      log.prediction_id || i
                     }
-                    className={`cursor-pointer border-b transition ${
+                    className={`border-b ${
                       dark
                         ? "border-white/5 hover:bg-white/5"
                         : "border-slate-100 hover:bg-slate-50"
                     }`}
                   >
 
-                    <td className={`px-4 py-5 ${
-                      dark
-                        ? "text-slate-300"
-                        : "text-slate-600"
-                    }`}>
-
-                      {log.timestamp}
-
+                    <td className="px-4 py-5 whitespace-nowrap">
+                      {log.created_at}
                     </td>
 
-                    <td className={`px-4 py-5 font-semibold ${
-                      dark
-                        ? "text-white"
-                        : "text-slate-900"
-                    }`}>
-
-                      {log.user}
-
+                    <td className="px-4 py-5 font-semibold whitespace-nowrap">
+                      {log.nanoparticle_name}
                     </td>
 
-                    <td className={`px-4 py-5 ${
-                      dark
-                        ? "text-slate-300"
-                        : "text-slate-600"
-                    }`}>
-
-                      {log.inputs}
-
+                    <td className="px-4 py-5 whitespace-nowrap">
+                      {log.cell_type}
                     </td>
 
-                    <td className="px-4 py-5">
+                    <td className="px-4 py-5 whitespace-nowrap">
 
                       <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        log.verdict === "Toxic"
+                        log.toxicity_label === "Toxic"
                           ? "bg-red-100 text-red-700"
                           : "bg-emerald-100 text-emerald-700"
                       }`}>
 
-                        {log.verdict}
+                        {log.toxicity_label}
 
                       </span>
 
                     </td>
 
-                    <td className={`px-4 py-5 ${
-                      dark
-                        ? "text-slate-300"
-                        : "text-slate-600"
-                    }`}>
-
-                      {log.confidence}%
-
+                    <td className="px-4 py-5 whitespace-nowrap">
+                      {(log.confidence * 100).toFixed(1)}%
                     </td>
 
-                    <td className={`px-4 py-5 ${
-                      dark
-                        ? "text-slate-300"
-                        : "text-slate-600"
-                    }`}>
+                    <td className="px-4 py-5 whitespace-nowrap">
+                      {log.dose_max_ugml} ug/ml
+                    </td>
 
-                      {log.latency}ms
+                    <td className="px-4 py-5 whitespace-nowrap">
+                      {log.exposure_time_h} h
+                    </td>
 
+                    <td className="px-4 py-5 whitespace-nowrap">
+                      {log.risk_level}
                     </td>
 
                   </tr>
@@ -618,72 +617,6 @@ export default function PredictionsPage() {
             </tbody>
 
           </table>
-
-        </div>
-
-        {/* PAGINATION */}
-        <div className="mt-8 flex items-center justify-between">
-
-          <button
-            disabled={
-              currentPage === 1
-            }
-            onClick={() =>
-              updateQuery(
-                "page",
-                String(
-                  currentPage - 1
-                )
-              )
-            }
-            className={`flex items-center gap-2 rounded-2xl border px-5 py-3 font-semibold transition disabled:opacity-40 ${
-              dark
-                ? "border-white/10 text-white hover:bg-white/5"
-                : "border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-
-            <ChevronLeft className="h-5 w-5" />
-
-            Previous
-
-          </button>
-
-          <p className={`text-sm ${
-            dark
-              ? "text-slate-400"
-              : "text-slate-500"
-          }`}>
-
-            Page {currentPage} of {totalPages}
-
-          </p>
-
-          <button
-            disabled={
-              currentPage ===
-              totalPages
-            }
-            onClick={() =>
-              updateQuery(
-                "page",
-                String(
-                  currentPage + 1
-                )
-              )
-            }
-            className={`flex items-center gap-2 rounded-2xl border px-5 py-3 font-semibold transition disabled:opacity-40 ${
-              dark
-                ? "border-white/10 text-white hover:bg-white/5"
-                : "border-slate-200 text-slate-700 hover:bg-slate-50"
-            }`}
-          >
-
-            Next
-
-            <ChevronRight className="h-5 w-5" />
-
-          </button>
 
         </div>
 

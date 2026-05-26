@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const billingApi = axios.create({
+const accountApi = axios.create({
   baseURL:
     `${process.env.NEXT_PUBLIC_API_URL}/api/v1`,
 });
 
-billingApi.interceptors.request.use(
+accountApi.interceptors.request.use(
   (config) => {
 
     if (
@@ -16,6 +16,11 @@ billingApi.interceptors.request.use(
         localStorage.getItem(
           "nanotoxi_token"
         );
+
+      console.log(
+        "ACCOUNT TOKEN:",
+        token
+      );
 
       if (token) {
 
@@ -28,48 +33,46 @@ billingApi.interceptors.request.use(
   }
 );
 
-export const getBilling =
+export const getAccountOverview =
   async () => {
 
     const res =
-      await billingApi.get(
-        "/billing"
+      await accountApi.get(
+        "/account/overview"
       );
 
     return res.data;
   };
 
-export const createCheckout =
-  async (planId: string) => {
+export const getApiKeys =
+  async () => {
 
     const res =
-      await billingApi.post(
-        "/stripe/checkout",
-        {
-          plan_id: planId,
-        }
+      await accountApi.get(
+        "/account/api-keys"
       );
 
     return res.data;
   };
 
-export const cancelSubscription =
-  async () => {
+export const createApiKey =
+  async (name: string) => {
 
     const res =
-      await billingApi.post(
-        "/billing/cancel"
+      await accountApi.post(
+        "/account/api-keys",
+        { name }
       );
 
     return res.data;
   };
 
-export const resumeSubscription =
-  async () => {
+export const deleteApiKey =
+  async (id: string) => {
 
     const res =
-      await billingApi.post(
-        "/billing/resume"
+      await accountApi.delete(
+        `/account/api-keys/${id}`
       );
 
     return res.data;

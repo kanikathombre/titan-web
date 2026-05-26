@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import regimeData from "@/data/regime-comparison.json";
 import shapData from "@/data/shap-data.json";
 import confusionData from "@/data/confusion-matrix.json";
@@ -28,6 +30,56 @@ import {
   useTheme,
 } from "@/context/theme-context";
 
+import {
+  getModels,
+} from "@/lib/admin-api";
+
+interface Model {
+  id?: string;
+
+  name?: string;
+
+  model_name?: string;
+
+  version?: string;
+
+  status?: string;
+
+  accuracy?: number;
+
+  latency?: number;
+
+  inference_rate?: number;
+
+  description?: string;
+
+  algorithm?: string;
+
+  loaded?: boolean;
+
+  threshold?: number;
+
+  n_features?: number;
+
+  top_features?: string[];
+
+  required_inputs?: string[];
+
+  metrics?: {
+    accuracy?: number;
+    precision?: number;
+    recall?: number;
+    f1_score?: number;
+    roc_auc?: number;
+  };
+
+  training?: {
+    train_samples?: number;
+    test_samples?: number;
+    training_dataset?: string;
+  };
+}
+
 export default function ModelPage() {
 
   const {
@@ -37,20 +89,157 @@ export default function ModelPage() {
   const dark =
     theme === "dark";
 
+  const [models, setModels] =
+    useState<Model[]>([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+
+    fetchModels();
+
+  }, []);
+
+  const fetchModels =
+    async () => {
+
+      try {
+
+        const data =
+          await getModels();
+
+        console.log(
+          "MODELS:",
+          data
+        );
+
+        const modelList =
+          data?.models ||
+          data?.data ||
+          data ||
+          [];
+
+        setModels(modelList);
+
+      } catch (error) {
+
+        console.error(
+          "MODELS ERROR:",
+          error
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  const totalModels =
+    models.length;
+
+  const avgAccuracy =
+    totalModels > 0
+      ? (
+          models.reduce(
+            (acc, model) =>
+              acc +
+              Number(
+                model.metrics?.accuracy
+                  ? model.metrics.accuracy * 100
+                  : model.accuracy || 0
+              ),
+            0
+          ) / totalModels
+        ).toFixed(1)
+      : "0";
+
+  const avgLatency =
+    totalModels > 0
+      ? (
+          models.reduce(
+            (acc, model) =>
+              acc +
+              Number(
+                model.latency || 0
+              ),
+            0
+          ) / totalModels
+        ).toFixed(0)
+      : "0";
+
+  const totalInference =
+    models.reduce(
+      (acc, model) =>
+        acc +
+        Number(
+          model.inference_rate || 0
+        ),
+      0
+    );
+
+  const chartData =
+    models.length > 0
+      ? models.map(
+          (
+            model,
+            index
+          ) => ({
+            name:
+              model.name ||
+              model.model_name ||
+              `Model ${index + 1}`,
+
+            accuracy:
+              Number(
+                (
+                  model.metrics?.accuracy ||
+                  0
+                ) * 100
+              ),
+
+            precision:
+              Number(
+                (
+                  model.metrics?.precision ||
+                  0
+                ) * 100
+              ),
+
+            recall:
+              Number(
+                (
+                  model.metrics?.recall ||
+                  0
+                ) * 100
+              ),
+
+            f1:
+              Number(
+                (
+                  model.metrics?.f1_score ||
+                  0
+                ) * 100
+              ),
+          })
+        )
+      : [];
+
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-x-hidden">
 
       {/* HERO */}
+
       <div
-        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+        className={`rounded-3xl border p-6 md:p-8 shadow-sm ${
           dark
             ? "border-white/10 bg-[#0F172A]"
             : "border-slate-200 bg-white"
         }`}
       >
 
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
 
           <div>
 
@@ -61,7 +250,7 @@ export default function ModelPage() {
             </div>
 
             <h1
-              className={`text-5xl font-black tracking-tight ${
+              className={`text-4xl md:text-5xl font-black tracking-tight ${
                 dark
                   ? "text-white"
                   : "text-slate-900"
@@ -81,8 +270,9 @@ export default function ModelPage() {
             >
 
               Evaluate AI model performance,
-              feature attribution, classification
-              accuracy, and inference reliability
+              feature attribution,
+              classification accuracy,
+              and inference reliability
               across toxicity prediction systems.
 
             </p>
@@ -105,12 +295,14 @@ export default function ModelPage() {
 
       </div>
 
-      {/* METRICS */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      {/* METRIC CARDS */}
 
-        {/* CARD */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+
+        {/* ACCURACY */}
+
         <div
-          className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+          className={`rounded-3xl border p-6 shadow-sm ${
             dark
               ? "border-white/10 bg-[#0F172A]"
               : "border-slate-200 bg-white"
@@ -159,15 +351,16 @@ export default function ModelPage() {
             }`}
           >
 
-            98.4%
+            {avgAccuracy}%
 
           </h2>
 
         </div>
 
-        {/* CARD */}
+        {/* MODELS */}
+
         <div
-          className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+          className={`rounded-3xl border p-6 shadow-sm ${
             dark
               ? "border-white/10 bg-[#0F172A]"
               : "border-slate-200 bg-white"
@@ -216,15 +409,16 @@ export default function ModelPage() {
             }`}
           >
 
-            24
+            {totalModels}
 
           </h2>
 
         </div>
 
-        {/* CARD */}
+        {/* LATENCY */}
+
         <div
-          className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+          className={`rounded-3xl border p-6 shadow-sm ${
             dark
               ? "border-white/10 bg-[#0F172A]"
               : "border-slate-200 bg-white"
@@ -273,15 +467,16 @@ export default function ModelPage() {
             }`}
           >
 
-            124ms
+            {avgLatency}ms
 
           </h2>
 
         </div>
 
-        {/* CARD */}
+        {/* INFERENCE */}
+
         <div
-          className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+          className={`rounded-3xl border p-6 shadow-sm ${
             dark
               ? "border-white/10 bg-[#0F172A]"
               : "border-slate-200 bg-white"
@@ -330,7 +525,7 @@ export default function ModelPage() {
             }`}
           >
 
-            8.2K/min
+            {totalInference}
 
           </h2>
 
@@ -338,33 +533,28 @@ export default function ModelPage() {
 
       </div>
 
-      {/* PERFORMANCE GRAPH */}
+      {/* MODEL PERFORMANCE TREND */}
+
       <div
-        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+        className={`rounded-3xl border p-6 md:p-8 shadow-sm ${
           dark
             ? "border-white/10 bg-[#0F172A]"
             : "border-slate-200 bg-white"
         }`}
       >
 
-        <div className="flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
 
           <div>
 
-            <h2
-              className={`text-3xl font-black ${
-                dark
-                  ? "text-white"
-                  : "text-slate-900"
-              }`}
-            >
+            <h2 className="text-3xl font-black">
 
               Model Performance Trend
 
             </h2>
 
             <p
-              className={`mt-1 ${
+              className={`mt-2 text-lg ${
                 dark
                   ? "text-slate-400"
                   : "text-slate-500"
@@ -377,149 +567,153 @@ export default function ModelPage() {
 
           </div>
 
-          <div className="rounded-full bg-cyan-50 px-4 py-2 text-sm font-semibold text-cyan-700">
+          <span className="rounded-full bg-cyan-40 px-3 py-3 text-lg font-semibold text-cyan-700">
 
             Live Monitoring
 
-          </div>
+          </span>
 
         </div>
 
         <div
-          className={`mt-10 h-[380px] rounded-3xl p-6 ${
-            dark
-              ? "bg-[#020817]"
-              : "bg-slate-50"
-          }`}
-        >
+  className={`h-[450px] rounded-[2rem] p-6 ${
+    dark
+      ? "bg-[#020817]"
+      : "bg-[#F8FAFC]"
+  }`}
+>
 
-          <ResponsiveContainer
-            width="100%"
-            height="100%"
-          >
+  <ResponsiveContainer
+    width="100%"
+    height="100%"
+  >
 
-            <AreaChart
-              data={[
-                {
-                  week: "W1",
-                  accuracy: 88,
-                },
-                {
-                  week: "W2",
-                  accuracy: 91,
-                },
-                {
-                  week: "W3",
-                  accuracy: 90,
-                },
-                {
-                  week: "W4",
-                  accuracy: 94,
-                },
-                {
-                  week: "W5",
-                  accuracy: 93,
-                },
-                {
-                  week: "W6",
-                  accuracy: 97,
-                },
-                {
-                  week: "W7",
-                  accuracy: 98,
-                },
-              ]}
-            >
+    <AreaChart
+      data={chartData}
+    >
 
-              <defs>
+      {/* GRADIENT */}
 
-                <linearGradient
-                  id="colorAccuracy"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+      <defs>
 
-                  <stop
-                    offset="5%"
-                    stopColor="#06B6D4"
-                    stopOpacity={0.4}
-                  />
+  <linearGradient
+    id="modelGradient"
+    x1="0"
+    y1="0"
+    x2="0"
+    y2="1"
+  >
 
-                  <stop
-                    offset="95%"
-                    stopColor="#06B6D4"
-                    stopOpacity={0}
-                  />
+    <stop
+      offset="0%"
+      stopColor="#22D3EE"
+      stopOpacity={0.9}
+    />
 
-                </linearGradient>
+    <stop
+      offset="45%"
+      stopColor="#1FB6D9"
+      stopOpacity={0.45}
+    />
 
-              </defs>
+    <stop
+      offset="100%"
+      stopColor={
+        dark
+          ? "#020817"
+          : "#F8FAFC"
+      }
+      stopOpacity={0.05}
+    />
 
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke={dark ? "#1E293B" : "#E2E8F0"}
-              />
+  </linearGradient>
 
-              <XAxis
-                dataKey="week"
-                stroke={dark ? "#64748B" : "#94A3B8"}
-              />
+</defs>
 
-              <YAxis
-                stroke={dark ? "#64748B" : "#94A3B8"}
-              />
+      <CartesianGrid
+  strokeDasharray="3 3"
+  stroke={
+    dark
+      ? "#1E293B"
+      : "#CBD5E1"
+  }
+/>
 
-              <Tooltip />
+      <XAxis
+        dataKey="name"
+        stroke={
+          dark
+            ? "#64748B"
+            : "#94A3B8"
+        }
+      />
 
-              <Area
-                type="monotone"
-                dataKey="accuracy"
-                stroke="#06B6D4"
-                strokeWidth={4}
-                fillOpacity={1}
-                fill="url(#colorAccuracy)"
-              />
+      <YAxis
+        stroke={
+          dark
+            ? "#64748B"
+            : "#94A3B8"
+        }
+        domain={[0, 100]}
+      />
 
-            </AreaChart>
+      <Tooltip
+        contentStyle={{
+          backgroundColor: "#0F172A",
+          border: "1px solid #1E293B",
+          borderRadius: "14px",
+          color: "#fff",
+        }}
+      />
 
-          </ResponsiveContainer>
+      <Area
+        type="monotone"
+        dataKey="accuracy"
+        stroke="#22D3EE"
+        strokeWidth={3}
+        fill="url(#modelGradient)"
+        fillOpacity={1}
+        activeDot={{
+          r: 6,
+          stroke: "#FFFFFF",
+          strokeWidth: 2,
+          fill: "#22D3EE",
+        }}
+      />
 
-        </div>
+    </AreaChart>
 
+  </ResponsiveContainer>
+
+</div>
       </div>
 
-      {/* REGIME TABLE + REPORTS */}
-      <div className="grid gap-6 xl:grid-cols-3">
+      {/* REGIME + MODEL CARDS */}
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
         {/* TABLE */}
+
         <div
-          className={`rounded-3xl border p-8 shadow-sm xl:col-span-2 transition-all duration-300 ${
+          className={`xl:col-span-2 rounded-3xl border p-6 md:p-8 shadow-sm ${
             dark
               ? "border-white/10 bg-[#0F172A]"
               : "border-slate-200 bg-white"
           }`}
         >
 
-          <div className="flex items-center justify-between">
+          <div className="mb-8 flex items-center justify-between">
 
             <div>
 
-              <h2
-                className={`text-3xl font-black ${
-                  dark
-                    ? "text-white"
-                    : "text-slate-900"
-                }`}
-              >
+              <h2 className="text-3xl font-black">
 
                 Regime Comparison
 
               </h2>
 
               <p
-                className={`mt-1 ${
+                className={`mt-2 text-lg ${
                   dark
                     ? "text-slate-400"
                     : "text-slate-500"
@@ -532,135 +726,114 @@ export default function ModelPage() {
 
             </div>
 
-            <div className="rounded-full bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700">
+            <span className="rounded-full bg-violet-50 px-5 py-3 text-lg font-semibold text-violet-700">
 
               AI Evaluation
 
-            </div>
+            </span>
 
           </div>
 
-          <div className="mt-8 overflow-x-auto">
+          <div className="overflow-x-auto">
 
             <table className="w-full">
 
               <thead>
 
-                <tr
-                  className={`border-b ${
-                    dark
-                      ? "border-white/10"
-                      : "border-slate-200"
-                  }`}
-                >
+  <tr
+    className={`border-b ${
+      dark
+        ? "border-white/10"
+        : "border-slate-100"
+    }`}
+  >
 
-                  <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
+    <th className="py-4 pr-16 text-left text-lg whitespace-nowrap">
 
-                    Regime
+      Regime
 
-                  </th>
+    </th>
 
-                  <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
+    <th className="py-4 px-8 text-center text-lg whitespace-nowrap">
 
-                    Accuracy
+      Accuracy
 
-                  </th>
+    </th>
 
-                  <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
+    <th className="py-4 px-8 text-center text-lg whitespace-nowrap">
 
-                    Precision
+      Precision
 
-                  </th>
+    </th>
 
-                  <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
+    <th className="py-4 px-8 text-center text-lg whitespace-nowrap">
 
-                    Recall
+      Recall
 
-                  </th>
+    </th>
 
-                  <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
+    <th className="py-4 px-8 text-center text-lg whitespace-nowrap">
 
-                    F1
+      F1
 
-                  </th>
+    </th>
 
-                </tr>
+  </tr>
 
-              </thead>
+</thead>
 
               <tbody>
 
-                {regimeData.map(
-                  (item) => (
+                {chartData.map(
+                  (
+                    regime,
+                    index
+                  ) => (
 
                     <tr
-                      key={item.regime}
-                      className={`border-b transition ${
-                        dark
-                          ? "border-white/5 hover:bg-white/5"
-                          : "border-slate-100 hover:bg-slate-50"
-                      }`}
-                    >
+  key={index}
+  className={`border-b ${
+    dark
+      ? "border-white/5"
+      : "border-slate-100"
+  }`}
+>
 
-                      <td
-                        className={`px-4 py-5 font-semibold ${
-                          dark
-                            ? "text-white"
-                            : "text-slate-900"
-                        }`}
-                      >
+  <td className="py-8 pr-16 text-lg font-bold whitespace-nowrap">
 
-                        {item.regime}
+    {regime.name}
 
-                      </td>
+  </td>
 
-                      <td
-                        className={`px-4 py-5 ${
-                          dark
-                            ? "text-slate-300"
-                            : "text-slate-600"
-                        }`}
-                      >
+  <td className="py-8 px-8 text-center text-lg whitespace-nowrap">
 
-                        {item.accuracy}%
+    {regime.accuracy.toFixed(1)}%
 
-                      </td>
+  </td>
 
-                      <td
-                        className={`px-4 py-5 ${
-                          dark
-                            ? "text-slate-300"
-                            : "text-slate-600"
-                        }`}
-                      >
+  <td className="py-8 px-8 text-center text-lg whitespace-nowrap">
 
-                        {item.precision}%
+    {regime.precision.toFixed(1)}%
 
-                      </td>
+  </td>
 
-                      <td
-                        className={`px-4 py-5 ${
-                          dark
-                            ? "text-slate-300"
-                            : "text-slate-600"
-                        }`}
-                      >
+  <td className="py-8 px-8 text-center text-lg whitespace-nowrap">
 
-                        {item.recall}%
+    {regime.recall.toFixed(1)}%
 
-                      </td>
+  </td>
 
-                      <td className="px-4 py-5">
+  <td className="py-8 px-8 text-center whitespace-nowrap">
 
-                        <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-bold text-cyan-700">
+    <span className="rounded-full bg-cyan-100 px-4 py-2 text-sm font-bold text-cyan-700">
 
-                          {item.f1}%
+      {regime.f1.toFixed(1)}%
 
-                        </span>
+    </span>
 
-                      </td>
+  </td>
 
-                    </tr>
+</tr>
                   )
                 )}
 
@@ -672,15 +845,19 @@ export default function ModelPage() {
 
         </div>
 
-        {/* REPORTS */}
+        {/* MODEL CARDS */}
+
         <div className="space-y-6">
 
-          {regimeData.map(
-            (item) => (
+          {models.map(
+            (
+              model,
+              index
+            ) => (
 
               <div
-                key={item.regime}
-                className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 ${
+                key={index}
+                className={`rounded-3xl border p-6 shadow-sm ${
                   dark
                     ? "border-white/10 bg-[#0F172A]"
                     : "border-slate-200 bg-white"
@@ -689,64 +866,65 @@ export default function ModelPage() {
 
                 <div className="flex items-center justify-between">
 
-                  <h3
-                    className={`text-xl font-black ${
-                      dark
-                        ? "text-white"
-                        : "text-slate-900"
-                    }`}
-                  >
+                  <h3 className="text-2xl font-black">
 
-                    {item.regime}
+                    {model.name}
 
                   </h3>
 
-                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  <span
+                    className={`rounded-full px-4 py-2 text-sm font-bold ${
+                      model.loaded
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
 
-                    Stable
+                    {model.loaded
+                      ? "Stable"
+                      : "Offline"}
 
                   </span>
 
                 </div>
 
-                <div className="mt-6 space-y-4">
+                <div className="mt-8 space-y-6">
 
                   <div>
 
-                    <div className="mb-1 flex justify-between text-sm">
+                    <div className="mb-2 flex items-center justify-between">
 
-                      <span
-                        className={`${
-                          dark
-                            ? "text-slate-400"
-                            : "text-slate-500"
-                        }`}
-                      >
+                      <span className="text-lg">
 
                         Accuracy
 
                       </span>
 
-                      <span
-                        className={`font-semibold ${
-                          dark
-                            ? "text-white"
-                            : "text-slate-900"
-                        }`}
-                      >
+                      <span className="text-2xl font-black">
 
-                        {item.accuracy}%
+                        {(
+                          (
+                            model.metrics
+                              ?.accuracy || 0
+                          ) * 100
+                        ).toFixed(1)}
+                        %
 
                       </span>
 
                     </div>
 
-                    <div className="h-2 rounded-full bg-slate-100">
+                    <div className="h-3 rounded-full bg-white/10">
 
                       <div
-                        className="h-2 rounded-full bg-cyan-500"
+                        className="h-3 rounded-full bg-cyan-400"
                         style={{
-                          width: `${item.accuracy}%`,
+                          width: `${(
+                            (
+                              model.metrics
+                                ?.accuracy || 0
+                            ) * 100
+                          )}%`,
                         }}
                       />
 
@@ -756,40 +934,39 @@ export default function ModelPage() {
 
                   <div>
 
-                    <div className="mb-1 flex justify-between text-sm">
+                    <div className="mb-2 flex items-center justify-between">
 
-                      <span
-                        className={`${
-                          dark
-                            ? "text-slate-400"
-                            : "text-slate-500"
-                        }`}
-                      >
+                      <span className="text-lg">
 
                         Precision
 
                       </span>
 
-                      <span
-                        className={`font-semibold ${
-                          dark
-                            ? "text-white"
-                            : "text-slate-900"
-                        }`}
-                      >
+                      <span className="text-2xl font-black">
 
-                        {item.precision}%
+                        {(
+                          (
+                            model.metrics
+                              ?.precision || 0
+                          ) * 100
+                        ).toFixed(1)}
+                        %
 
                       </span>
 
                     </div>
 
-                    <div className="h-2 rounded-full bg-slate-100">
+                    <div className="h-3 rounded-full bg-white/10">
 
                       <div
-                        className="h-2 rounded-full bg-violet-500"
+                        className="h-3 rounded-full bg-violet-400"
                         style={{
-                          width: `${item.precision}%`,
+                          width: `${(
+                            (
+                              model.metrics
+                                ?.precision || 0
+                            ) * 100
+                          )}%`,
                         }}
                       />
 
@@ -802,268 +979,6 @@ export default function ModelPage() {
               </div>
             )
           )}
-
-        </div>
-
-      </div>
-
-      {/* SHAP + CONFUSION */}
-      <div className="grid gap-6 xl:grid-cols-2">
-
-        {/* SHAP */}
-        <div
-          className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
-            dark
-              ? "border-white/10 bg-[#0F172A]"
-              : "border-slate-200 bg-white"
-          }`}
-        >
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <h2
-                className={`text-3xl font-black ${
-                  dark
-                    ? "text-white"
-                    : "text-slate-900"
-                }`}
-              >
-
-                Feature Importance
-
-              </h2>
-
-              <p
-                className={`mt-1 ${
-                  dark
-                    ? "text-slate-400"
-                    : "text-slate-500"
-                }`}
-              >
-
-                SHAP explainability analytics
-
-              </p>
-
-            </div>
-
-            <div className="rounded-full bg-violet-50 px-4 py-2 text-sm font-semibold text-cyan-700">
-
-              SHAP AI
-
-            </div>
-
-          </div>
-
-          <div
-            className={`mt-8 h-[420px] rounded-3xl p-4 ${
-              dark
-                ? "bg-[#020817]"
-                : "bg-slate-50"
-            }`}
-          >
-
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-
-              <BarChart
-                data={shapData}
-                layout="vertical"
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={dark ? "#1E293B" : "#E2E8F0"}
-                />
-
-                <XAxis
-                  type="number"
-                  stroke={dark ? "#64748B" : "#94A3B8"}
-                />
-
-                <YAxis
-                  dataKey="feature"
-                  type="category"
-                  stroke={dark ? "#64748B" : "#94A3B8"}
-                />
-
-                <Tooltip />
-
-                <Bar
-                  dataKey="importance"
-                  fill="#67C3F3"
-                  radius={[0, 10, 10, 0]}
-                  barSize={10}
-                />
-
-              </BarChart>
-
-            </ResponsiveContainer>
-
-          </div>
-
-        </div>
-
-        {/* CONFUSION */}
-        <div
-          className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
-            dark
-              ? "border-white/10 bg-[#0F172A]"
-              : "border-slate-200 bg-white"
-          }`}
-        >
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <h2
-                className={`text-3xl font-black ${
-                  dark
-                    ? "text-white"
-                    : "text-slate-900"
-                }`}
-              >
-
-                Confusion Matrix
-
-              </h2>
-
-              <p
-                className={`mt-1 ${
-                  dark
-                    ? "text-slate-400"
-                    : "text-slate-500"
-                }`}
-              >
-
-                Classification evaluation metrics
-
-              </p>
-
-            </div>
-
-            <div className="rounded-full bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
-
-              Validation
-
-            </div>
-
-          </div>
-
-          <div className="mt-8 space-y-4">
-
-            {confusionData.map(
-              (item) => (
-
-                <div
-                  key={item.source}
-                  className={`rounded-2xl border p-5 ${
-                    dark
-                      ? "border-white/10 bg-[#020817]"
-                      : "border-slate-200 bg-slate-50"
-                  }`}
-                >
-
-                  <div className="mb-5 flex items-center justify-between">
-
-                    <h3
-                      className={`text-lg font-black ${
-                        dark
-                          ? "text-white"
-                          : "text-slate-900"
-                      }`}
-                    >
-
-                      {item.source}
-
-                    </h3>
-
-                    <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-bold text-cyan-700">
-
-                      Active
-
-                    </span>
-
-                  </div>
-
-                  <div className="grid grid-cols-4 gap-4">
-
-                    <div className="rounded-2xl bg-emerald-100 p-4 text-center">
-
-                      <p className="text-xs font-medium text-emerald-700">
-
-                        TP
-
-                      </p>
-
-                      <h4 className="mt-2 text-2xl font-black text-emerald-800">
-
-                        {item.tp}
-
-                      </h4>
-
-                    </div>
-
-                    <div className="rounded-2xl bg-cyan-100 p-4 text-center">
-
-                      <p className="text-xs font-medium text-cyan-700">
-
-                        TN
-
-                      </p>
-
-                      <h4 className="mt-2 text-2xl font-black text-cyan-800">
-
-                        {item.tn}
-
-                      </h4>
-
-                    </div>
-
-                    <div className="rounded-2xl bg-red-100 p-4 text-center">
-
-                      <p className="text-xs font-medium text-red-700">
-
-                        FP
-
-                      </p>
-
-                      <h4 className="mt-2 text-2xl font-black text-red-800">
-
-                        {item.fp}
-
-                      </h4>
-
-                    </div>
-
-                    <div className="rounded-2xl bg-yellow-100 p-4 text-center">
-
-                      <p className="text-xs font-medium text-yellow-700">
-
-                        FN
-
-                      </p>
-
-                      <h4 className="mt-2 text-2xl font-black text-yellow-800">
-
-                        {item.fn}
-
-                      </h4>
-
-                    </div>
-
-                  </div>
-
-                </div>
-              )
-            )}
-
-          </div>
 
         </div>
 

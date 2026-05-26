@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+
 import {
   ShieldCheck,
   Clock3,
-  User2,
   Activity,
   Search,
   CheckCircle2,
@@ -13,137 +14,206 @@ import {
   BrainCircuit,
 } from "lucide-react";
 
+import { useTheme } from "@/context/theme-context";
+
 import {
-  useTheme,
-} from "@/context/theme-context";
-
-const auditLogs = [
-  {
-    id: 1,
-    timestamp:
-      "2026-05-18 13:42:21",
-
-    actor:
-      "Kanika",
-
-    action:
-      "Updated Model Configuration",
-
-    target:
-      "NanoToxi-v2",
-
-    result:
-      "Success",
-
-    icon: BrainCircuit,
-  },
-
-  {
-    id: 2,
-    timestamp:
-      "2026-05-18 13:38:10",
-
-    actor:
-      "Vedant",
-
-    action:
-      "Dataset Sync Triggered",
-
-    target:
-      "Combined-V2",
-
-    result:
-      "Success",
-
-    icon: Database,
-  },
-
-  {
-    id: 3,
-    timestamp:
-      "2026-05-18 13:29:54",
-
-    actor:
-      "Titan AI",
-
-    action:
-      "Prediction API Restart",
-
-    target:
-      "Inference Engine",
-
-    result:
-      "Failed",
-
-    icon: Activity,
-  },
-
-  {
-    id: 4,
-    timestamp:
-      "2026-05-18 13:11:02",
-
-    actor:
-      "Admin",
-
-    action:
-      "Modified Security Policies",
-
-    target:
-      "Auth Service",
-
-    result:
-      "Success",
-
-    icon: ShieldCheck,
-  },
-
-  {
-    id: 5,
-    timestamp:
-      "2026-05-18 12:58:44",
-
-    actor:
-      "Kanika",
-
-    action:
-      "Updated Platform Settings",
-
-    target:
-      "System Config",
-
-    result:
-      "Success",
-
-    icon: Settings,
-  },
-];
+  getAuditTrails,
+} from "@/lib/admin-api";
 
 export default function AuditPage() {
 
-  const {
-    theme,
-  } = useTheme();
+  const { theme } =
+    useTheme();
 
   const dark =
     theme === "dark";
 
+  const [logs, setLogs] =
+    useState<any[]>([]);
+
+  const [summary, setSummary] =
+    useState<any>({});
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [search, setSearch] =
+    useState("");
+
+  useEffect(() => {
+
+    fetchAuditLogs();
+
+  }, []);
+
+  const fetchAuditLogs =
+    async () => {
+
+      try {
+
+        setLoading(true);
+
+        const res =
+          await getAuditTrails();
+
+        console.log(
+          "AUDIT TRAILS:",
+          res
+        );
+
+        let auditData: any[] = [];
+
+        if (
+          Array.isArray(res)
+        ) {
+
+          auditData = res;
+
+        } else if (
+          Array.isArray(
+            res?.logs
+          )
+        ) {
+
+          auditData =
+            res.logs;
+
+        } else if (
+          Array.isArray(
+            res?.audit_logs
+          )
+        ) {
+
+          auditData =
+            res.audit_logs;
+
+        } else if (
+          Array.isArray(
+            res?.data
+          )
+        ) {
+
+          auditData =
+            res.data;
+
+        } else if (
+          Array.isArray(
+            res?.items
+          )
+        ) {
+
+          auditData =
+            res.items;
+        }
+
+        setLogs(auditData);
+
+        setSummary(
+          res?.summary || {}
+        );
+
+      } catch (error) {
+
+        console.error(
+          "AUDIT TRAILS ERROR:",
+          error
+        );
+
+        setLogs([]);
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  const filteredLogs =
+    useMemo(() => {
+
+      return logs.filter(
+        (log: any) => {
+
+          const text =
+            `
+              ${log?.actor || ""}
+              ${log?.action || ""}
+              ${log?.target || ""}
+              ${log?.event || ""}
+              ${log?.status || ""}
+            `.toLowerCase();
+
+          return text.includes(
+            search.toLowerCase()
+          );
+        }
+      );
+
+    }, [logs, search]);
+
+  const successCount =
+    summary?.success_count || 0;
+
+  const failedCount =
+    summary?.failed_count || 0;
+
+  const totalEvents =
+    summary?.total_events ||
+    filteredLogs.length;
+
+  const getIcon =
+    (action: string) => {
+
+      const lower =
+        action?.toLowerCase() || "";
+
+      if (
+        lower.includes("model")
+      ) {
+        return BrainCircuit;
+      }
+
+      if (
+        lower.includes("dataset")
+      ) {
+        return Database;
+      }
+
+      if (
+        lower.includes("security")
+      ) {
+        return ShieldCheck;
+      }
+
+      if (
+        lower.includes("setting")
+      ) {
+        return Settings;
+      }
+
+      return Activity;
+    };
+
   return (
 
-    <div className={`min-h-screen p-8 transition-all duration-300 ${
-      dark
-        ? "bg-[#020817]"
-        : "bg-[#f4f7fb]"
-    }`}>
+    <div
+      className={`min-h-screen p-4 sm:p-6 lg:p-8 transition-all duration-300 ${
+        dark
+          ? "bg-[#020817]"
+          : "bg-[#f4f7fb]"
+      }`}
+    >
 
-      {/* HERO SECTION */}
+      {/* HERO */}
+
       <div
         className={`
           relative
           overflow-hidden
           rounded-[36px]
           border
-          p-10
+          p-6
+          sm:p-8
+          lg:p-10
           shadow-sm
           transition-all
           duration-300
@@ -155,12 +225,11 @@ export default function AuditPage() {
         `}
       >
 
-        {/* GLOWS */}
         <div className="absolute right-[-120px] top-[-120px] h-[320px] w-[320px] rounded-full bg-cyan-500/10 blur-[120px]" />
 
         <div className="absolute bottom-[-120px] left-[-120px] h-[260px] w-[260px] rounded-full bg-blue-500/10 blur-[120px]" />
 
-        <div className="relative z-10 flex items-center justify-between">
+        <div className="relative z-10 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
 
@@ -187,7 +256,7 @@ export default function AuditPage() {
             </div>
 
             <h1
-              className={`text-5xl font-black tracking-tight ${
+              className={`text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight ${
                 dark
                   ? "text-white"
                   : "text-[#0f172a]"
@@ -199,7 +268,7 @@ export default function AuditPage() {
             </h1>
 
             <p
-              className={`mt-5 max-w-3xl text-lg leading-relaxed ${
+              className={`mt-5 max-w-3xl text-base sm:text-lg leading-relaxed ${
                 dark
                   ? "text-slate-400"
                   : "text-slate-500"
@@ -207,15 +276,13 @@ export default function AuditPage() {
             >
 
               Track every administrative action,
-              model update, security event, and
-              platform configuration change across
-              the NanoToxi AI ecosystem.
+              model update, security event,
+              and platform configuration change.
 
             </p>
 
           </div>
 
-          {/* SECURITY ICON */}
           <div className="relative hidden lg:block">
 
             <div
@@ -233,7 +300,6 @@ export default function AuditPage() {
                     ? "bg-[#020817]"
                     : "bg-white"
                 }
-                shadow-2xl
               `}
             >
 
@@ -249,7 +315,6 @@ export default function AuditPage() {
                   from-cyan-400
                   to-blue-500
                   text-white
-                  shadow-lg
                 "
               >
 
@@ -259,15 +324,14 @@ export default function AuditPage() {
 
             </div>
 
-            <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-3xl" />
-
           </div>
 
         </div>
 
       </div>
 
-      {/* TOP CARDS */}
+      {/* STATS */}
+
       <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
 
         {[
@@ -275,7 +339,7 @@ export default function AuditPage() {
             title:
               "Total Events",
             value:
-              "12.4K",
+              totalEvents,
             icon:
               Activity,
             color:
@@ -288,9 +352,9 @@ export default function AuditPage() {
 
           {
             title:
-              "Security Alerts",
+              "Failed Events",
             value:
-              "8",
+              failedCount,
             icon:
               AlertTriangle,
             color:
@@ -303,24 +367,24 @@ export default function AuditPage() {
 
           {
             title:
-              "Active Admins",
+              "Successful Events",
             value:
-              "14",
+              successCount,
             icon:
-              User2,
+              CheckCircle2,
             color:
-              "from-purple-400 to-indigo-500",
+              "from-green-400 to-green-500",
             glow:
-              "bg-purple-500/10",
+              "bg-green-500/10",
             status:
-              "Active",
+              "Stable",
           },
 
           {
             title:
               "Daily Logs",
             value:
-              "3.2K",
+              filteredLogs.length,
             icon:
               Clock3,
             color:
@@ -377,7 +441,6 @@ export default function AuditPage() {
                         bg-gradient-to-br
                         ${item.color}
                         text-white
-                        shadow-lg
                       `}
                     >
 
@@ -426,7 +489,8 @@ export default function AuditPage() {
 
       </div>
 
-      {/* LOG TABLE */}
+      {/* TABLE */}
+
       <div
         className={`
           relative
@@ -446,7 +510,8 @@ export default function AuditPage() {
       >
 
         {/* HEADER */}
-        <div className={`flex flex-col gap-6 border-b p-8 lg:flex-row lg:items-center lg:justify-between ${
+
+        <div className={`flex flex-col gap-6 border-b p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between ${
           dark
             ? "border-white/10"
             : "border-slate-200"
@@ -470,13 +535,12 @@ export default function AuditPage() {
                 : "text-slate-500"
             }`}>
 
-              Real-time system audit and security event tracking.
+              Real-time audit monitoring.
 
             </p>
 
           </div>
 
-          {/* SEARCH */}
           <div
             className={`
               flex
@@ -498,8 +562,14 @@ export default function AuditPage() {
 
             <input
               type="text"
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
               placeholder="Search logs..."
-              className={`bg-transparent text-sm outline-none ${
+              className={`w-full bg-transparent text-sm outline-none ${
                 dark
                   ? "text-white placeholder:text-slate-500"
                   : "text-slate-900 placeholder:text-slate-400"
@@ -511,9 +581,10 @@ export default function AuditPage() {
         </div>
 
         {/* TABLE */}
+
         <div className="overflow-x-auto">
 
-          <table className="w-full min-w-[1000px]">
+          <table className="w-full min-w-[800px] lg:min-w-[1000px]">
 
             <thead className={`${
               dark
@@ -530,7 +601,6 @@ export default function AuditPage() {
                 {[
                   "Event",
                   "Actor",
-                  "Action",
                   "Target",
                   "Status",
                 ].map((header) => (
@@ -555,157 +625,224 @@ export default function AuditPage() {
 
             <tbody>
 
-              {auditLogs.map(
-                (
-                  log,
-                  index
-                ) => {
+              {loading ? (
 
-                  const Icon =
-                    log.icon;
+                <tr>
 
-                  return (
+                  <td
+                    colSpan={4}
+                    className="px-8 py-10 text-center text-slate-400"
+                  >
 
-                    <tr
-                      key={log.id}
-                      className={`
-                        border-b
-                        transition-all
-                        ${
+                    Loading audit logs...
+
+                  </td>
+
+                </tr>
+
+              ) : filteredLogs.length === 0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan={4}
+                    className="px-8 py-10 text-center text-slate-400"
+                  >
+
+                    No audit logs found
+
+                  </td>
+
+                </tr>
+
+              ) : (
+
+                filteredLogs.map(
+                  (
+                    log: any,
+                    index
+                  ) => {
+
+                    const action =
+                      log?.action ||
+                      log?.event ||
+                      "Unknown Event";
+
+                    const Icon =
+                      getIcon(action);
+
+                    const status =
+                      (
+                        log?.result ||
+                        log?.status ||
+                        "Unknown"
+                      ).toString();
+
+                    const success =
+                      status
+                        .toLowerCase()
+                        .includes("success") ||
+                      status
+                        .toLowerCase()
+                        .includes("ok") ||
+                      status
+                        .toLowerCase()
+                        .includes("completed");
+
+                    return (
+
+                      <tr
+                        key={
+                          log?.id ||
+                          index
+                        }
+                        className={`
+                          border-b
+                          transition-all
+                          ${
+                            dark
+                              ? "border-white/5 hover:bg-white/5"
+                              : "border-slate-100 hover:bg-slate-50"
+                          }
+                        `}
+                      >
+
+                        {/* EVENT */}
+
+                        <td className="px-8 py-6">
+
+                          <div className="flex items-center gap-4">
+
+                            <div
+                              className={`
+                                flex
+                                h-12
+                                w-12
+                                items-center
+                                justify-center
+                                rounded-2xl
+                                ${
+                                  success
+                                    ? "bg-cyan-500/10 text-cyan-500"
+                                    : "bg-red-500/10 text-red-500"
+                                }
+                              `}
+                            >
+
+                              <Icon className="h-6 w-6" />
+
+                            </div>
+
+                            <div>
+
+                              <p className={`font-semibold ${
+                                dark
+                                  ? "text-white"
+                                  : "text-[#0f172a]"
+                              }`}>
+
+                                {action}
+
+                              </p>
+
+                              <p className={`mt-1 text-sm ${
+                                dark
+                                  ? "text-slate-400"
+                                  : "text-slate-500"
+                              }`}>
+
+                                {
+                                  log?.timestamp
+                                    ? new Date(
+                                        log.timestamp
+                                      ).toLocaleString()
+
+                                    : log?.created_at
+                                    ? new Date(
+                                        log.created_at
+                                      ).toLocaleString()
+
+                                    : "N/A"
+                                }
+
+                              </p>
+
+                            </div>
+
+                          </div>
+
+                        </td>
+
+                        {/* ACTOR */}
+
+                        <td className={`px-8 py-6 font-semibold ${
                           dark
-                            ? "border-white/5 hover:bg-white/5"
-                            : "border-slate-100 hover:bg-slate-50"
-                        }
-                        ${
-                          index === auditLogs.length - 1
-                            ? "border-b-0"
-                            : ""
-                        }
-                      `}
-                    >
+                            ? "text-white"
+                            : "text-[#0f172a]"
+                        }`}>
 
-                      {/* EVENT */}
-                      <td className="px-8 py-6">
+                          {
+                            log?.actor ||
+                            log?.user ||
+                            "System"
+                          }
 
-                        <div className="flex items-center gap-4">
+                        </td>
+
+                        {/* TARGET */}
+
+                        <td className={`px-8 py-6 ${
+                          dark
+                            ? "text-slate-300"
+                            : "text-slate-600"
+                        }`}>
+
+                          {
+                            log?.target ||
+                            log?.resource ||
+                            "N/A"
+                          }
+
+                        </td>
+
+                        {/* STATUS */}
+
+                        <td className="px-8 py-6">
 
                           <div
                             className={`
-                              flex
-                              h-12
-                              w-12
+                              inline-flex
                               items-center
-                              justify-center
-                              rounded-2xl
+                              gap-2
+                              rounded-full
+                              px-4
+                              py-2
+                              text-sm
+                              font-semibold
                               ${
-                                log.result === "Success"
-                                  ? "bg-cyan-500/10 text-cyan-500"
+                                success
+                                  ? "bg-green-500/10 text-green-500"
                                   : "bg-red-500/10 text-red-500"
                               }
                             `}
                           >
 
-                            <Icon className="h-6 w-6" />
+                            {success ? (
+                              <CheckCircle2 className="h-4 w-4" />
+                            ) : (
+                              <AlertTriangle className="h-4 w-4" />
+                            )}
+
+                            {status}
 
                           </div>
 
-                          <div>
+                        </td>
 
-                            <p className={`font-semibold ${
-                              dark
-                                ? "text-white"
-                                : "text-[#0f172a]"
-                            }`}>
-
-                              {log.action}
-
-                            </p>
-
-                            <p className={`mt-1 text-sm ${
-                              dark
-                                ? "text-slate-400"
-                                : "text-slate-500"
-                            }`}>
-
-                              {log.timestamp}
-
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      </td>
-
-                      {/* ACTOR */}
-                      <td className={`px-8 py-6 font-semibold ${
-                        dark
-                          ? "text-white"
-                          : "text-[#0f172a]"
-                      }`}>
-
-                        {log.actor}
-
-                      </td>
-
-                      {/* ACTION */}
-                      <td className={`px-8 py-6 ${
-                        dark
-                          ? "text-slate-300"
-                          : "text-slate-600"
-                      }`}>
-
-                        {log.action}
-
-                      </td>
-
-                      {/* TARGET */}
-                      <td className={`px-8 py-6 ${
-                        dark
-                          ? "text-slate-300"
-                          : "text-slate-600"
-                      }`}>
-
-                        {log.target}
-
-                      </td>
-
-                      {/* STATUS */}
-                      <td className="px-8 py-6">
-
-                        <div
-                          className={`
-                            inline-flex
-                            items-center
-                            gap-2
-                            rounded-full
-                            px-4
-                            py-2
-                            text-sm
-                            font-semibold
-                            ${
-                              log.result === "Success"
-                                ? "bg-green-500/10 text-green-500"
-                                : "bg-red-500/10 text-red-500"
-                            }
-                          `}
-                        >
-
-                          {log.result === "Success" ? (
-                            <CheckCircle2 className="h-4 w-4" />
-                          ) : (
-                            <AlertTriangle className="h-4 w-4" />
-                          )}
-
-                          {log.result}
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-                  );
-                }
+                      </tr>
+                    );
+                  }
+                )
               )}
 
             </tbody>

@@ -18,7 +18,7 @@ const apiClient = axios.create({
       "application/json",
   },
 
-  withCredentials: true,
+  
 });
 
 /* =========================

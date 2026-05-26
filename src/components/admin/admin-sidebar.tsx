@@ -72,9 +72,21 @@ export function AdminSidebar() {
 
   return (
 
-    <aside className="fixed left-0 top-0 flex h-screen w-[280px] flex-col border-r border-slate-200 bg-[#111827] text-white">
+    <aside
+      className="
+        flex
+        h-screen
+        w-[280px]
+        flex-col
+        border-r
+        border-slate-200/10
+        bg-[#111827]
+        text-white
+      "
+    >
 
       {/* LOGO */}
+
       <div className="flex h-24 items-center border-b border-white/10 px-7">
 
         <div>
@@ -96,6 +108,7 @@ export function AdminSidebar() {
       </div>
 
       {/* MENU */}
+
       <div className="px-5 pt-6">
 
         <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
@@ -107,7 +120,8 @@ export function AdminSidebar() {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 space-y-1 px-4">
+
+      <nav className="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
 
         {sidebarItems.map(
           (item) => {
@@ -135,6 +149,7 @@ export function AdminSidebar() {
               >
 
                 {/* ACTIVE INDICATOR */}
+
                 <div
                   className={`h-6 w-1 rounded-full transition-all ${
                     active
@@ -144,6 +159,7 @@ export function AdminSidebar() {
                 />
 
                 {/* ICON */}
+
                 <Icon
                   className={`h-5 w-5 shrink-0 transition-all ${
                     active
@@ -153,6 +169,7 @@ export function AdminSidebar() {
                 />
 
                 {/* LABEL */}
+
                 <span className="font-medium">
 
                   {item.label}
@@ -167,6 +184,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* FOOTER */}
+
       <div className="border-t border-white/10 p-5">
 
         <div className="rounded-2xl bg-white/5 p-4">

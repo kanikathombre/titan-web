@@ -3,8 +3,8 @@
 import {
   getBilling,
   createCheckout,
-  cancelPlan,
-  resumePlan,
+  cancelSubscription,
+  resumeSubscription,
 } from "@/lib/billing-api";
 
 import {
@@ -112,7 +112,7 @@ export default function BillingPage() {
 
     try {
 
-      await cancelPlan();
+      await cancelSubscription();
 
       toast.success(
         "Subscription cancellation scheduled"
@@ -134,7 +134,7 @@ export default function BillingPage() {
 
     try {
 
-      await resumePlan();
+      await resumeSubscription();
 
       toast.success(
         "Subscription resumed"

@@ -6,42 +6,32 @@ import {
   BrainCircuit,
   ShieldCheck,
   Users,
-  Zap,
 } from "lucide-react";
 
 import {
   useTheme,
 } from "@/context/theme-context";
 
-const recentActivity = [
-  {
-    id: 1,
-    action:
-      "Silver NP flagged as high toxicity",
-    time: "2 min ago",
-  },
+import {
+  useEffect,
+  useState,
+} from "react";
 
-  {
-    id: 2,
-    action:
-      "New dataset uploaded to NanoDB",
-    time: "11 min ago",
-  },
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts";
 
-  {
-    id: 3,
-    action:
-      "NanoNet v3 retrained successfully",
-    time: "28 min ago",
-  },
-
-  {
-    id: 4,
-    action:
-      "Prediction API latency spike detected",
-    time: "41 min ago",
-  },
-];
+import {
+  getAdminStats,
+  getSystemHealth,
+  getAdminOverview,
+} from "@/lib/admin-api";
 
 export default function OverviewPage() {
 
@@ -51,19 +41,191 @@ export default function OverviewPage() {
   const dark =
     theme === "dark";
 
+  const [loading, setLoading] =
+    useState(true);
+
+  const [stats, setStats] =
+    useState<any>(null);
+
+  const [health, setHealth] =
+    useState<any>(null);
+
+  const [overviewData, setOverviewData] =
+    useState<any>(null);
+
+  const fetchOverview =
+    async () => {
+
+      try {
+
+        setLoading(true);
+
+        const [
+          statsRes,
+          healthRes,
+          overviewRes,
+        ] = await Promise.all([
+          getAdminStats(),
+          getSystemHealth(),
+          getAdminOverview(),
+        ]);
+
+        console.log(
+          "ADMIN STATS:",
+          statsRes
+        );
+
+        console.log(
+          "SYSTEM HEALTH:",
+          healthRes
+        );
+
+        console.log(
+          "OVERVIEW DATA:",
+          overviewRes
+        );
+
+        setStats(
+          statsRes
+        );
+
+        setHealth(
+          healthRes
+        );
+
+        setOverviewData(
+          overviewRes
+        );
+
+      } catch (err) {
+
+        console.error(
+          "OVERVIEW ERROR:",
+          err
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  useEffect(() => {
+
+    fetchOverview();
+
+  }, []);
+
+  if (loading) {
+
+    return (
+
+      <div className="flex min-h-[60vh] items-center justify-center">
+
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent" />
+
+      </div>
+    );
+  }
+
+  const chartData =
+    overviewData?.daily_predictions || [];
+
+  const statCards = [
+    {
+      icon: Activity,
+      title: "Total Predictions",
+
+      value:
+        stats?.predictions?.total || 0,
+
+      bg: "bg-cyan-500/10",
+
+      iconColor:
+        "text-cyan-500",
+
+      badge: `+${
+        stats?.predictions?.today || 0
+      } today`,
+
+      badgeBg:
+        "bg-green-100 text-green-700",
+    },
+
+    {
+      icon: Users,
+      title: "Active Users",
+
+      value:
+        stats?.users?.total || 0,
+
+      bg: "bg-violet-500/10",
+
+      iconColor:
+        "text-violet-500",
+
+      badge: `${
+        stats?.users?.active_subscribers || 0
+      } Pro`,
+
+      badgeBg:
+        "bg-violet-100 text-violet-700",
+    },
+
+    {
+      icon: AlertTriangle,
+      title: "Bulk Jobs",
+
+      value:
+        stats?.bulk_jobs?.total || 0,
+
+      bg: "bg-red-500/10",
+
+      iconColor:
+        "text-red-500",
+
+      badge: "Live",
+
+      badgeBg:
+        "bg-red-100 text-red-700",
+    },
+
+    {
+      icon: ShieldCheck,
+      title: "Verified Users",
+
+      value:
+        stats?.users?.verified || 0,
+
+      bg: "bg-emerald-500/10",
+
+      iconColor:
+        "text-emerald-500",
+
+      badge: "Stable",
+
+      badgeBg:
+        "bg-emerald-100 text-emerald-700",
+    },
+  ];
+
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-x-hidden">
 
       {/* HERO */}
+
       <div
         className={`
           rounded-3xl
           border
-          p-8
+          p-4
+          md:p-6
+          xl:p-8
           shadow-sm
           transition-all
           duration-300
+          overflow-hidden
           ${
             dark
               ? "border-white/10 bg-[#0F172A]"
@@ -72,11 +234,11 @@ export default function OverviewPage() {
         `}
       >
 
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
 
-          <div>
+          <div className="min-w-0">
 
-            <div className="mb-4 inline-flex rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
+            <div className="mb-4 inline-flex max-w-full rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
 
               AI Infrastructure Operational
 
@@ -84,9 +246,11 @@ export default function OverviewPage() {
 
             <h1
               className={`
-                text-5xl
+                text-3xl
+                md:text-5xl
                 font-black
                 tracking-tight
+                break-words
                 ${
                   dark
                     ? "text-white"
@@ -103,7 +267,9 @@ export default function OverviewPage() {
               className={`
                 mt-4
                 max-w-3xl
-                text-lg
+                text-base
+                md:text-lg
+                leading-relaxed
                 ${
                   dark
                     ? "text-slate-400"
@@ -124,6 +290,7 @@ export default function OverviewPage() {
           <div
             className={`
               hidden
+              shrink-0
               rounded-3xl
               p-6
               lg:flex
@@ -135,7 +302,7 @@ export default function OverviewPage() {
             `}
           >
 
-            <BrainCircuit className="h-20 w-20 text-cyan-500" />
+            <BrainCircuit className="h-16 w-16 xl:h-20 xl:w-20 text-cyan-500" />
 
           </div>
 
@@ -144,53 +311,10 @@ export default function OverviewPage() {
       </div>
 
       {/* STATS */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-        {[
-          {
-            icon: Activity,
-            title: "Total Predictions",
-            value: "18,420",
-            bg: "bg-cyan-500/10",
-            iconColor: "text-cyan-500",
-            badge: "+12%",
-            badgeBg:
-              "bg-green-100 text-green-700",
-          },
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
 
-          {
-            icon: Users,
-            title: "Active Users",
-            value: "1,284",
-            bg: "bg-violet-500/10",
-            iconColor: "text-violet-500",
-            badge: "Active",
-            badgeBg:
-              "bg-violet-100 text-violet-700",
-          },
-
-          {
-            icon: AlertTriangle,
-            title: "Toxic Samples",
-            value: "32%",
-            bg: "bg-red-500/10",
-            iconColor: "text-red-500",
-            badge: "Moderate",
-            badgeBg:
-              "bg-red-100 text-red-700",
-          },
-
-          {
-            icon: ShieldCheck,
-            title: "API Success Rate",
-            value: "99.2%",
-            bg: "bg-emerald-500/10",
-            iconColor: "text-emerald-500",
-            badge: "Stable",
-            badgeBg:
-              "bg-emerald-100 text-emerald-700",
-          },
-        ].map(
+        {statCards.map(
           (
             item,
             i
@@ -203,14 +327,15 @@ export default function OverviewPage() {
 
               <div
                 key={i}
-
                 className={`
                   rounded-3xl
                   border
-                  p-6
+                  p-4
+                  md:p-6
                   shadow-sm
                   transition-all
                   duration-300
+                  overflow-hidden
                   ${
                     dark
                       ? "border-white/10 bg-[#0F172A]"
@@ -219,7 +344,7 @@ export default function OverviewPage() {
                 `}
               >
 
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-4">
 
                   <div
                     className={`rounded-2xl p-4 ${item.bg}`}
@@ -232,7 +357,7 @@ export default function OverviewPage() {
                   </div>
 
                   <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${item.badgeBg}`}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${item.badgeBg}`}
                   >
 
                     {item.badge}
@@ -261,8 +386,10 @@ export default function OverviewPage() {
                 <h2
                   className={`
                     mt-2
-                    text-4xl
+                    text-3xl
+                    md:text-4xl
                     font-black
+                    break-words
                     ${
                       dark
                         ? "text-white"
@@ -282,16 +409,20 @@ export default function OverviewPage() {
 
       </div>
 
-      {/* GRAPH + STATUS */}
-      <div className="grid gap-6 xl:grid-cols-3">
+      {/* GRAPH + HEALTH */}
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
         {/* GRAPH */}
+
         <div
           className={`
             rounded-3xl
             border
-            p-8
+            p-4
+            md:p-6
             shadow-sm
+            overflow-hidden
             xl:col-span-2
             ${
               dark
@@ -301,12 +432,12 @@ export default function OverviewPage() {
           `}
         >
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-            <div>
+            <div className="min-w-0">
 
               <h2
-                className={`text-2xl font-black ${
+                className={`text-2xl font-black break-words ${
                   dark
                     ? "text-white"
                     : "text-slate-900"
@@ -331,7 +462,7 @@ export default function OverviewPage() {
 
             </div>
 
-            <div className="rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
+            <div className="w-fit rounded-full bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-400">
 
               Live Analytics
 
@@ -339,102 +470,87 @@ export default function OverviewPage() {
 
           </div>
 
-          <div className="mt-10">
+          <div className="mt-8 h-[250px] md:h-[320px] w-full min-w-0 overflow-hidden">
 
-            <div
-              className={`
-                relative
-                h-[260px]
-                w-full
-                overflow-hidden
-                rounded-3xl
-                p-2
-                pt-6
-                ${
-                  dark
-                    ? "bg-[#020817]"
-                    : "bg-slate-50"
-                }
-              `}
+            <ResponsiveContainer
+              width="100%"
+              height="100%"
             >
 
-              <svg
-                viewBox="0 0 1000 300"
-                className="relative z-10 h-full w-full"
-                preserveAspectRatio="none"
+              <AreaChart
+                data={chartData}
               >
 
                 <defs>
 
                   <linearGradient
-                    id="lineGradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%"
+                    id="colorPredictions"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
                   >
 
                     <stop
-                      offset="0%"
-                      stopColor="#06B6D4"
+                      offset="5%"
+                      stopColor="#22d3ee"
+                      stopOpacity={0.4}
                     />
 
                     <stop
-                      offset="100%"
-                      stopColor="#3B82F6"
+                      offset="95%"
+                      stopColor="#22d3ee"
+                      stopOpacity={0}
                     />
 
                   </linearGradient>
 
                 </defs>
 
-                <path
-                  d="
-                    M 0 240
-                    C 80 210, 120 120, 200 140
-                    S 320 260, 400 180
-                    S 520 80, 600 120
-                    S 720 220, 800 130
-                    S 920 90, 1000 110
-                    L 1000 300
-                    L 0 300
-                    Z
-                  "
-                  fill="rgba(6,182,212,0.12)"
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.06)"
                 />
 
-                <path
-                  d="
-                    M 0 240
-                    C 80 210, 120 120, 200 140
-                    S 320 260, 400 180
-                    S 520 80, 600 120
-                    S 720 220, 800 130
-                    S 920 90, 1000 110
-                  "
-                  fill="none"
-                  stroke="url(#lineGradient)"
-                  strokeWidth="5"
-                  strokeLinecap="round"
+                <XAxis
+                  dataKey="date"
+                  stroke="#64748b"
                 />
 
-              </svg>
+                <YAxis
+                  stroke="#64748b"
+                />
 
-            </div>
+                <Tooltip />
+
+                <Area
+                  type="monotone"
+                  dataKey="total"
+                  stroke="#22d3ee"
+                  fillOpacity={1}
+                  fill="url(#colorPredictions)"
+                />
+
+              </AreaChart>
+
+            </ResponsiveContainer>
 
           </div>
 
         </div>
 
-        {/* SYSTEM */}
+        {/* SYSTEM HEALTH */}
+
         <div className="space-y-6">
 
           <div
             className={`
               rounded-3xl
               border
-              p-6
+              p-4
+              md:p-6
               shadow-sm
+              overflow-hidden
               ${
                 dark
                   ? "border-white/10 bg-[#0F172A]"
@@ -458,36 +574,57 @@ export default function OverviewPage() {
             <div className="mt-6 space-y-5">
 
               {[
-                "API Services",
-                "Inference Engine",
-                "GPU Workers",
-                "Database",
+                {
+                  label: "Database",
+                  status:
+                    health?.database
+                      ?.status,
+                },
+
+                {
+                  label: "Redis",
+                  status:
+                    health?.redis
+                      ?.status,
+                },
+
+                {
+                  label: "Environment",
+                  status:
+                    health?.environment,
+                },
+
+                {
+                  label: "Disk Usage",
+                  status:
+                    `${health?.disk?.percent_used || 0}%`,
+                },
               ].map((item) => (
 
                 <div
-                  key={item}
-                  className="flex items-center justify-between"
+                  key={item.label}
+                  className="flex items-center justify-between gap-4"
                 >
 
                   <span
-                    className={
+                    className={`break-words ${
                       dark
                         ? "text-slate-400"
                         : "text-slate-600"
-                    }
+                    }`}
                   >
 
-                    {item}
+                    {item.label}
 
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-2">
 
                     <div className="h-2 w-2 rounded-full bg-green-500" />
 
-                    <span className="text-sm font-semibold text-green-500">
+                    <span className="text-sm font-semibold text-green-500 whitespace-nowrap">
 
-                      Operational
+                      {item.status || "ok"}
 
                     </span>
 

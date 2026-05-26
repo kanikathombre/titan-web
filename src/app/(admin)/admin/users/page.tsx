@@ -3,9 +3,8 @@
 import {
   useMemo,
   useState,
+  useEffect,
 } from "react";
-
-import usersData from "@/data/admin-users.json";
 
 import {
   Eye,
@@ -22,14 +21,9 @@ import {
   useTheme,
 } from "@/context/theme-context";
 
-type User = {
-  id: number;
-  username: string;
-  role: string;
-  lastLogin: string;
-  predictions: number;
-  status: string;
-};
+import {
+  getAdminUsers,
+} from "@/lib/admin-api";
 
 export default function UsersPage() {
 
@@ -40,6 +34,12 @@ export default function UsersPage() {
   const dark =
     theme === "dark";
 
+  const [loading, setLoading] =
+    useState(true);
+
+  const [users, setUsers] =
+    useState<any[]>([]);
+
   const [search, setSearch] =
     useState("");
 
@@ -49,15 +49,53 @@ export default function UsersPage() {
   const [statusFilter, setStatusFilter] =
     useState("all");
 
+  const fetchUsers =
+    async () => {
+
+      try {
+
+        setLoading(true);
+
+        const res =
+          await getAdminUsers();
+
+        console.log(
+          "ADMIN USERS:",
+          res
+        );
+
+        setUsers(
+          res?.users || []
+        );
+
+      } catch (err) {
+
+        console.error(
+          "USERS ERROR:",
+          err
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  useEffect(() => {
+
+    fetchUsers();
+
+  }, []);
+
   const filteredUsers =
     useMemo(() => {
 
-      return usersData.filter(
+      return users.filter(
         (user) => {
 
           const matchesSearch =
-            user.username
-              .toLowerCase()
+            user.email
+              ?.toLowerCase()
               .includes(
                 search.toLowerCase()
               );
@@ -71,7 +109,7 @@ export default function UsersPage() {
           const matchesStatus =
             statusFilter ===
               "all" ||
-            user.status ===
+            user.subscription_status ===
               statusFilter;
 
           return (
@@ -83,37 +121,73 @@ export default function UsersPage() {
       );
 
     }, [
+      users,
       search,
       roleFilter,
       statusFilter,
     ]);
 
   function suspendUser(
-    username: string
+    email: string
   ) {
 
     alert(
-      `${username} suspended`
+      `${email} suspended`
     );
   }
 
   function changeRole(
-    username: string
+    email: string
   ) {
 
     alert(
-      `Role changed for ${username}`
+      `Role changed for ${email}`
     );
   }
 
   function viewDetails(
-    username: string
+    email: string
   ) {
 
     alert(
-      `Viewing ${username}`
+      `Viewing ${email}`
     );
   }
+
+  if (loading) {
+
+    return (
+
+      <div className="flex min-h-[60vh] items-center justify-center">
+
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent" />
+
+      </div>
+    );
+  }
+
+  const totalUsers =
+    users.length;
+
+  const activeUsers =
+    users.filter(
+      (u) =>
+        u.subscription_status ===
+        "active"
+    ).length;
+
+  const adminUsers =
+    users.filter(
+      (u) =>
+        u.role === "admin"
+    ).length;
+
+  const suspendedUsers =
+    users.filter(
+      (u) =>
+        u.subscription_status ===
+        "cancelled"
+    ).length;
 
   return (
 
@@ -121,7 +195,7 @@ export default function UsersPage() {
 
       {/* HERO */}
       <div
-        className={`rounded-3xl border p-8 shadow-sm transition-all duration-300 ${
+        className={`rounded-3xl border p-6 shadow-sm transition-all duration-300 md:p-8 ${
           dark
             ? "border-white/10 bg-[#0F172A]"
             : "border-slate-200 bg-white"
@@ -139,7 +213,7 @@ export default function UsersPage() {
             </div>
 
             <h1
-              className={`text-5xl font-black tracking-tight ${
+              className={`text-4xl font-black tracking-tight md:text-5xl ${
                 dark
                   ? "text-white"
                   : "text-slate-900"
@@ -151,7 +225,7 @@ export default function UsersPage() {
             </h1>
 
             <p
-              className={`mt-4 max-w-3xl text-lg ${
+              className={`mt-4 max-w-3xl text-base md:text-lg ${
                 dark
                   ? "text-slate-400"
                   : "text-slate-500"
@@ -180,7 +254,7 @@ export default function UsersPage() {
       </div>
 
       {/* METRICS */}
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
 
         {/* CARD */}
         <div
@@ -205,12 +279,6 @@ export default function UsersPage() {
 
             </div>
 
-            <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-semibold text-cyan-700">
-
-              +12%
-
-            </span>
-
           </div>
 
           <p
@@ -233,7 +301,7 @@ export default function UsersPage() {
             }`}
           >
 
-            12.4K
+            {totalUsers}
 
           </h2>
 
@@ -262,12 +330,6 @@ export default function UsersPage() {
 
             </div>
 
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-
-              Active
-
-            </span>
-
           </div>
 
           <p
@@ -290,7 +352,7 @@ export default function UsersPage() {
             }`}
           >
 
-            10.8K
+            {activeUsers}
 
           </h2>
 
@@ -319,12 +381,6 @@ export default function UsersPage() {
 
             </div>
 
-            <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
-
-              Live
-
-            </span>
-
           </div>
 
           <p
@@ -335,7 +391,7 @@ export default function UsersPage() {
             }`}
           >
 
-            Predictions Today
+            Admin Users
 
           </p>
 
@@ -347,7 +403,7 @@ export default function UsersPage() {
             }`}
           >
 
-            84K
+            {adminUsers}
 
           </h2>
 
@@ -376,12 +432,6 @@ export default function UsersPage() {
 
             </div>
 
-            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-
-              Review
-
-            </span>
-
           </div>
 
           <p
@@ -404,7 +454,7 @@ export default function UsersPage() {
             }`}
           >
 
-            42
+            {suspendedUsers}
 
           </h2>
 
@@ -435,7 +485,7 @@ export default function UsersPage() {
             <Search className="h-5 w-5 text-slate-400" />
 
             <input
-              placeholder="Search username..."
+              placeholder="Search email..."
               value={search}
               onChange={(e) =>
                 setSearch(
@@ -472,21 +522,15 @@ export default function UsersPage() {
 
             </option>
 
-            <option value="Admin">
+            <option value="admin">
 
               Admin
 
             </option>
 
-            <option value="Researcher">
+            <option value="user">
 
-              Researcher
-
-            </option>
-
-            <option value="Viewer">
-
-              Viewer
+              User
 
             </option>
 
@@ -513,15 +557,21 @@ export default function UsersPage() {
 
             </option>
 
-            <option value="Active">
+            <option value="active">
 
               Active
 
             </option>
 
-            <option value="Suspended">
+            <option value="trial">
 
-              Suspended
+              Trial
+
+            </option>
+
+            <option value="cancelled">
+
+              Cancelled
 
             </option>
 
@@ -542,7 +592,7 @@ export default function UsersPage() {
 
         <div className="overflow-x-auto">
 
-          <table className="w-full">
+          <table className="min-w-full">
 
             <thead>
 
@@ -556,7 +606,7 @@ export default function UsersPage() {
 
                 <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
 
-                  Username
+                  Email
 
                 </th>
 
@@ -568,19 +618,13 @@ export default function UsersPage() {
 
                 <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
 
-                  Last Login
+                  Subscription
 
                 </th>
 
                 <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
 
-                  Predictions
-
-                </th>
-
-                <th className="px-4 py-4 text-left text-sm font-bold text-slate-500">
-
-                  Status
+                  Joined
 
                 </th>
 
@@ -616,7 +660,7 @@ export default function UsersPage() {
                       }`}
                     >
 
-                      {user.username}
+                      {user.email}
 
                     </td>
 
@@ -630,6 +674,18 @@ export default function UsersPage() {
 
                     </td>
 
+                    <td className="px-4 py-5">
+
+                      <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-bold text-cyan-700">
+
+                        {
+                          user.subscription_status
+                        }
+
+                      </span>
+
+                    </td>
+
                     <td
                       className={`px-4 py-5 ${
                         dark
@@ -638,35 +694,9 @@ export default function UsersPage() {
                       }`}
                     >
 
-                      {user.lastLogin}
-
-                    </td>
-
-                    <td
-                      className={`px-4 py-5 font-medium ${
-                        dark
-                          ? "text-slate-200"
-                          : "text-slate-700"
-                      }`}
-                    >
-
-                      {user.predictions}
-
-                    </td>
-
-                    <td className="px-4 py-5">
-
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold ${
-                          user.status === "Active"
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-
-                        {user.status}
-
-                      </span>
+                      {new Date(
+                        user.created_at
+                      ).toLocaleDateString()}
 
                     </td>
 
@@ -677,7 +707,7 @@ export default function UsersPage() {
                         <button
                           onClick={() =>
                             viewDetails(
-                              user.username
+                              user.email
                             )
                           }
                           className={`rounded-xl border p-2 transition ${
@@ -700,7 +730,7 @@ export default function UsersPage() {
                         <button
                           onClick={() =>
                             changeRole(
-                              user.username
+                              user.email
                             )
                           }
                           className={`rounded-xl border p-2 transition ${
@@ -717,7 +747,7 @@ export default function UsersPage() {
                         <button
                           onClick={() =>
                             suspendUser(
-                              user.username
+                              user.email
                             )
                           }
                           className={`rounded-xl border p-2 transition ${
