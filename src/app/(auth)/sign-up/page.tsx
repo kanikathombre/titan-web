@@ -100,28 +100,99 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(
-    data: SignUpFormData
-  ) {
+  data: SignUpFormData
+) {
 
-    console.log(data);
+  try {
 
-    await new Promise(
-      (resolve) =>
-        setTimeout(
-          resolve,
-          1000
-        )
+    console.log(
+      "SIGNUP DATA:",
+      data
     );
 
+   const payload = {
+  name: data.name,
+
+  email: data.email,
+
+  company: data.company,
+
+  password: data.password,
+};
+
+    console.log(
+      "SIGNUP PAYLOAD:",
+      payload
+    );
+
+    const response =
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/signup`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(
+            payload
+          ),
+        }
+      );
+
+    const result =
+      await response.json();
+
+    console.log(
+      "FULL BACKEND RESPONSE:",
+      result
+    );
+
+    console.log(
+      "RESULT TYPE:",
+      typeof result,
+      result
+    );
+
+    if (!response.ok) {
+
+      throw new Error(
+        typeof result?.detail === "string"
+          ? result.detail
+
+          : typeof result?.message === "string"
+          ? result.message
+
+          : typeof result?.error === "string"
+          ? result.error
+
+          : JSON.stringify(result)
+      );
+    }
+
     toast.success(
-      "We'll be in touch soon"
+      "Request submitted successfully!"
     );
 
     setSubmitted(true);
 
     reset();
-  }
 
+  } catch (error: any) {
+
+    console.error(
+      "SIGNUP ERROR:",
+      error
+    );
+
+    toast.error(
+      error?.message ||
+      "Failed to request access"
+    );
+  }
+}
   return (
 
     <main className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-[#020617]">
